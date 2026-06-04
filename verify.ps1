@@ -12,12 +12,111 @@
     .\verify.ps1
     .\verify.ps1 -JsonOutput
     .\verify.ps1 -CommandTimeoutSec 10
+    .\verify.ps1 -Language en-US
 #>
 
 param(
     [switch]$JsonOutput,
-    [int]$CommandTimeoutSec = 10
+    [int]$CommandTimeoutSec = 10,
+
+    [ValidateSet("zh-CN", "en-US")]
+    [string]$Language = "zh-CN"
 )
+
+$Script:Timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
+$Script:RunDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+$Script:ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Script:LogDir = Join-Path $Script:ScriptDir "logs"
+$Script:ReportDir = Join-Path $Script:ScriptDir "reports"
+$Script:LogFile = Join-Path $Script:LogDir "run-$Script:Timestamp-verify.log"
+$Script:JsonReportFile = Join-Path $Script:ReportDir "report-$Script:Timestamp-verify.json"
+$Script:MarkdownReportFile = Join-Path $Script:ReportDir "report-$Script:Timestamp-verify.md"
+$Script:Language = $Language
+$Script:Messages = @{}
+
+$null = New-Item -ItemType Directory -Force -Path $Script:LogDir
+$null = New-Item -ItemType Directory -Force -Path $Script:ReportDir
+
+function Initialize-Localization {
+    param([string]$RequestedLanguage)
+
+    $fallbackLanguage = "zh-CN"
+    $localeDir = Join-Path $Script:ScriptDir "locales"
+    $localePath = Join-Path $localeDir "$RequestedLanguage.json"
+    if (-not (Test-Path -LiteralPath $localePath)) {
+        $Script:Language = $fallbackLanguage
+        $localePath = Join-Path $localeDir "$fallbackLanguage.json"
+    }
+
+    try {
+        if (Test-Path -LiteralPath $localePath) {
+            $json = Get-Content -Raw -Path $localePath -Encoding UTF8 | ConvertFrom-Json
+            $messages = @{}
+            foreach ($prop in $json.PSObject.Properties) {
+                $messages[$prop.Name] = [string]$prop.Value
+            }
+            return $messages
+        }
+    } catch { }
+
+    $Script:Language = $fallbackLanguage
+    return @{}
+}
+
+function Get-LocalizedText {
+    param([string]$Key)
+
+    if ($Script:Messages -and $Script:Messages.ContainsKey($Key)) {
+        return $Script:Messages[$Key]
+    }
+    return $Key
+}
+
+function ConvertTo-MaskedProxyValue {
+    param([AllowNull()][string]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+
+    return [regex]::Replace([string]$Value, '(?i)\b([a-z][a-z0-9+.-]*://)([^/@\s:]+):([^/@\s]+)@', '$1***:***@')
+}
+
+function ConvertTo-SafeReportObject {
+    param($Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+    if ($Value -is [string]) {
+        return (ConvertTo-MaskedProxyValue $Value)
+    }
+    if ($Value -is [System.Collections.IDictionary]) {
+        $copy = [ordered]@{}
+        foreach ($key in $Value.Keys) {
+            $copy[$key] = ConvertTo-SafeReportObject $Value[$key]
+        }
+        return $copy
+    }
+    if (($Value -is [System.Collections.IEnumerable]) -and -not ($Value -is [string])) {
+        $items = @()
+        foreach ($item in $Value) {
+            $items += ConvertTo-SafeReportObject $item
+        }
+        return $items
+    }
+    return $Value
+}
+
+function Write-VerificationLog {
+    param([string]$Message, [string]$Level = "INFO")
+
+    $line = "[$Level] $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - $(ConvertTo-MaskedProxyValue $Message)"
+    Add-Content -Path $Script:LogFile -Value $line -Encoding UTF8
+}
+
+$Script:Messages = Initialize-Localization -RequestedLanguage $Language
+Write-VerificationLog "Verification session started. Language=$Script:Language Timeout=${CommandTimeoutSec}s"
 
 # ============================================
 # Invoke-ExternalCommand - 带超时的外部命令执行
@@ -234,11 +333,19 @@ function Invoke-ExternalCommand {
 # ============================================
 # 颜色函数
 # ============================================
-function Write-OK { Write-Host "[  OK    ] $args" -ForegroundColor Green }
-function Write-FAIL { Write-Host "[  FAIL  ] $args" -ForegroundColor Red }
-function Write-INFO { Write-Host "[  INFO  ] $args" -ForegroundColor Cyan }
-function Write-WARN { Write-Host "[ WARN   ] $args" -ForegroundColor Yellow }
-function Write-TIMEOUT { Write-Host "[ TIMEOUT] $args" -ForegroundColor Yellow }
+function Write-VerifyStatus {
+    param([string]$Status, [string]$Message, [ConsoleColor]$Color)
+
+    $label = Get-LocalizedText $Status
+    Write-Host ("[ {0,-7}] {1}" -f $label, $Message) -ForegroundColor $Color
+    Write-VerificationLog "$Status $Message" $Status
+}
+
+function Write-OK { Write-VerifyStatus -Status "OK" -Message ($args -join " ") -Color Green }
+function Write-FAIL { Write-VerifyStatus -Status "ERROR" -Message ($args -join " ") -Color Red }
+function Write-INFO { Write-VerifyStatus -Status "INFO" -Message ($args -join " ") -Color Cyan }
+function Write-WARN { Write-VerifyStatus -Status "WARNING" -Message ($args -join " ") -Color Yellow }
+function Write-TIMEOUT { Write-VerifyStatus -Status "TIMEOUT" -Message ($args -join " ") -Color Yellow }
 
 function Normalize-CommandOutput {
     param([string]$Text)
@@ -300,10 +407,10 @@ function Test-WhereCmd {
 # ============================================
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Magenta
-Write-Host "  AI Local Environment Quick Verifier" -ForegroundColor Magenta
+Write-Host "  $(Get-LocalizedText 'app.verifyTitle')" -ForegroundColor Magenta
 Write-Host "============================================" -ForegroundColor Magenta
 Write-Host ""
-Write-Host "  Timeout: ${CommandTimeoutSec}s per command" -ForegroundColor Gray
+Write-Host "  Language: $Script:Language  |  Timeout: ${CommandTimeoutSec}s per command" -ForegroundColor Gray
 Write-Host ""
 
 $results = @{}
@@ -539,6 +646,84 @@ $timeoutCount = ($commandDetails | Where-Object { $_.Status -eq 'TIMEOUT' }).Cou
 Write-Host "  Commands: $passed/$total passed | Locations: $locPassed/$locTotal passed | Timeouts: $timeoutCount" -ForegroundColor Cyan
 Write-Host ""
 
+function Save-VerificationReports {
+    param(
+        [string]$Status,
+        [int]$Passed,
+        [int]$Total,
+        [int]$LocationPassed,
+        [int]$LocationTotal,
+        [int]$Timeouts,
+        [hashtable]$CommandResults,
+        [hashtable]$LocationResults,
+        [array]$CommandDetails
+    )
+
+    $report = [ordered]@{
+        Meta = [ordered]@{
+            Version = "v0.2.0-cross-platform-i18n-proxy-detect"
+            Timestamp = $Script:RunDate
+            Language = $Script:Language
+            ComputerName = $env:COMPUTERNAME
+            UserName = $env:USERNAME
+            TimeoutSec = $CommandTimeoutSec
+            LogFile = $Script:LogFile
+        }
+        Status = $Status
+        Commands = [ordered]@{
+            Passed = $Passed
+            Total = $Total
+            Timeouts = $Timeouts
+            Details = ConvertTo-SafeReportObject $CommandResults
+        }
+        Locations = [ordered]@{
+            Passed = $LocationPassed
+            Total = $LocationTotal
+            Details = ConvertTo-SafeReportObject $LocationResults
+        }
+        CommandDetails = ConvertTo-SafeReportObject $CommandDetails
+    }
+
+    $report | ConvertTo-Json -Depth 8 | Set-Content -Path $Script:JsonReportFile -Encoding UTF8
+
+    $md = @"
+# AI Local Environment Verification Report
+
+| Field | Value |
+|-------|-------|
+| Version | v0.2.0-cross-platform-i18n-proxy-detect |
+| Timestamp | $Script:RunDate |
+| Language | $Script:Language |
+| Status | $Status |
+| Commands | $Passed / $Total |
+| Locations | $LocationPassed / $LocationTotal |
+| Timeouts | $Timeouts |
+| Log | `$Script:LogFile` |
+
+## Command Details
+
+| Command | Status | ExitCode | ElapsedMs |
+|---------|--------|----------|-----------|
+$(
+    $lines = ""
+    foreach ($item in $CommandDetails) {
+        $lines += "| ``$(ConvertTo-MaskedProxyValue $item.Command)`` | $($item.Status) | $($item.ExitCode) | $($item.ElapsedMs) |`n"
+    }
+    $lines
+)
+"@
+
+    Set-Content -Path $Script:MarkdownReportFile -Value $md -Encoding UTF8
+    Write-VerificationLog "JSON report saved: $Script:JsonReportFile" "OK"
+    Write-VerificationLog "Markdown report saved: $Script:MarkdownReportFile" "OK"
+    Write-Host "  Log File  : $Script:LogFile" -ForegroundColor Gray
+    Write-Host "  JSON Report: $Script:JsonReportFile" -ForegroundColor Gray
+    Write-Host "  MD Report  : $Script:MarkdownReportFile" -ForegroundColor Gray
+    Write-Host ""
+}
+
+Save-VerificationReports -Status $finalStatus -Passed $passed -Total $total -LocationPassed $locPassed -LocationTotal $locTotal -Timeouts $timeoutCount -CommandResults $results -LocationResults $locationResults -CommandDetails $commandDetails
+
 # ============================================
 # JSON 输出
 # ============================================
@@ -546,6 +731,7 @@ if ($JsonOutput) {
     $output = @{
         status = $finalStatus
         timestamp = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+        language = $Script:Language
         timeoutSec = $CommandTimeoutSec
         commands = @{
             passed = $passed
@@ -560,11 +746,11 @@ if ($JsonOutput) {
         }
         commandDetails = $commandDetails | ForEach-Object {
             @{
-                command = $_.Command
+                command = ConvertTo-MaskedProxyValue $_.Command
                 status = $_.Status
                 exitCode = $_.ExitCode
-                stdout = $_.StdOut
-                stderr = $_.StdErr
+                stdout = ConvertTo-MaskedProxyValue $_.StdOut
+                stderr = ConvertTo-MaskedProxyValue $_.StdErr
                 elapsedMs = $_.ElapsedMs
             }
         }
