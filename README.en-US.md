@@ -1,31 +1,37 @@
 # AI Local Environment Checker
 
-## Project Positioning
+## 1. Project purpose
 
-`ai-local-env-checker` is a check-first local environment checker for AI development. It is designed for customer machine diagnostics, preflight checks before local AI deployment, workstation readiness validation, and support handoff reports.
+AI Local Environment Checker is a safe, check-first diagnostic toolkit for local AI development environments. It helps users check whether a computer is ready before installing or using tools such as Node.js, npm, Git, VS Code, Claude Code, Codex CLI, WSL, proxy networking, and related development dependencies.
 
-Core rules:
+The project is not intended to blindly install software or change system settings. Its first job is to diagnose, report, and recommend.
 
-- Check-only by default.
-- Installation logic can run only when the user explicitly passes `-Install`.
-- PATH repair can run only when the user explicitly passes `-FixPath`.
-- Logs and reports stay inside this project under `logs/` and `reports/`.
-- Proxy settings are detected, reported, and recommended only. They are never modified automatically.
+## 2. Why it exists
 
-## Current Version
+Many users get blocked while setting up local AI development tools because the required system pieces are spread across terminals, package managers, PATH, proxy settings, permissions, and operating-system features. A user may not know whether the failure comes from Node.js, npm, Git, VS Code CLI, WSL, a proxy, a missing package manager, or a terminal permission issue.
 
-Suggested version: `v0.2.0-cross-platform-i18n-proxy-detect`
+This repository provides a safer preflight step. It helps users and support providers understand the current machine state before making changes.
 
-## Supported Systems
+## 3. Who it helps
 
-| Platform | Status |
-|----------|--------|
-| Windows PowerShell 5.1+ | Supported, root `install.ps1` / `verify.ps1` preserved |
-| WSL | Detection-only checker added |
-| Linux | Detection-only checker added |
-| macOS | Detection-only checker added |
+- Users preparing a personal computer for local AI development
+- Technicians diagnosing customer machines
+- Deployment service providers checking readiness before installation
+- Teams standardizing workstation setup
+- Maintainers who need local reports before troubleshooting
 
-## Quick Start
+## 4. Supported platforms
+
+| Platform | Current stability |
+|----------|-------------------|
+| Windows 10/11 | beta usable |
+| WSL | detection preview |
+| Linux | detection preview |
+| macOS | detection preview |
+
+Windows currently has the most complete detection flow. WSL, Linux, and macOS checkers are detection previews and will continue to improve.
+
+## 5. Quick start
 
 Windows check-only:
 
@@ -57,90 +63,62 @@ macOS:
 bash scripts/macos/check-macos.sh --check-only --language en-US --timeout 10
 ```
 
-## Windows Usage
+## 6. Detection scope
 
-Root scripts remain available:
+Current checks include:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -CheckOnly -Language zh-CN
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -CheckOnly -Language en-US
-powershell -ExecutionPolicy Bypass -File .\verify.ps1 -Language en-US
-```
+- Windows system information
+- PowerShell version
+- Administrator permission
+- Execution Policy
+- Proxy environment variables
+- Automatic proxy port detection
+- WinHTTP proxy
+- Windows Internet Settings proxy
+- npm proxy
+- Git proxy
+- winget
+- Node.js
+- npm
+- Git
+- VS Code CLI
+- Claude Code CLI
+- Codex CLI
+- WSL
+- PATH
+- TCP 443 network connectivity
+- Logs and reports
 
-Common options:
+## 7. Automatic proxy detection
 
-| Option | Description |
-|--------|-------------|
-| `-CheckOnly` | Check only, no installation, default mode |
-| `-Install` | Explicit install mode |
-| `-FixPath` | Explicit user PATH repair |
-| `-SkipNetwork` | Skip network reachability checks |
-| `-CommandTimeoutSec 10` | Set per-command timeout |
-| `-Language zh-CN` / `-Language en-US` | Select output language |
+Different users and client machines may use different local proxy ports. The tool must not assume one fixed port.
 
-## WSL Usage
+Proxy detection reads from several sources where available:
 
-```bash
-bash scripts/wsl/check-wsl.sh --check-only --language en-US --timeout 10 --skip-network
-bash scripts/wsl/verify-wsl.sh --language zh-CN --timeout 10
-```
+- Process, user, and machine proxy environment variables
+- npm proxy configuration
+- Git proxy configuration
+- WinHTTP proxy
+- Windows Internet Settings
+- macOS `networksetup`
+- Linux `gsettings`
+- Common loopback ports
 
-The WSL checker detects WSL status, distro, kernel, shells, Node.js, npm, Git, curl, VS Code CLI, Claude Code, Codex CLI, Docker, PATH, proxy settings, `/mnt/c` access, and Windows/WSL path mixing signals.
+The tool detects and recommends proxy candidates. It does not change proxy settings, write npm or Git proxy configuration, or clear existing proxy settings.
 
-## Linux Usage
+## 8. Safety-first behavior
 
-```bash
-bash scripts/linux/check-linux.sh --check-only --language en-US --timeout 10
-bash scripts/linux/verify-linux.sh --language zh-CN --timeout 10 --skip-network
-```
+- Default mode is check-only.
+- Software is not installed unless an explicit install mode is enabled.
+- PATH is not changed unless an explicit path-fix mode is enabled.
+- System-level PATH is not modified by default.
+- User files are not deleted.
+- Logs and reports are not uploaded.
+- Generated logs, reports, and packages are ignored by Git.
 
-The Linux checker detects distro, package managers, shells, base tools, AI development tools, Docker, permissions, PATH, proxy settings, and TCP 443 network reachability.
+## 9. Logs and reports
 
-## macOS Usage
-
-```bash
-bash scripts/macos/check-macos.sh --check-only --language en-US --timeout 10
-bash scripts/macos/verify-macos.sh --language zh-CN --timeout 10 --skip-network
-```
-
-The macOS checker detects macOS version, CPU architecture, Rosetta 2, Xcode Command Line Tools, Homebrew, Node.js, npm, Git, VS Code CLI, Claude Code, Codex CLI, Docker, shells, PATH, proxy settings, and TCP 443 network reachability.
-
-## Automatic Proxy Detection
-
-Windows checks:
-
-- Process, user, and machine proxy environment variables.
-- npm and Git proxy configuration.
-- WinHTTP proxy.
-- Windows user internet settings.
-- Common loopback proxy ports only.
-- HTTP proxy and SOCKS5 proxy protocol checks when `curl.exe` is available and network checks are not skipped.
-
-WSL / Linux / macOS check:
-
-- Proxy environment variables.
-- npm and Git proxy configuration.
-- Common loopback ports.
-- GNOME proxy settings on Linux when `gsettings` exists.
-- macOS `networksetup` proxy settings across all network services.
-
-Proxy URLs are masked before they are written to logs or reports. Credentials are shown as `http://***:***@host:port`.
-
-## Security
-
-- Check-only by default.
-- No privacy collection.
-- No log or report uploads.
-- No automatic proxy modification.
-- No npm / Git proxy writes.
-- No system PATH changes.
-- Do not commit API keys, tokens, cookies, passwords, or private keys.
-
-See [SECURITY.md](SECURITY.md).
-
-## Logs and Reports
-
-Generated files are written to:
+Generated diagnostic files stay local:
 
 | Type | Path |
 |------|------|
@@ -148,14 +126,47 @@ Generated files are written to:
 | JSON reports | `reports/` |
 | Markdown reports | `reports/` |
 
-Generated logs and reports are ignored by Git. Only `.gitkeep` files should remain tracked.
+Reports may include usernames, local paths, computer names, proxy information, command output, and system details. Review and sanitize reports before sharing them publicly.
 
-## Troubleshooting
+Do not commit API keys, tokens, cookies, passwords, account credentials, private keys, or other secrets.
 
-See [docs/troubleshooting.md](docs/troubleshooting.md).
+## 10. Package downloads
 
-Proxy detection details: [docs/proxy-detection.md](docs/proxy-detection.md).
+The release plan prepares downloadable packages for:
 
-## Roadmap
+- Windows ZIP package
+- WSL tar.gz package
+- Linux tar.gz package
+- macOS tar.gz package
+- Source code package
+
+Local release builds are generated under `dist/`. Generated archives are not committed.
+
+## 11. Future software architecture
+
+The current detection layer uses PowerShell on Windows and Bash on WSL/Linux/macOS. Future versions may add:
+
+- Go CLI
+- Rust CLI
+- Python tooling
+- Tauri desktop GUI
+- Web dashboard
+- Membership or license backend
+- Device authorization
+- Remote diagnostic report upload, only with explicit user consent
+
+Any backend, membership, license, device authorization, or report-upload feature must remain optional. Offline local checks should continue to work without a backend.
+
+See [docs/architecture.md](docs/architecture.md).
+
+## 12. Roadmap
 
 See [ROADMAP.md](ROADMAP.md).
+
+## 13. Security
+
+See [SECURITY.md](SECURITY.md).
+
+## 14. License
+
+See [LICENSE](LICENSE).

@@ -114,6 +114,44 @@ RECOMMENDED_SOURCE=""
 RECOMMENDED_PORT=""
 RECOMMENDED_CONFIDENCE="none"
 RECOMMENDED_USABLE="false"
+CONFIGURED_PROXY_PORTS=""
+
+add_configured_proxy_ports() {
+  local value="${1:-}" old_ifs part target port
+  old_ifs="$IFS"
+  IFS=';'
+  for part in $value; do
+    target="${part#*=}"
+    target="${target#*://}"
+    target="${target#*@}"
+    case "$target" in
+      localhost:*|127.0.0.1:*|0.0.0.0:*|\[::1\]:*)
+        port="${target##*:}"
+        port="${port%%/*}"
+        port="$(printf '%s' "$port" | tr -dc '0-9')"
+        if [ -n "$port" ] && [ "$port" -ge 1 ] 2>/dev/null && [ "$port" -le 65535 ] 2>/dev/null; then
+          case " $CONFIGURED_PROXY_PORTS " in
+            *" $port "*) ;;
+            *) CONFIGURED_PROXY_PORTS="$CONFIGURED_PROXY_PORTS $port" ;;
+          esac
+        fi
+        ;;
+    esac
+  done
+  IFS="$old_ifs"
+}
+
+build_proxy_port_list() {
+  local ports port
+  ports="7890 7891 7897 1080 10808 10809 2080 3128 8000 8080 8888 9090"
+  for port in $CONFIGURED_PROXY_PORTS; do
+    case " $ports " in
+      *" $port "*) ;;
+      *) ports="$ports $port" ;;
+    esac
+  done
+  printf '%s' "$ports"
+}
 
 check_tool() {
   local name="$1" cmd="$2" arg="${3:---version}" out rc status value
@@ -151,7 +189,8 @@ detect_proxy_env() {
       if [ -n "$PROXY_ENV_JSON" ]; then PROXY_ENV_JSON="$PROXY_ENV_JSON,"; fi
       PROXY_ENV_JSON="$PROXY_ENV_JSON{\"name\":\"$name\",\"value\":\"$(json_escape "$masked")\"}"
       case "$name" in
-        HTTP_PROXY|HTTPS_PROXY|http_proxy|https_proxy)
+        HTTP_PROXY|HTTPS_PROXY|ALL_PROXY|http_proxy|https_proxy|all_proxy)
+          add_configured_proxy_ports "$value"
           if [ -z "$RECOMMENDED_URL" ]; then
             RECOMMENDED_URL="$masked"
             RECOMMENDED_SOURCE="Environment:$name"
@@ -176,6 +215,7 @@ detect_proxy_command() {
     fi
     if [ "$rc" -eq 0 ] && [ -n "$out" ] && [ "$out" != "null" ] && [ "$out" != "undefined" ]; then
       masked="$(mask_proxy "$out")"
+      add_configured_proxy_ports "$out"
       log "proxy $label $key=$masked"
       printf '| %s:%s | %s |\n' "$label" "$key" "$masked" >> "$MD_REPORT"
       if [ -z "$RECOMMENDED_URL" ]; then
@@ -191,7 +231,7 @@ detect_proxy_command() {
 
 detect_local_ports() {
   local ports port reachable protocol url http_rc socks_rc item
-  ports="7890 7891 7897 1080 10808 10809 10870 10871 20170 20171 2080 3128 8000 8080 8888 9090"
+  ports="$(build_proxy_port_list)"
   for port in $ports; do
     reachable=0
     if tcp_check 127.0.0.1 "$port" || tcp_check localhost "$port"; then

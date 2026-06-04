@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v0.3.0-packaging-readme-release
+
+Planned / Added:
+
+- Expanded README files for project purpose and public usage.
+- Added packaging documentation for Windows, WSL, Linux, and macOS.
+- Added release build scripts.
+- Added package structure for GitHub Releases.
+- Documented future multi-language implementation options such as Go, Rust, Python, and Tauri.
+- Preserved safe check-only defaults.
+
 ## v0.2.0-cross-platform-i18n-proxy-detect
 
 - Added bilingual docs.
