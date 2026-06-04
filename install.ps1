@@ -13,6 +13,7 @@
 .EXAMPLE
     .\install.ps1 -CheckOnly
     .\install.ps1 -CheckOnly -CommandTimeoutSec 10
+    .\install.ps1 -CheckOnly -Language en-US
     .\install.ps1 -Install
     .\install.ps1 -Install -FixPath
     .\install.ps1 -Install -FixPath -SkipCodex -VerboseLog
@@ -56,13 +57,18 @@ param(
 
     [Parameter(ParameterSetName = "CheckOnly")]
     [Parameter(ParameterSetName = "Install")]
-    [int]$CommandTimeoutSec = 10
+    [int]$CommandTimeoutSec = 10,
+
+    [Parameter(ParameterSetName = "CheckOnly")]
+    [Parameter(ParameterSetName = "Install")]
+    [ValidateSet("zh-CN", "en-US")]
+    [string]$Language = "zh-CN"
 )
 
 # ============================================
 # 全局变量
 # ============================================
-$Script:ScriptVersion = "0.2.0-beta"
+$Script:ScriptVersion = "v0.2.0-cross-platform-i18n-proxy-detect"
 $Script:Timestamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $Script:RunDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 $Script:ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -79,11 +85,101 @@ $Script:ErrorList = [System.Collections.ArrayList]::new()
 $Script:WarningList = [System.Collections.ArrayList]::new()
 $Script:FixSuggestionList = [System.Collections.ArrayList]::new()
 $Script:CommandResults = @()
+$Script:Language = $Language
+$Script:Messages = @{}
 
 $null = New-Item -ItemType Directory -Force -Path $Script:LogDir
 $null = New-Item -ItemType Directory -Force -Path $Script:ReportDir
 
 if (-not $Install -and -not $CheckOnly) { $CheckOnly = $true }
+
+# ============================================
+# 本地化与报告脱敏函数
+# ============================================
+
+function Initialize-Localization {
+    param([string]$RequestedLanguage)
+
+    $fallbackLanguage = "zh-CN"
+    $localeDir = Join-Path $Script:ScriptDir "locales"
+    $localePath = Join-Path $localeDir "$RequestedLanguage.json"
+    if (-not (Test-Path -LiteralPath $localePath)) {
+        $Script:Language = $fallbackLanguage
+        $localePath = Join-Path $localeDir "$fallbackLanguage.json"
+    }
+
+    try {
+        if (Test-Path -LiteralPath $localePath) {
+            $json = Get-Content -Raw -Path $localePath -Encoding UTF8 | ConvertFrom-Json
+            $messages = @{}
+            foreach ($prop in $json.PSObject.Properties) {
+                $messages[$prop.Name] = [string]$prop.Value
+            }
+            return $messages
+        }
+    } catch { }
+
+    $Script:Language = $fallbackLanguage
+    return @{}
+}
+
+function Get-LocalizedText {
+    param([string]$Key)
+
+    if ($Script:Messages -and $Script:Messages.ContainsKey($Key)) {
+        return $Script:Messages[$Key]
+    }
+    return $Key
+}
+
+function ConvertTo-MaskedProxyValue {
+    param([AllowNull()][string]$Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+
+    return [regex]::Replace([string]$Value, '(?i)\b([a-z][a-z0-9+.-]*://)([^/@\s:]+):([^/@\s]+)@', '$1***:***@')
+}
+
+function ConvertTo-SafeReportObject {
+    param($Value)
+
+    if ($null -eq $Value) {
+        return $null
+    }
+
+    if ($Value -is [string]) {
+        return (ConvertTo-MaskedProxyValue $Value)
+    }
+
+    if ($Value -is [System.Collections.IDictionary]) {
+        $copy = [ordered]@{}
+        foreach ($key in $Value.Keys) {
+            $copy[$key] = ConvertTo-SafeReportObject $Value[$key]
+        }
+        return $copy
+    }
+
+    if (($Value -is [System.Collections.IEnumerable]) -and -not ($Value -is [string])) {
+        $items = @()
+        foreach ($item in $Value) {
+            $items += ConvertTo-SafeReportObject $item
+        }
+        return $items
+    }
+
+    return $Value
+}
+
+function Import-ProxyDetectorModule {
+    $modulePath = Join-Path $Script:ScriptDir "scripts\windows\modules\ProxyDetector.psm1"
+    if (Test-Path -LiteralPath $modulePath) {
+        Import-Module $modulePath -Force
+        return $true
+    }
+    return $false
+}
 
 # ============================================
 # 日志与状态输出函数
@@ -114,16 +210,18 @@ function Write-Log {
 #>
 function Write-Status {
     param([string]$Status, [string]$Message)
+    $label = Get-LocalizedText $Status
+    $prefix = "[ {0,-7}] " -f $label
     switch ($Status) {
-        "OK"       { Write-Host "[  OK    ] " -ForegroundColor Green -NoNewline; Write-Host $Message }
-        "MISSING"  { Write-Host "[ MISSING] " -ForegroundColor Red -NoNewline; Write-Host $Message }
-        "WARNING"  { Write-Host "[ WARNING] " -ForegroundColor Yellow -NoNewline; Write-Host $Message }
-        "ERROR"    { Write-Host "[ ERROR  ] " -ForegroundColor DarkRed -NoNewline; Write-Host $Message }
-        "SKIPPED"  { Write-Host "[ SKIPPED] " -ForegroundColor DarkGray -NoNewline; Write-Host $Message }
-        "INSTALL"  { Write-Host "[ INSTALL] " -ForegroundColor Cyan -NoNewline; Write-Host $Message }
-        "FIX"      { Write-Host "[  FIX   ] " -ForegroundColor Magenta -NoNewline; Write-Host $Message }
-        "TIMEOUT"  { Write-Host "[ TIMEOUT] " -ForegroundColor Yellow -NoNewline; Write-Host $Message }
-        default    { Write-Host "[  INFO  ] " -ForegroundColor Gray -NoNewline; Write-Host $Message }
+        "OK"       { Write-Host $prefix -ForegroundColor Green -NoNewline; Write-Host $Message }
+        "MISSING"  { Write-Host $prefix -ForegroundColor Red -NoNewline; Write-Host $Message }
+        "WARNING"  { Write-Host $prefix -ForegroundColor Yellow -NoNewline; Write-Host $Message }
+        "ERROR"    { Write-Host $prefix -ForegroundColor DarkRed -NoNewline; Write-Host $Message }
+        "SKIPPED"  { Write-Host $prefix -ForegroundColor DarkGray -NoNewline; Write-Host $Message }
+        "INSTALL"  { Write-Host $prefix -ForegroundColor Cyan -NoNewline; Write-Host $Message }
+        "FIX"      { Write-Host $prefix -ForegroundColor Magenta -NoNewline; Write-Host $Message }
+        "TIMEOUT"  { Write-Host $prefix -ForegroundColor Yellow -NoNewline; Write-Host $Message }
+        default    { Write-Host "[ INFO   ] " -ForegroundColor Gray -NoNewline; Write-Host $Message }
     }
 }
 
@@ -389,9 +487,9 @@ function Normalize-CommandOutput {
     # 移除 NUL 字符 (0x00)
     $cleaned = $cleaned -replace "`0", ""
 
-    # 移除 BOM (0xFEFF, 0xFFFE)
-    $cleaned = $cleaned -replace "`u{FEFF}", ""
-    $cleaned = $cleaned -replace "`u{FFFE}", ""
+    # 移除 BOM (0xFEFF, 0xFFFE) - Windows PowerShell 5.1 compatible
+    $cleaned = $cleaned.Replace([string][char]0xFEFF, "")
+    $cleaned = $cleaned.Replace([string][char]0xFFFE, "")
 
     # 移除其他不可打印控制字符（保留常见空白和换行）
     # 0x00-0x08, 0x0B, 0x0C, 0x0E-0x1F, 0x7F-0x9F
@@ -499,7 +597,7 @@ function Test-Network {
 function Test-AllNetwork {
     if ($SkipNetwork) {
         Write-Host ""
-        Write-Host "--- Network Connectivity ---" -ForegroundColor Cyan
+        Write-Host "--- $(Get-LocalizedText 'section.network') ---" -ForegroundColor Cyan
         Write-Host ""
         Write-Status "SKIPPED" "Network check skipped by user (-SkipNetwork)"
         Write-Log "Network check skipped by -SkipNetwork"
@@ -507,7 +605,7 @@ function Test-AllNetwork {
         return
     }
     Write-Host ""
-    Write-Host "--- Network Connectivity ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.network') ---" -ForegroundColor Cyan
     Write-Host ""
     $targets = @(
         @{ HostName = "github.com"; Port = 443; Label = "GitHub" },
@@ -663,7 +761,7 @@ function Test-ProxySettings {
 #>
 function Test-Winget {
     Write-Host ""
-    Write-Host "--- Package Manager ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.packageManager') ---" -ForegroundColor Cyan
     Write-Host ""
 
     $r = Invoke-ExternalCommand -FileName "winget" -Arguments "--version"
@@ -696,7 +794,7 @@ function Test-Winget {
 #>
 function Test-Node {
     Write-Host ""
-    Write-Host "--- Node.js / npm ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.node') ---" -ForegroundColor Cyan
     Write-Host ""
 
     $nodeResults = @{}
@@ -846,7 +944,7 @@ function Test-Node {
 #>
 function Test-Git {
     Write-Host ""
-    Write-Host "--- Git ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.git') ---" -ForegroundColor Cyan
     Write-Host ""
 
     $result = @{}
@@ -894,7 +992,7 @@ function Test-Git {
 #>
 function Test-VSCode {
     Write-Host ""
-    Write-Host "--- VS Code ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.vscode') ---" -ForegroundColor Cyan
     Write-Host ""
 
     if ($SkipVSCode) {
@@ -951,7 +1049,7 @@ function Test-VSCode {
 #>
 function Test-ClaudeCode {
     Write-Host ""
-    Write-Host "--- Claude Code ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.claude') ---" -ForegroundColor Cyan
     Write-Host ""
 
     if ($SkipClaude) {
@@ -1007,7 +1105,7 @@ function Test-ClaudeCode {
 #>
 function Test-CodexCLI {
     Write-Host ""
-    Write-Host "--- Codex CLI ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.codex') ---" -ForegroundColor Cyan
     Write-Host ""
 
     if ($SkipCodex) {
@@ -1134,7 +1232,7 @@ function Test-CodexCLI {
 #>
 function Test-WSL {
     Write-Host ""
-    Write-Host "--- WSL ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.wsl') ---" -ForegroundColor Cyan
     Write-Host ""
 
     if ($SkipWSL) {
@@ -1299,7 +1397,7 @@ function Test-ExecutionPolicy {
 #>
 function Test-UserPath {
     Write-Host ""
-    Write-Host "--- PATH Environment ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.path') ---" -ForegroundColor Cyan
     Write-Host ""
     try {
         $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
@@ -1854,18 +1952,19 @@ function Save-JsonReport {
                 UserName = $env:USERNAME
                 IsAdmin = Test-IsAdmin
                 Mode = if ($Install) { "Install" } else { "CheckOnly" }
+                Language = $Script:Language
                 FixPath = [bool]$FixPath
                 CommandTimeoutSec = $CommandTimeoutSec
                 LogFile = $Script:LogFile
             }
-            Results = $Script:Results
-            CommandResults = $Script:CommandResults
-            InstallResults = $Script:InstallResults
-            Errors = $Script:ErrorList
-            Warnings = $Script:WarningList
-            FixSuggestions = $Script:FixSuggestionList
+            Results = ConvertTo-SafeReportObject $Script:Results
+            CommandResults = ConvertTo-SafeReportObject $Script:CommandResults
+            InstallResults = ConvertTo-SafeReportObject $Script:InstallResults
+            Errors = ConvertTo-SafeReportObject $Script:ErrorList
+            Warnings = ConvertTo-SafeReportObject $Script:WarningList
+            FixSuggestions = ConvertTo-SafeReportObject $Script:FixSuggestionList
         }
-        $report | ConvertTo-Json -Depth 5 | Set-Content -Path $Script:JsonReportFile -Encoding UTF8
+        $report | ConvertTo-Json -Depth 10 | Set-Content -Path $Script:JsonReportFile -Encoding UTF8
         Write-Log "JSON report saved: $Script:JsonReportFile" -Level "OK"
         return $true
     } catch {
@@ -1878,6 +1977,73 @@ function Save-JsonReport {
 .SYNOPSIS
     生成 Markdown 格式检测报告
 #>
+function Convert-ProxyInfoToMarkdown {
+    param($Proxy)
+
+    if (-not $Proxy) {
+        return "| N/A | No data |"
+    }
+
+    $lines = ""
+    $lines += "### Environment`n`n"
+    foreach ($scope in @("Process", "User", "Machine")) {
+        $lines += "#### $scope`n`n"
+        if ($Proxy.Environment -and $Proxy.Environment.Contains($scope) -and $Proxy.Environment[$scope].Count -gt 0) {
+            $lines += "| Variable | Value |`n|----------|-------|`n"
+            foreach ($k in $Proxy.Environment[$scope].Keys) {
+                $lines += "| ``$k`` | $(ConvertTo-MaskedProxyValue $Proxy.Environment[$scope][$k]) |`n"
+            }
+            $lines += "`n"
+        } else {
+            $lines += "- *(not set)*`n`n"
+        }
+    }
+
+    foreach ($section in @("Npm", "Git")) {
+        $lines += "### $section`n`n"
+        if ($Proxy[$section] -and $Proxy[$section].Count -gt 0) {
+            $lines += "| Key | Value |`n|-----|-------|`n"
+            foreach ($k in $Proxy[$section].Keys) {
+                $lines += "| ``$k`` | $(ConvertTo-MaskedProxyValue $Proxy[$section][$k]) |`n"
+            }
+            $lines += "`n"
+        } else {
+            $lines += "- *(not configured)*`n`n"
+        }
+    }
+
+    $lines += "### WinHTTP`n`n"
+    $lines += "```````n$(ConvertTo-MaskedProxyValue $Proxy.WinHTTP.Raw)`n```````n`n"
+
+    $lines += "### Windows Internet Settings`n`n"
+    $lines += "| Field | Value |`n|-------|-------|`n"
+    $lines += "| ProxyEnable | $($Proxy.WindowsInternetSettings.ProxyEnable) |`n"
+    $lines += "| ProxyServer | $(ConvertTo-MaskedProxyValue $Proxy.WindowsInternetSettings.ProxyServer) |`n"
+    $lines += "| AutoConfigURL | $(ConvertTo-MaskedProxyValue $Proxy.WindowsInternetSettings.AutoConfigURL) |`n`n"
+
+    $reachable = @($Proxy.LocalPortScan | Where-Object { $_.TcpReachable })
+    $lines += "### Local Port Scan`n`n"
+    if ($reachable.Count -gt 0) {
+        $lines += "| Port | Protocol | URL |`n|------|----------|-----|`n"
+        foreach ($item in $reachable) {
+            $lines += "| $($item.Port) | $($item.Protocol) | $(ConvertTo-MaskedProxyValue $item.Url) |`n"
+        }
+        $lines += "`n"
+    } else {
+        $lines += "- No common local proxy ports were reachable.`n`n"
+    }
+
+    $r = $Proxy.RecommendedProxy
+    $lines += "### RecommendedProxy`n`n"
+    $lines += "| Field | Value |`n|-------|-------|`n"
+    foreach ($field in @("Url", "Protocol", "Host", "Port", "Source", "Confidence", "IsUsable")) {
+        $lines += "| $field | $(ConvertTo-MaskedProxyValue $r[$field]) |`n"
+    }
+    $lines += "| Notes | $($r.Notes -join '; ') |`n"
+
+    return $lines
+}
+
 function Save-MarkdownReport {
     try {
         $okCount = 0; $missingCount = 0; $warnCount = 0; $skipCount = 0; $errorCount = 0
@@ -1896,6 +2062,7 @@ function Save-MarkdownReport {
 | **User** | $env:USERNAME |
 | **Admin** | $(if (Test-IsAdmin) { "Yes" } else { "No" }) |
 | **Mode** | $(if ($Install) { "Install" } else { "CheckOnly" }) |
+| **Language** | $Script:Language |
 | **FixPath** | $([bool]$FixPath) |
 | **Timeout** | ${CommandTimeoutSec}s |
 | **Log** | `$Script:LogFile` |
@@ -1932,48 +2099,7 @@ $(
 
 ## Proxy
 
-$(
-    if ($Script:Results.Proxy) {
-        $lines = ""
-        # Environment
-        if ($Script:Results.Proxy.Environment.Count -gt 0) {
-            $lines += "### Environment Variables`n`n"
-            $lines += "| Variable | Value |`n|----------|-------|`n"
-            foreach ($k in $Script:Results.Proxy.Environment.Keys) {
-                $lines += "| ``$k`` | $($Script:Results.Proxy.Environment[$k]) |`n"
-            }
-            $lines += "`n"
-        } else {
-            $lines += "- Environment: *(not set)*`n`n"
-        }
-        # npm
-        if ($Script:Results.Proxy.Npm.Count -gt 0) {
-            $lines += "### npm`n`n"
-            $lines += "| Key | Value |`n|-----|-------|`n"
-            foreach ($k in $Script:Results.Proxy.Npm.Keys) {
-                $lines += "| ``$k`` | $($Script:Results.Proxy.Npm[$k]) |`n"
-            }
-            $lines += "`n"
-        } else {
-            $lines += "- npm: *(not configured)*`n`n"
-        }
-        # Git
-        if ($Script:Results.Proxy.Git.Count -gt 0) {
-            $lines += "### Git`n`n"
-            $lines += "| Key | Value |`n|-----|-------|`n"
-            foreach ($k in $Script:Results.Proxy.Git.Keys) {
-                $lines += "| ``$k`` | $($Script:Results.Proxy.Git[$k]) |`n"
-            }
-            $lines += "`n"
-        } else {
-            $lines += "- Git: *(not configured)*`n`n"
-        }
-        # WinHTTP
-        $lines += "### WinHTTP`n`n"
-        $lines += "```````n$($Script:Results.Proxy.WinHTTP)`n```````n`n"
-        $lines
-    } else { "| N/A | No data |" }
-)
+$(Convert-ProxyInfoToMarkdown $Script:Results.Proxy)
 
 ## Package Manager
 
@@ -1991,8 +2117,8 @@ $(
 | npm version | $(if ($Script:Results.Node.NpmExists) { "✅" } else { "❌" }) | $($Script:Results.Node.NpmVersion) |
 | npm prefix | — | $($Script:Results.Node.NpmPrefix) |
 | npm root -g | — | $($Script:Results.Node.NpmGlobalRoot) |
-| npm proxy | — | $($Script:Results.Node.NpmProxy) |
-| npm https-proxy | — | $($Script:Results.Node.NpmHttpsProxy) |
+| npm proxy | — | $(ConvertTo-MaskedProxyValue $Script:Results.Node.NpmProxy) |
+| npm https-proxy | — | $(ConvertTo-MaskedProxyValue $Script:Results.Node.NpmHttpsProxy) |
 
 ## Git
 
@@ -2126,7 +2252,7 @@ $(
 
 ---
 
-*Report generated by ai-local-env-checker v$Script:ScriptVersion*
+*Report generated by ai-local-env-checker $Script:ScriptVersion*
 "@
 
         Set-Content -Path $Script:MarkdownReportFile -Value $md -Encoding UTF8
@@ -2145,7 +2271,7 @@ $(
 function Show-Summary {
     Write-Host ""
     Write-Host "============================================" -ForegroundColor Magenta
-    Write-Host "  SUMMARY" -ForegroundColor Magenta
+    Write-Host "  $(Get-LocalizedText 'section.summary')" -ForegroundColor Magenta
     Write-Host "============================================" -ForegroundColor Magenta
     Write-Host ""
 
@@ -2209,14 +2335,107 @@ function Show-Summary {
 # 主执行流程
 # ============================================
 
+function Test-ProxySettings {
+    Write-Host ""
+    Write-Host "--- $(Get-LocalizedText 'section.proxy') ---" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Log "$(Get-LocalizedText 'proxy.detecting')..."
+
+    if (-not (Import-ProxyDetectorModule)) {
+        Write-Status "WARNING" "ProxyDetector.psm1 not found, proxy detection skipped"
+        Write-Log "ProxyDetector module missing" -Level "WARN"
+        $Script:Results.Proxy = [ordered]@{
+            Environment = [ordered]@{}
+            Npm = [ordered]@{}
+            Git = [ordered]@{}
+            WinHTTP = [ordered]@{}
+            WindowsInternetSettings = [ordered]@{}
+            LocalPortScan = @()
+            RecommendedProxy = [ordered]@{
+                Url = $null
+                Protocol = $null
+                Host = $null
+                Port = $null
+                Source = $null
+                Confidence = "none"
+                IsUsable = $false
+                Notes = @("ProxyDetector.psm1 not found")
+            }
+        }
+        return
+    }
+
+    try {
+        $proxyInfo = Invoke-ProxyDetection -TimeoutSec $CommandTimeoutSec -SkipNetwork:$SkipNetwork
+        $Script:Results.Proxy = $proxyInfo
+
+        $envCount = 0
+        foreach ($scope in @("Process", "User", "Machine")) {
+            if ($proxyInfo.Environment.Contains($scope)) {
+                $envCount += $proxyInfo.Environment[$scope].Count
+            }
+        }
+
+        if ($envCount -gt 0) {
+            Write-Status "OK" "Environment proxy entries detected: $envCount"
+        } else {
+            Write-Status "OK" "Environment proxy entries: none"
+        }
+
+        Write-Status "OK" "npm proxy entries: $($proxyInfo.Npm.Count)"
+        Write-Status "OK" "Git proxy entries: $($proxyInfo.Git.Count)"
+
+        $reachablePorts = @($proxyInfo.LocalPortScan | Where-Object { $_.TcpReachable })
+        if ($reachablePorts.Count -gt 0) {
+            $ports = ($reachablePorts | ForEach-Object { "$($_.Port)/$($_.Protocol)" }) -join ", "
+            Write-Status "OK" "Local proxy-like TCP listeners: $ports"
+        } else {
+            Write-Status "OK" "Local proxy-like TCP listeners: none"
+        }
+
+        if ($proxyInfo.RecommendedProxy -and $proxyInfo.RecommendedProxy.IsUsable) {
+            Write-Status "OK" "$(Get-LocalizedText 'proxy.recommended') : $($proxyInfo.RecommendedProxy.Url) [$($proxyInfo.RecommendedProxy.Source), $($proxyInfo.RecommendedProxy.Confidence)]"
+            Write-Log "Recommended proxy: $($proxyInfo.RecommendedProxy.Url), protocol=$($proxyInfo.RecommendedProxy.Protocol), source=$($proxyInfo.RecommendedProxy.Source), confidence=$($proxyInfo.RecommendedProxy.Confidence)" -Level "OK"
+        } else {
+            Write-Status "OK" "$(Get-LocalizedText 'proxy.noRecommended')"
+            Write-Log "No recommended proxy generated"
+        }
+
+        Write-Log "Proxy detection completed"
+    } catch {
+        Write-Status "WARNING" "Proxy detection failed: $($_.Exception.Message)"
+        Write-Log "Proxy detection failed: $($_.Exception.Message)" -Level "WARN"
+        $Script:WarningList.Add("代理检测失败: $($_.Exception.Message)") > $null
+        $Script:Results.Proxy = [ordered]@{
+            Environment = [ordered]@{}
+            Npm = [ordered]@{}
+            Git = [ordered]@{}
+            WinHTTP = [ordered]@{}
+            WindowsInternetSettings = [ordered]@{}
+            LocalPortScan = @()
+            RecommendedProxy = [ordered]@{
+                Url = $null
+                Protocol = $null
+                Host = $null
+                Port = $null
+                Source = $null
+                Confidence = "none"
+                IsUsable = $false
+                Notes = @("Proxy detection failed")
+            }
+        }
+    }
+}
+
 function Main {
+    $Script:Messages = Initialize-Localization -RequestedLanguage $Language
     Write-Host ""
     Write-Host "============================================" -ForegroundColor Magenta
-    Write-Host "  AI Local Environment Checker & Installer" -ForegroundColor Magenta
-    Write-Host "  v$Script:ScriptVersion" -ForegroundColor Magenta
+    Write-Host "  $(Get-LocalizedText 'app.title')" -ForegroundColor Magenta
+    Write-Host "  $Script:ScriptVersion" -ForegroundColor Magenta
     Write-Host "============================================" -ForegroundColor Magenta
     Write-Host ""
-    Write-Host "  Mode: $(if ($Install) { 'Install' } else { 'CheckOnly' })  |  SkipNetwork: $([bool]$SkipNetwork)  |  Timeout: ${CommandTimeoutSec}s" -ForegroundColor Cyan
+    Write-Host "  Mode: $(if ($Install) { 'Install' } else { 'CheckOnly' })  |  Language: $Script:Language  |  SkipNetwork: $([bool]$SkipNetwork)  |  Timeout: ${CommandTimeoutSec}s" -ForegroundColor Cyan
     Write-Host "  Time: $Script:RunDate" -ForegroundColor Cyan
     Write-Host "  User: $env:USERNAME @ $env:COMPUTERNAME" -ForegroundColor Cyan
     $isAdmin = Test-IsAdmin
@@ -2235,7 +2454,7 @@ function Main {
 
     # 1. 系统信息
     Write-Host ""
-    Write-Host "--- System Information ---" -ForegroundColor Cyan
+    Write-Host "--- $(Get-LocalizedText 'section.system') ---" -ForegroundColor Cyan
     Write-Host ""
     $sysInfo = Get-SystemInfo
     Write-Status "OK" "PowerShell : $($sysInfo.PSVersion) ($($sysInfo.PSEdition))"

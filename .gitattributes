@@ -1,0 +1,15 @@
+﻿# PowerShell scripts
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+
+# Shell scripts for WSL/Linux/macOS
+*.sh text eol=lf
+
+# Documentation and config
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.gitkeep text eol=lf

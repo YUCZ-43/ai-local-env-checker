@@ -1,18 +1,28 @@
-﻿# Runtime logs and reports
-logs/*
+# Runtime logs and reports
+logs/**
+!logs/
 !logs/.gitkeep
 
-reports/*
+reports/**
+!reports/
 !reports/.gitkeep
 
 # Local config / secrets
 .env
+.env.*
 *.env
 *.local
 *.token
+*.tokens
 *.key
+*.keys
 *.pem
 *.pfx
+*.p12
+id_rsa*
+id_ed25519*
+secrets.*
+credentials.*
 
 # Backups / temp
 *.backup*
