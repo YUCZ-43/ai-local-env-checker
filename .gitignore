@@ -1,0 +1,40 @@
+﻿# Runtime logs and reports
+logs/*
+!logs/.gitkeep
+
+reports/*
+!reports/.gitkeep
+
+# Local config / secrets
+.env
+*.env
+*.local
+*.token
+*.key
+*.pem
+*.pfx
+
+# Backups / temp
+*.backup*
+*.bak
+*.tmp
+*.old
+*.log
+
+# Dependencies
+node_modules/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local AI tool folders
+.codex/
+.claude/
+
+# PowerShell local debug
+*.ps1xml
+*.psm1.bak
+*.psd1.bak
