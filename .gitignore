@@ -7,6 +7,16 @@ reports/**
 !reports/
 !reports/.gitkeep
 
+# Release packages
+dist/*
+!dist/
+!dist/.gitkeep
+
+*.zip
+*.tar.gz
+*.tgz
+*.7z
+
 # Local config / secrets
 .env
 .env.*

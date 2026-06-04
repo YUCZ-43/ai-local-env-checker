@@ -13,3 +13,7 @@
 *.yaml text eol=lf
 *.toml text eol=lf
 *.gitkeep text eol=lf
+
+# Git metadata
+.gitignore text eol=lf
+.gitattributes text eol=lf

@@ -1,31 +1,61 @@
 # AI Local Environment Checker
 
-## 项目定位
+## 1. 项目名称
 
-`ai-local-env-checker` 是一个默认只检测的本地 AI 开发环境检查工具。它用于客户电脑环境检测、AI 本地部署前置检查、开发机初始化验收，以及远程支持前的信息收集。
+AI Local Environment Checker
 
-核心原则：
+## 2. 项目定位
 
-- 默认只检测，不安装。
-- 安装逻辑只允许在用户显式传入 `-Install` 时执行。
-- PATH 修复只允许在用户显式传入 `-FixPath` 时执行。
-- 日志和报告只写入本项目内的 `logs/` 与 `reports/`。
-- 代理只检测、只报告、只建议，不自动修改。
+AI Local Environment Checker 是一个安全优先、默认只检测的本地 AI 开发环境诊断工具。它用于在安装或使用本地 AI 开发工具之前，检查当前电脑是否具备基础运行条件。
 
-## 当前版本
+本项目适合普通用户、技术支持人员、电脑维护人员、部署服务提供者，以及需要批量确认开发环境状态的团队使用。
 
-建议版本：`v0.2.0-cross-platform-i18n-proxy-detect`
+## 3. 项目目的
 
-## 支持系统
+本项目的目的，是帮助用户在安装和使用本地 AI 开发工具之前，先检查电脑环境是否已经准备好。
 
-| 平台 | 状态 |
-|------|------|
-| Windows PowerShell 5.1+ | 支持，保留根目录 `install.ps1` / `verify.ps1` |
-| WSL | 新增检测版 |
-| Linux | 新增检测版 |
-| macOS | 新增检测版 |
+许多用户并不熟悉 Node.js、npm、Git、VS Code、Claude Code、Codex CLI、WSL、代理端口、PATH、终端权限、包管理器和系统配置。因此，他们经常在安装 AI 工具时卡住，无法判断问题到底来自网络、代理、权限、PATH、包管理器，还是某个命令行工具缺失。
 
-## 快速开始
+本项目提供安全的检测脚本和本地报告，帮助用户、技术人员和部署服务提供者快速了解当前电脑环境。它的目标是先诊断、先记录、先给出建议，而不是盲目安装或修改系统。
+
+## 4. 检测范围
+
+当前检测范围包括：
+
+- Windows 系统信息
+- PowerShell 版本
+- 管理员权限
+- Execution Policy
+- 代理环境变量
+- 自动代理端口检测
+- WinHTTP 代理
+- Windows Internet Settings 代理
+- npm 代理
+- Git 代理
+- winget
+- Node.js
+- npm
+- Git
+- VS Code CLI
+- Claude Code CLI
+- Codex CLI
+- WSL
+- PATH
+- TCP 443 网络连通性
+- 日志和报告
+
+## 5. 支持系统
+
+| 系统 | 当前状态 |
+|------|----------|
+| Windows 10/11 | beta 可用 |
+| WSL | 检测预览 |
+| Linux | 检测预览 |
+| macOS | 检测预览 |
+
+Windows 当前最完整。WSL、Linux 和 macOS 脚本用于只检测场景，后续版本会继续补齐报告结构和平台细节。
+
+## 6. 快速开始
 
 Windows 只检测：
 
@@ -57,90 +87,38 @@ macOS：
 bash scripts/macos/check-macos.sh --check-only --language zh-CN --timeout 10
 ```
 
-## Windows 用法
+## 7. 安全说明
 
-根目录脚本继续可用：
+- 默认模式是只检测。
+- 不会自动安装软件。
+- 不会自动删除文件。
+- 不会自动上传报告。
+- `logs/` 和 `reports/` 中的生成文件默认被 Git 排除。
+- 报告可能包含用户名、本地路径、代理信息或系统细节。公开分享之前应先脱敏。
+- 不要提交 API key、token、cookie、密码、账号凭据或私钥。
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -CheckOnly -Language zh-CN
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -CheckOnly -Language en-US
-powershell -ExecutionPolicy Bypass -File .\verify.ps1 -Language zh-CN
-```
+安装模式和 PATH 修复必须由用户显式启用。默认检测流程不会修改系统级 PATH，也不会修改代理、npm 或 Git 配置。
 
-可选参数：
+## 8. 自动代理检测
 
-| 参数 | 说明 |
-|------|------|
-| `-CheckOnly` | 只检测，不安装，默认模式 |
-| `-Install` | 显式安装模式 |
-| `-FixPath` | 显式用户级 PATH 修复 |
-| `-SkipNetwork` | 跳过网络连通性检测 |
-| `-CommandTimeoutSec 10` | 设置外部命令超时 |
-| `-Language zh-CN` / `-Language en-US` | 选择输出语言 |
+不同用户、不同电脑、不同代理客户端可能使用不同的本地代理端口。因此，本工具不能假设某一个固定端口。
 
-## WSL 用法
+代理检测会尽量从多个来源读取信息：
 
-```bash
-bash scripts/wsl/check-wsl.sh --check-only --language zh-CN --timeout 10 --skip-network
-bash scripts/wsl/verify-wsl.sh --language en-US --timeout 10
-```
+- 当前进程、用户级和系统级代理环境变量
+- npm 代理配置
+- Git 代理配置
+- WinHTTP 代理
+- Windows Internet Settings
+- macOS `networksetup`
+- Linux `gsettings`
+- 常见本地 loopback 端口
 
-检测项包括 WSL 识别、发行版、Kernel、shell、Node.js、npm、Git、curl、VS Code CLI、Claude Code、Codex CLI、Docker、PATH、代理、`/mnt/c` 可访问性，以及 Windows/WSL 路径混用提示。
+代理检测只负责发现、记录和推荐。它不会修改系统代理，不会写入 npm 或 Git 代理，也不会清空现有代理配置。
 
-## Linux 用法
+## 9. 日志和报告
 
-```bash
-bash scripts/linux/check-linux.sh --check-only --language en-US --timeout 10
-bash scripts/linux/verify-linux.sh --language zh-CN --timeout 10 --skip-network
-```
-
-检测项包括发行版、包管理器、shell、基础工具、AI 开发工具、Docker、权限、PATH、代理和 TCP 443 网络检测。
-
-## macOS 用法
-
-```bash
-bash scripts/macos/check-macos.sh --check-only --language en-US --timeout 10
-bash scripts/macos/verify-macos.sh --language zh-CN --timeout 10 --skip-network
-```
-
-检测项包括 macOS 版本、芯片架构、Rosetta 2、Xcode Command Line Tools、Homebrew、Node.js、npm、Git、VS Code CLI、Claude Code、Codex CLI、Docker、shell、PATH、代理和 TCP 443 网络检测。
-
-## 自动代理端口检测说明
-
-Windows 会检测：
-
-- 当前进程、用户级、系统级代理环境变量。
-- npm 和 Git 代理配置。
-- WinHTTP 代理。
-- Windows 用户代理设置。
-- 常见本地代理端口，仅检测 `localhost` / loopback 地址。
-- 如果 `curl.exe` 可用且未跳过网络，会尝试识别 HTTP proxy 或 SOCKS5 proxy。
-
-WSL / Linux / macOS 会检测：
-
-- 代理环境变量。
-- npm 和 Git 代理配置。
-- 常见本地 loopback 端口。
-- Linux 上的 GNOME proxy 设置（如果 `gsettings` 存在）。
-- macOS 上的 `networksetup` 代理设置，逐个网络服务检测。
-
-所有代理 URL 写入日志或报告前都会脱敏。例如包含用户名密码的代理会显示为 `http://***:***@host:port`。
-
-## 安全说明
-
-- 默认只检测，不安装。
-- 不收集用户隐私。
-- 不上传日志或报告。
-- 不自动修改代理。
-- 不自动写入 npm / Git 代理。
-- 不修改系统级 PATH。
-- 不要提交 API key、token、cookie、账号密码或私钥。
-
-更多内容见 [SECURITY.md](SECURITY.md)。
-
-## 日志和报告
-
-生成文件位于：
+检测脚本会在本地生成日志和报告：
 
 | 类型 | 路径 |
 |------|------|
@@ -148,14 +126,50 @@ WSL / Linux / macOS 会检测：
 | JSON 报告 | `reports/` |
 | Markdown 报告 | `reports/` |
 
-`.gitignore` 会排除生成的日志和报告，只保留 `.gitkeep`。
+这些文件用于本地诊断。提交代码或公开分享前，请检查是否包含本地路径、用户名、电脑名、代理地址或其他敏感信息。
 
-## 常见问题
+## 10. 包下载计划
 
-故障排查见 [docs/troubleshooting.md](docs/troubleshooting.md)。
+未来版本计划提供以下可下载包：
+
+- Windows ZIP package
+- WSL tar.gz package
+- Linux tar.gz package
+- macOS tar.gz package
+- Source code package
+
+本地构建的发布包会输出到 `dist/`，该目录中的生成包不会提交到 Git。
+
+## 11. 未来软件架构
+
+当前检测层使用 PowerShell 和 Bash：
+
+- Windows：PowerShell
+- WSL/Linux/macOS：Bash
+
+未来版本可能增加：
+
+- Go CLI
+- Rust CLI
+- Python tooling
+- Tauri desktop GUI
+- Web dashboard
+- 会员或授权后端
+- 设备授权
+- 远程诊断报告上传，但必须由用户明确同意
+
+后端、会员、授权和报告上传都应是可选能力，不能成为离线本地检测的前置条件。
+
+## 12. 故障排查
+
+见 [docs/troubleshooting.md](docs/troubleshooting.md)。
 
 代理检测说明见 [docs/proxy-detection.md](docs/proxy-detection.md)。
 
-## 版本路线图
+## 13. 路线图
 
-路线图见 [ROADMAP.md](ROADMAP.md)。
+见 [ROADMAP.md](ROADMAP.md)。
+
+## 14. 许可证
+
+见 [LICENSE](LICENSE)。

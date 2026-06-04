@@ -4,7 +4,7 @@ if (Test-Path -LiteralPath $commandRunnerPath) {
     Import-Module $commandRunnerPath -Force
 }
 
-$Script:DefaultProxyPorts = @(7890, 7891, 7897, 1080, 10808, 10809, 10870, 10871, 20170, 20171, 2080, 3128, 8000, 8080, 8888, 9090)
+$Script:CommonProxyPorts = @(7890, 7891, 7897, 1080, 10808, 10809, 2080, 3128, 8000, 8080, 8888, 9090)
 $Script:LocalProxyHosts = @("127.0.0.1", "localhost", "::1")
 
 function ConvertTo-MaskedProxyValue {
@@ -227,6 +227,37 @@ function Get-ProxyConfigEntriesFromValue {
     return $entries
 }
 
+function Get-ProxyCandidatePorts {
+    param([System.Collections.ArrayList]$Candidates)
+
+    $ports = New-Object System.Collections.ArrayList
+    $seen = @{}
+
+    foreach ($port in $Script:CommonProxyPorts) {
+        $key = [string]$port
+        if (-not $seen.ContainsKey($key)) {
+            $seen[$key] = $true
+            [void]$ports.Add([int]$port)
+        }
+    }
+
+    foreach ($candidate in $Candidates) {
+        $entries = Get-ProxyConfigEntriesFromValue -Source $candidate.Source -Name $candidate.Name -Value $candidate.Value
+        foreach ($entry in $entries) {
+            $info = Get-ProxyUrlInfo -Url $entry.Value -Source $entry.Source
+            if ($info.IsValid -and $info.IsLocal -and $info.Port -ge 1 -and $info.Port -le 65535) {
+                $key = [string]$info.Port
+                if (-not $seen.ContainsKey($key)) {
+                    $seen[$key] = $true
+                    [void]$ports.Add([int]$info.Port)
+                }
+            }
+        }
+    }
+
+    return @($ports)
+}
+
 function Test-CandidateUsability {
     param([object]$Info)
 
@@ -412,7 +443,7 @@ function Invoke-ProxyDetection {
     $result.WindowsInternetSettings = $internetSettings
 
     $localScan = New-Object System.Collections.ArrayList
-    foreach ($port in $Script:DefaultProxyPorts) {
+    foreach ($port in (Get-ProxyCandidatePorts -Candidates $candidates)) {
         $endpoints = @()
         $reachable = $false
         foreach ($hostName in $Script:LocalProxyHosts) {
