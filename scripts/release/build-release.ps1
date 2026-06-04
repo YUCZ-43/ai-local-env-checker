@@ -109,7 +109,7 @@ function New-TarGzPackage {
 function Copy-CommonPackageFiles {
     param([string]$PackageRoot)
 
-    foreach ($file in @("README.md", "README.zh-CN.md", "README.en-US.md", "LICENSE", "SECURITY.md", "CHANGELOG.md")) {
+    foreach ($file in @("README.md", "README.zh-CN.md", "README.en-US.md", "LICENSE", "SECURITY.md")) {
         Copy-RepoItem -RelativePath $file -DestinationRoot $PackageRoot
     }
 
@@ -122,7 +122,7 @@ function New-WindowsPackageRoot {
     $packageRoot = New-PackageRoot -Name "windows"
     Copy-CommonPackageFiles -PackageRoot $packageRoot
 
-    foreach ($item in @("install.ps1", "verify.ps1", "config.example.json", "scripts/windows")) {
+    foreach ($item in @("install.ps1", "verify.ps1", "config.example.json", "CHANGELOG.md", "scripts/windows")) {
         Copy-RepoItem -RelativePath $item -DestinationRoot $packageRoot
     }
 

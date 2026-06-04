@@ -32,7 +32,6 @@ WSL package:
 - README files
 - `LICENSE`
 - `SECURITY.md`
-- `CHANGELOG.md`
 - `docs/`
 - `locales/`
 - `scripts/wsl/`
@@ -45,7 +44,6 @@ Linux package:
 - README files
 - `LICENSE`
 - `SECURITY.md`
-- `CHANGELOG.md`
 - `docs/`
 - `locales/`
 - `scripts/linux/`
@@ -57,7 +55,6 @@ macOS package:
 - README files
 - `LICENSE`
 - `SECURITY.md`
-- `CHANGELOG.md`
 - `docs/`
 - `locales/`
 - `scripts/macos/`

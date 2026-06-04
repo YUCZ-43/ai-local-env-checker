@@ -63,7 +63,7 @@ init_placeholders() {
 copy_common() {
   package_root="$1"
 
-  for file in README.md README.zh-CN.md README.en-US.md LICENSE SECURITY.md CHANGELOG.md; do
+  for file in README.md README.zh-CN.md README.en-US.md LICENSE SECURITY.md; do
     copy_item "$file" "$package_root"
   done
 
@@ -90,6 +90,7 @@ make_source_tar() {
   tar -czf "$DIST_DIR/ai-local-env-checker-source-v$VERSION.tar.gz" \
     --exclude='./.git' \
     --exclude='./.git/*' \
+    --exclude='./dist/*' \
     --exclude='./dist/*.zip' \
     --exclude='./dist/*.tar.gz' \
     --exclude='./dist/*.tgz' \
@@ -130,6 +131,7 @@ make_source_zip_if_available() {
     cd "$ROOT_DIR" || exit 1
     zip -qr "$DIST_DIR/ai-local-env-checker-source-v$VERSION.zip" . \
       -x ".git/*" \
+      -x "dist/*" \
       -x "dist/*.zip" \
       -x "dist/*.tar.gz" \
       -x "dist/*.tgz" \

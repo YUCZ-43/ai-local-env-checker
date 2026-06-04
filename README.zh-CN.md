@@ -10,7 +10,7 @@ AI Local Environment Checker 是一个安全优先、默认只检测的本地 AI
 
 本项目适合普通用户、技术支持人员、电脑维护人员、部署服务提供者，以及需要批量确认开发环境状态的团队使用。
 
-## 3. 项目目的
+## 3. 项目初衷
 
 本项目的目的，是帮助用户在安装和使用本地 AI 开发工具之前，先检查电脑环境是否已经准备好。
 
@@ -160,16 +160,14 @@ bash scripts/macos/check-macos.sh --check-only --language zh-CN --timeout 10
 
 后端、会员、授权和报告上传都应是可选能力，不能成为离线本地检测的前置条件。
 
-## 12. 故障排查
+## 12. 故障排查与相关链接
 
 见 [docs/troubleshooting.md](docs/troubleshooting.md)。
 
 代理检测说明见 [docs/proxy-detection.md](docs/proxy-detection.md)。
 
-## 13. 路线图
+路线图见 [ROADMAP.md](ROADMAP.md)。
 
-见 [ROADMAP.md](ROADMAP.md)。
+安全策略见 [SECURITY.md](SECURITY.md)。
 
-## 14. 许可证
-
-见 [LICENSE](LICENSE)。
+许可证见 [LICENSE](LICENSE)。
