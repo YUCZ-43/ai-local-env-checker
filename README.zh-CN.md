@@ -62,6 +62,14 @@ v0.6.1 增加数据驱动的工具目录，用于描述 AI 和本地开发工具
 
 详见 [docs/tool-catalog.md](docs/tool-catalog.md)、[docs/supported-tools.md](docs/supported-tools.md)、[docs/tool-manifest-schema.md](docs/tool-manifest-schema.md) 和 [docs/agent-tool-security.md](docs/agent-tool-security.md)。
 
+## v0.6.2 GitHub Actions CI
+
+v0.6.2 增加 GitHub Actions CI，用于 pull request 和 push 验证。CI 会验证 schema、工具目录 manifest、示例、Go CLI 测试和构建、桌面 npm 测试和构建、Tauri backend cargo test、脚本语法和安全护栏。
+
+当前还没有启用 release automation。SLSA provenance workflow 和 Datadog Synthetics 也会推迟到后续阶段。
+
+详见 [docs/github-actions-ci.md](docs/github-actions-ci.md)。
+
 ## 1. 项目名称
 
 AI Local Environment Checker
