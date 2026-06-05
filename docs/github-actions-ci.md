@@ -23,6 +23,8 @@ The main CI workflow checks:
 - Tracked-file artifact guard for generated outputs and secret-like files
 - Forbidden source scan for local machine paths and fixed proxy-port values
 
+The Actions workflow runs safe validation scripts under PowerShell 7 (`pwsh`) for consistent parsing on GitHub-hosted Windows runners. Local validation may still use Windows PowerShell when checking Windows 5.1 compatibility.
+
 ## What CI Does Not Do
 
 CI does not:
@@ -44,7 +46,9 @@ CI does not:
 
 ## Why Generated Artifacts Are Ignored
 
-Generated files such as logs, reports, `dist/`, `target/`, `node_modules/`, binaries, installers, and archives can contain machine-specific paths, timestamps, build products, or sensitive diagnostic data. They are not source and should not be committed.
+Generated files such as top-level logs, top-level reports, `dist/`, `target/`, `node_modules/`, binaries, installers, and archives can contain machine-specific paths, timestamps, build products, or sensitive diagnostic data. They are not source and should not be committed.
+
+Committed fixtures under `examples/reports/` are allowed because they are stable schema examples used by validation and documentation. They are not generated runtime reports.
 
 ## Local Validation Before PR
 

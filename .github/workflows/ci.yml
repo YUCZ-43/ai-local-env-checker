@@ -151,11 +151,11 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           if (Test-Path -LiteralPath "scripts/dev/check-v0.6.1-tool-catalog.ps1") {
-            powershell -ExecutionPolicy Bypass -File .\scripts\dev\check-v0.6.1-tool-catalog.ps1
+            pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev\check-v0.6.1-tool-catalog.ps1
           } elseif (Test-Path -LiteralPath "scripts/dev/check-v0.6.0-gui.ps1") {
-            powershell -ExecutionPolicy Bypass -File .\scripts\dev\check-v0.6.0-gui.ps1
+            pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev\check-v0.6.0-gui.ps1
           } elseif (Test-Path -LiteralPath "scripts/dev/check-v0.5.0-runner.ps1") {
-            powershell -ExecutionPolicy Bypass -File .\scripts\dev\check-v0.5.0-runner.ps1
+            pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev\check-v0.5.0-runner.ps1
           } else {
             throw "No known safe validation script found"
           }
@@ -166,10 +166,13 @@ jobs:
           $ErrorActionPreference = "Stop"
           $tracked = git ls-files
           $blocked = $tracked | Where-Object {
-            if ($_ -match '(^|/)(logs|reports|dist)/\.gitkeep$') {
+            $allowedPlaceholder = $_ -match '^(logs|reports|dist)/\.gitkeep$'
+            $allowedExampleReport = $_ -match '^examples/reports/[^/]+\.json$'
+            if ($allowedPlaceholder -or $allowedExampleReport) {
               return $false
             }
-            $_ -match '(^|/)(logs|reports|dist|node_modules|target)(/|$)' -or
+            $_ -match '^(logs|reports|dist)/' -or
+            $_ -match '(^|/)(dist|node_modules|target)(/|$)' -or
             $_ -match '\.(exe|msi|zip|tar\.gz|tgz|7z)$' -or
             $_ -match '(^|/)\.env($|\.)' -or
             $_ -match '(token|tokens|key|keys|pem|pfx|p12)$'
