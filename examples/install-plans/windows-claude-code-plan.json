@@ -1,0 +1,21 @@
+{
+  "id": "windows-claude-code-plan",
+  "platform": "windows",
+  "action": "install-claude-code",
+  "description": "Example future plan for installing Claude Code on Windows. This file documents intended commands only and must not be auto-executed.",
+  "commands": [
+    "npm install -g @anthropic-ai/claude-code",
+    "claude --version"
+  ],
+  "requiresAdmin": false,
+  "riskLevel": "MEDIUM",
+  "confirmationRequired": true,
+  "rollbackAvailable": false,
+  "verificationCommands": [
+    "claude --version"
+  ],
+  "autoExecute": false,
+  "notes": [
+    "Example only. Do not run without explicit user confirmation in a future installer engine."
+  ]
+}

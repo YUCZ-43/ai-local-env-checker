@@ -5,6 +5,18 @@ AI Local Environment Checker is a safe, check-first environment diagnostic toolk
 - 中文文档: [README.zh-CN.md](README.zh-CN.md)
 - English Documentation: [README.en-US.md](README.en-US.md)
 
+## v0.4.0 software product MVP direction
+
+The project is moving toward v0.4.0 as a real software product MVP. The v0.3.x line was focused on scripts, local reports, and downloadable package archives. The v0.4.x line introduces a product architecture for a future installable application:
+
+- Future Go CLI: `apps/cli-go`
+- Future Tauri desktop GUI: `apps/desktop-tauri`
+- PowerShell and Bash remain the platform detection and execution layer.
+- The product design is check-first, plan-first, and confirm-before-install.
+- Current scripts remain safe by default and continue to run in check-only mode unless explicit install or repair modes are added later.
+
+See [docs/software-product-design.md](docs/software-product-design.md), [docs/cli-plan.md](docs/cli-plan.md), and [docs/desktop-gui-plan.md](docs/desktop-gui-plan.md).
+
 ## 1. What this project does
 
 This project runs local readiness checks before users install or troubleshoot local AI development tools. It reports what is installed, what is missing, which settings may need review, and where follow-up action may be needed.
@@ -71,9 +83,11 @@ macOS:
 bash scripts/macos/check-macos.sh --check-only --language en-US --timeout 10
 ```
 
-## 7. Package downloads and release plan
+## 7. Software product and release plan
 
-The v0.3.0 release line prepares downloadable packages for Windows, WSL, Linux, macOS, and source code. Release archives are generated locally under `dist/` for testing and are not committed.
+The v0.3.x release line prepared downloadable packages for Windows, WSL, Linux, macOS, and source code. Release archives are generated locally under `dist/` for testing and are not committed.
+
+The v0.4.x line starts the software product architecture for a cross-platform CLI and future desktop GUI. Package archives are not the final product model; the long-term goal is an installable software application with CLI, desktop UI, install plans, confirmation, logs, and reports.
 
 See [docs/release-packaging.md](docs/release-packaging.md).
 
@@ -81,13 +95,13 @@ See [docs/release-packaging.md](docs/release-packaging.md).
 
 Windows detection is usable as a beta. WSL, Linux, and macOS checkers are detection previews. Release packaging and public documentation are being prepared for future GitHub Releases.
 
-## 9. Future software architecture
+## 9. Software architecture
 
-The current detection layer uses PowerShell on Windows and Bash on WSL/Linux/macOS. Future versions may add a Go CLI, Rust components, Python tooling, a Tauri desktop GUI, a web dashboard, and optional backend features for licensing or report upload.
+The current detection layer uses PowerShell on Windows and Bash on WSL/Linux/macOS. v0.4.x introduces placeholders and schemas for a Go CLI, Tauri desktop GUI, install-plan engine, runner, detector, report, proxy, and policy layers.
 
 Offline local checks must remain available without a backend. Any report upload must require explicit user consent.
 
-See [docs/architecture.md](docs/architecture.md).
+See [docs/architecture.md](docs/architecture.md) and [docs/software-product-design.md](docs/software-product-design.md).
 
 ## 10. Roadmap
 
