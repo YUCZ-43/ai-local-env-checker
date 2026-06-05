@@ -6,6 +6,20 @@ AI Local Environment Checker is a safe, check-first diagnostic toolkit for local
 
 The project is not intended to blindly install software or change system settings. Its first job is to diagnose, report, and recommend.
 
+## v0.4.0 software product MVP direction
+
+The project is moving from the v0.3.x script/package-focused line toward the v0.4.x software product MVP architecture.
+
+v0.4.x introduces:
+
+- Future Go CLI in `apps/cli-go`
+- Future Tauri desktop GUI in `apps/desktop-tauri`
+- Install plan schemas and examples
+- Detector, install-plan, runner, report, proxy, and policy boundaries
+- A check-first, plan-first, confirm-before-install design
+
+Current PowerShell and Bash scripts remain the platform execution layer and stay safe by default. The future desktop GUI will be based on Tauri. The future CLI will be based on Go.
+
 ## 2. Why it exists
 
 Many users get blocked while setting up local AI development tools because the required system pieces are spread across terminals, package managers, PATH, proxy settings, permissions, and operating-system features. A user may not know whether the failure comes from Node.js, npm, Git, VS Code CLI, WSL, a proxy, a missing package manager, or a terminal permission issue.
@@ -130,9 +144,9 @@ Reports may include usernames, local paths, computer names, proxy information, c
 
 Do not commit API keys, tokens, cookies, passwords, account credentials, private keys, or other secrets.
 
-## 10. Package downloads
+## 10. Software product and package plan
 
-The release plan prepares downloadable packages for:
+The v0.3.x line prepared downloadable packages for:
 
 - Windows ZIP package
 - WSL tar.gz package
@@ -142,22 +156,27 @@ The release plan prepares downloadable packages for:
 
 Local release builds are generated under `dist/`. Generated archives are not committed.
 
+The v0.4.x line starts the transition to an installable software product. Package does not only mean zip or tar release files; the long-term product direction includes a Windows GUI installer / setup.exe, cross-platform CLI, desktop GUI, script-based detection and installation engine, install plans, user confirmation, logs, and reports.
+
 ## 11. Future software architecture
 
-The current detection layer uses PowerShell on Windows and Bash on WSL/Linux/macOS. Future versions may add:
+The current detection layer uses PowerShell on Windows and Bash on WSL/Linux/macOS. v0.4.x starts adding:
 
 - Go CLI
-- Rust CLI
-- Python tooling
 - Tauri desktop GUI
-- Web dashboard
+- Install plan engine
+- Policy-controlled runner
+- JSON schemas
+
+Future versions may also add:
+
 - Membership or license backend
 - Device authorization
 - Remote diagnostic report upload, only with explicit user consent
 
 Any backend, membership, license, device authorization, or report-upload feature must remain optional. Offline local checks should continue to work without a backend.
 
-See [docs/architecture.md](docs/architecture.md).
+See [docs/architecture.md](docs/architecture.md), [docs/software-product-design.md](docs/software-product-design.md), [docs/cli-plan.md](docs/cli-plan.md), and [docs/desktop-gui-plan.md](docs/desktop-gui-plan.md).
 
 ## 12. Roadmap
 

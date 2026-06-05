@@ -43,6 +43,12 @@ credentials.*
 
 # Dependencies
 node_modules/
+apps/desktop-tauri/node_modules/
+
+# Build outputs
+target/
+apps/desktop-tauri/src-tauri/target/
+apps/cli-go/*.exe
 
 # Editor / OS
 .vscode/

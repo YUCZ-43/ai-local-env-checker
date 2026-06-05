@@ -1,5 +1,19 @@
 # AI Local Environment Checker
 
+## v0.4.0 软件产品 MVP 方向
+
+本项目正在从 v0.3.x 的脚本检测和下载包形态，转向 v0.4.x 的真实软件产品 MVP 架构。
+
+v0.4.x 引入：
+
+- 未来 Go CLI：`apps/cli-go`
+- 未来 Tauri 桌面 GUI：`apps/desktop-tauri`
+- 安装计划 schema 和示例
+- detector、install-plan、runner、report、proxy、policy 等核心边界
+- 先检测、先生成计划、用户确认后才安装或修复的设计
+
+当前 PowerShell/Bash 脚本仍然是平台检测和执行层，并且默认保持只检测、安全优先。未来桌面 GUI 会基于 Tauri，未来 CLI 会基于 Go。
+
 ## 1. 项目名称
 
 AI Local Environment Checker
@@ -128,9 +142,9 @@ bash scripts/macos/check-macos.sh --check-only --language zh-CN --timeout 10
 
 这些文件用于本地诊断。提交代码或公开分享前，请检查是否包含本地路径、用户名、电脑名、代理地址或其他敏感信息。
 
-## 10. 包下载计划
+## 10. 软件产品与发布计划
 
-未来版本计划提供以下可下载包：
+v0.3.x 主要面向脚本检测、本地报告和下载包：
 
 - Windows ZIP package
 - WSL tar.gz package
@@ -140,6 +154,8 @@ bash scripts/macos/check-macos.sh --check-only --language zh-CN --timeout 10
 
 本地构建的发布包会输出到 `dist/`，该目录中的生成包不会提交到 Git。
 
+v0.4.x 开始转向可安装的软件产品，而不是只把 package 理解为 zip/tar 发布文件。长期目标包括 Windows GUI installer / setup.exe、跨平台 CLI、桌面 GUI、脚本执行引擎、安装计划、用户确认、日志和报告。
+
 ## 11. 未来软件架构
 
 当前检测层使用 PowerShell 和 Bash：
@@ -147,18 +163,23 @@ bash scripts/macos/check-macos.sh --check-only --language zh-CN --timeout 10
 - Windows：PowerShell
 - WSL/Linux/macOS：Bash
 
-未来版本可能增加：
+v0.4.x 开始增加：
 
 - Go CLI
-- Rust CLI
-- Python tooling
 - Tauri desktop GUI
-- Web dashboard
+- 安装计划引擎
+- 受策略控制的 runner
+- JSON schema
+
+未来版本可能继续增加：
+
 - 会员或授权后端
 - 设备授权
 - 远程诊断报告上传，但必须由用户明确同意
 
 后端、会员、授权和报告上传都应是可选能力，不能成为离线本地检测的前置条件。
+
+相关设计见 [docs/software-product-design.md](docs/software-product-design.md)、[docs/cli-plan.md](docs/cli-plan.md)、[docs/desktop-gui-plan.md](docs/desktop-gui-plan.md)。
 
 ## 12. 故障排查与相关链接
 

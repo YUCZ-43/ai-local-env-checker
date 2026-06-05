@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-local-env-checker.local/schema/report.schema.json",
+  "title": "AI Local Environment Checker Report",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["meta", "checks"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["platform", "timestamp", "checkOnly"],
+      "properties": {
+        "platform": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "checkOnly": {
+          "type": "boolean"
+        },
+        "logFile": {
+          "type": "string"
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["name", "status"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "details": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "proxy": {
+      "type": "object"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

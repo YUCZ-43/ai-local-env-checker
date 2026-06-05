@@ -1,0 +1,29 @@
+{
+  "id": "windows-node-git-vscode-plan",
+  "platform": "windows",
+  "action": "install-node-git-vscode",
+  "description": "Example future plan for installing Node.js, Git, and VS Code on Windows. This file documents intended commands only and must not be auto-executed.",
+  "commands": [
+    "winget install OpenJS.NodeJS.LTS",
+    "winget install Git.Git",
+    "winget install Microsoft.VisualStudioCode",
+    "node --version",
+    "npm --version",
+    "git --version",
+    "code --version"
+  ],
+  "requiresAdmin": true,
+  "riskLevel": "HIGH",
+  "confirmationRequired": true,
+  "rollbackAvailable": false,
+  "verificationCommands": [
+    "node --version",
+    "npm --version",
+    "git --version",
+    "code --version"
+  ],
+  "autoExecute": false,
+  "notes": [
+    "Example only. Do not run without explicit user confirmation in a future installer engine."
+  ]
+}
