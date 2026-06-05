@@ -1,0 +1,19 @@
+{
+  "id": "git",
+  "displayName": "Git",
+  "category": "developer-tool",
+  "description": "Git source control command-line tool.",
+  "supportedPlatforms": ["windows", "wsl", "linux", "macos"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "git", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "windows-node-git-vscode-plan", "path": "examples/install-plans/windows-node-git-vscode-plan.json", "dryRunOnly": true, "riskLevel": "HIGH" }],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "git", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": true,
+  "riskLevel": "HIGH",
+  "networkRequirements": ["Installer access may be required outside this preview."],
+  "proxyRequirements": ["Read Git proxy settings only; do not modify them automatically."],
+  "securityWarnings": ["Review installer source and PATH impact before execution."],
+  "notes": ["v0.6.1 only previews Git detection and install plans."],
+  "docs": [{ "label": "Proxy detection", "path": "docs/proxy-detection.md" }],
+  "status": "supported"
+}

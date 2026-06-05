@@ -1,6 +1,6 @@
 [package]
 name = "ai-local-env-checker-desktop"
-version = "0.6.0"
+version = "0.6.1"
 description = "Safe preview desktop GUI for AI Local Environment Checker"
 authors = ["AI Local Environment Checker maintainers"]
 edition = "2021"

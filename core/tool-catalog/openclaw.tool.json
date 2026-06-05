@@ -1,0 +1,19 @@
+{
+  "id": "openclaw",
+  "displayName": "OpenClaw",
+  "category": "agent-tool",
+  "description": "Template entry for OpenClaw agent tooling. Windows usage is treated as WSL2-recommended unless native support is verified.",
+  "supportedPlatforms": ["windows", "wsl", "linux"],
+  "recommendedInstallMode": "template-only",
+  "detectionCommands": [{ "platform": "wsl", "shell": "bash", "command": "openclaw", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "windows-openclaw-wsl-plan", "path": "examples/install-plans/windows-openclaw-wsl-plan.json", "dryRunOnly": true, "riskLevel": "MEDIUM", "description": "WSL2-recommended dry-run template." }],
+  "verificationCommands": [{ "platform": "wsl", "shell": "bash", "command": "openclaw", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "MEDIUM",
+  "networkRequirements": ["Repository or package source access may be needed after manual review."],
+  "proxyRequirements": ["Use existing WSL/Git/proxy configuration only."],
+  "securityWarnings": ["Verify source provenance before installing.", "Review WSL bootstrap scripts before execution."],
+  "notes": ["Windows support is WSL2-recommended in this catalog entry."],
+  "docs": [{ "label": "OpenClaw plan", "path": "docs/openclaw-plan.md" }],
+  "status": "template-only"
+}

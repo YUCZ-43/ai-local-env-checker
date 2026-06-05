@@ -54,6 +54,14 @@ GUI 基于 v0.5.0 Go CLI runner，支持：
 
 详见 [docs/tauri-gui-mvp.md](docs/tauri-gui-mvp.md)、[docs/gui-safety-model.md](docs/gui-safety-model.md) 和 [docs/v0.6.0-roadmap.md](docs/v0.6.0-roadmap.md)。
 
+## v0.6.1 工具目录
+
+v0.6.1 增加数据驱动的工具目录，用于描述 AI 和本地开发工具。它包含 manifest、示例、dry-run-only 安装计划模板、安全 Go CLI `tools` 命令、验证脚本，以及桌面 GUI 的 Tool Catalog 区域。
+
+工具目录用于让 GUI 展示支持的工具、检测预览命令、风险等级、管理员权限要求、推荐安装模式和关联 dry-run 计划。真实安装仍然禁用。
+
+详见 [docs/tool-catalog.md](docs/tool-catalog.md)、[docs/supported-tools.md](docs/supported-tools.md)、[docs/tool-manifest-schema.md](docs/tool-manifest-schema.md) 和 [docs/agent-tool-security.md](docs/agent-tool-security.md)。
+
 ## 1. 项目名称
 
 AI Local Environment Checker

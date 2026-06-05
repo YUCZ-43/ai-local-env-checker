@@ -1,0 +1,19 @@
+{
+  "id": "hermes-agent",
+  "displayName": "Hermes Agent",
+  "category": "agent-tool",
+  "description": "Template entry for a user-configured Hermes Agent repository and local setup workflow.",
+  "supportedPlatforms": ["windows", "wsl", "linux"],
+  "recommendedInstallMode": "template-only",
+  "detectionCommands": [{ "platform": "wsl", "shell": "bash", "command": "test", "args": ["-d", "$HOME/projects/hermes-agent"], "riskLevel": "LOW", "dryRunOnly": true, "description": "Preview a conventional user-owned Hermes Agent checkout location." }],
+  "installPlanTemplates": [{ "id": "windows-hermes-agent-plan", "path": "examples/install-plans/windows-hermes-agent-plan.json", "dryRunOnly": true, "riskLevel": "MEDIUM", "description": "Template-only plan requiring user-supplied repository details." }],
+  "verificationCommands": [{ "platform": "wsl", "shell": "bash", "command": "echo", "args": ["Hermes Agent verification requires user configuration"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "MEDIUM",
+  "networkRequirements": ["Repository access may be required only after the user configures the source."],
+  "proxyRequirements": ["Use existing Git/proxy configuration only."],
+  "securityWarnings": ["Verify repository ownership, commit history, and install scripts before use.", "Do not run unreviewed agent bootstrap scripts."],
+  "notes": ["Installation is documentation/template-only until the user explicitly configures a repository and method."],
+  "docs": [{ "label": "Hermes Agent plan", "path": "docs/hermes-agent-plan.md" }],
+  "status": "template-only"
+}

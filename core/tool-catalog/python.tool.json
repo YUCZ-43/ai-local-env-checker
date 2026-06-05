@@ -1,0 +1,19 @@
+{
+  "id": "python",
+  "displayName": "Python",
+  "category": "runtime",
+  "description": "Python runtime for local scripts, tooling, and agent support utilities.",
+  "supportedPlatforms": ["windows", "wsl", "linux", "macos"],
+  "recommendedInstallMode": "detect-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "python", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "python", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "LOW",
+  "networkRequirements": ["Package installation is outside v0.6.1 scope."],
+  "proxyRequirements": ["Do not modify pip proxy settings automatically."],
+  "securityWarnings": ["Review virtual environment and package sources before installing dependencies."],
+  "notes": ["Detection-only in v0.6.1."],
+  "docs": [{ "label": "Supported tools", "path": "docs/supported-tools.md" }],
+  "status": "supported"
+}

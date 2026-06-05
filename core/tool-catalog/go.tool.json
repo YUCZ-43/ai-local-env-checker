@@ -1,0 +1,19 @@
+{
+  "id": "go",
+  "displayName": "Go",
+  "category": "runtime",
+  "description": "Go toolchain used by the AI Local Environment Checker CLI.",
+  "supportedPlatforms": ["windows", "wsl", "linux", "macos"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "go", "args": ["version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "windows-rust-go-tauri-plan", "path": "examples/install-plans/windows-rust-go-tauri-plan.json", "dryRunOnly": true, "riskLevel": "HIGH" }],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "go", "args": ["version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": true,
+  "riskLevel": "HIGH",
+  "networkRequirements": ["Installer access may be required outside this preview."],
+  "proxyRequirements": ["Use existing Go proxy configuration only."],
+  "securityWarnings": ["Review installer source and PATH changes before execution."],
+  "notes": ["v0.6.1 only links a dry-run template."],
+  "docs": [{ "label": "Supported tools", "path": "docs/supported-tools.md" }],
+  "status": "supported"
+}

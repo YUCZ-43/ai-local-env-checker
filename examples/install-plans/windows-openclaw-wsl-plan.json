@@ -1,0 +1,44 @@
+{
+  "id": "windows-openclaw-wsl-plan",
+  "platform": "windows",
+  "action": "template-openclaw-wsl",
+  "description": "WSL2-recommended template for OpenClaw on Windows. This plan documents review steps only.",
+  "commands": [
+    {
+      "id": "check-wsl2-first",
+      "description": "Preview WSL status before considering OpenClaw setup.",
+      "shell": "powershell",
+      "command": "wsl",
+      "args": ["--status"],
+      "workingDirectory": ".",
+      "requiresAdmin": false,
+      "riskLevel": "LOW",
+      "timeoutSec": 30,
+      "dryRunOnly": true,
+      "confirmationRequired": true,
+      "verificationCommands": ["wsl --status"]
+    },
+    {
+      "id": "review-openclaw-source",
+      "description": "Template placeholder for source and install-script review.",
+      "shell": "powershell",
+      "command": "Write-Output",
+      "args": ["Review OpenClaw source and WSL install steps before execution."],
+      "workingDirectory": ".",
+      "requiresAdmin": false,
+      "riskLevel": "MEDIUM",
+      "timeoutSec": 30,
+      "dryRunOnly": true,
+      "confirmationRequired": true,
+      "verificationCommands": ["Write-Output OpenClaw WSL template review required"]
+    }
+  ],
+  "requiresAdmin": false,
+  "riskLevel": "MEDIUM",
+  "confirmationRequired": true,
+  "rollbackAvailable": false,
+  "verificationCommands": ["wsl --status", "Write-Output OpenClaw WSL template review required"],
+  "autoExecute": false,
+  "dryRunOnly": true,
+  "notes": ["Windows support is WSL2-recommended unless native support is explicitly verified."]
+}

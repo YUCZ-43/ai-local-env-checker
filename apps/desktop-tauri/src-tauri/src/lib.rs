@@ -29,6 +29,28 @@ struct RunnerResult {
     report_path: Option<String>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ToolManifest {
+    id: String,
+    display_name: String,
+    category: String,
+    description: String,
+    supported_platforms: Vec<String>,
+    recommended_install_mode: String,
+    detection_commands: Vec<serde_json::Value>,
+    install_plan_templates: Vec<serde_json::Value>,
+    verification_commands: Vec<serde_json::Value>,
+    requires_admin: bool,
+    risk_level: String,
+    network_requirements: Vec<String>,
+    proxy_requirements: Vec<String>,
+    security_warnings: Vec<String>,
+    notes: Vec<String>,
+    docs: Vec<serde_json::Value>,
+    status: String,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct InstallPlan {
@@ -125,6 +147,37 @@ fn get_report_location() -> Result<String, String> {
         .join("reports")
         .to_string_lossy()
         .to_string())
+}
+
+#[tauri::command]
+fn list_tool_catalog() -> Result<Vec<ToolManifest>, String> {
+    let root = repo_root()?;
+    let catalog_dir = root.join("core").join("tool-catalog");
+    let mut tools = Vec::new();
+    for entry in fs::read_dir(&catalog_dir).map_err(|err| format!("read tool catalog: {err}"))? {
+        let entry = entry.map_err(|err| format!("read tool catalog entry: {err}"))?;
+        let path = entry.path();
+        if path.extension().and_then(|value| value.to_str()) == Some("json") {
+            let raw = fs::read_to_string(&path).map_err(|err| format!("read tool manifest: {err}"))?;
+            let tool: ToolManifest =
+                serde_json::from_str(&raw).map_err(|err| format!("parse tool manifest: {err}"))?;
+            tools.push(tool);
+        }
+    }
+    tools.sort_by(|left, right| left.id.cmp(&right.id));
+    Ok(tools)
+}
+
+#[tauri::command]
+fn preview_tool_detection() -> Result<String, String> {
+    let result = run_cli("tools-detect", &["tools", "detect", "--dry-run"])?;
+    Ok(format_runner_text(result))
+}
+
+#[tauri::command]
+fn preview_tool_plan(tool_id: String) -> Result<String, String> {
+    let result = run_cli("tools-plan", &["tools", "plan", "--id", &tool_id, "--dry-run"])?;
+    Ok(format_runner_text(result))
 }
 
 fn repo_root() -> Result<PathBuf, String> {
@@ -276,6 +329,14 @@ fn extract_report_path(stdout: &str) -> Option<String> {
         .map(|value| value.trim().to_string())
 }
 
+fn format_runner_text(result: RunnerResult) -> String {
+    [result.stdout.trim(), result.stderr.trim()]
+        .into_iter()
+        .filter(|value| !value.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 pub fn run() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -285,7 +346,10 @@ pub fn run() {
             validate_plan,
             simulate_plan,
             dry_run_plan,
-            get_report_location
+            get_report_location,
+            list_tool_catalog,
+            preview_tool_detection,
+            preview_tool_plan
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");

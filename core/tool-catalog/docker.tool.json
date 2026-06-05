@@ -1,0 +1,19 @@
+{
+  "id": "docker",
+  "displayName": "Docker",
+  "category": "platform",
+  "description": "Docker runtime for containers and local development services.",
+  "supportedPlatforms": ["windows", "wsl", "linux", "macos"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "docker", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "windows-docker-plan", "path": "examples/install-plans/windows-docker-plan.json", "dryRunOnly": true, "riskLevel": "HIGH" }],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "docker", "args": ["version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": true,
+  "riskLevel": "HIGH",
+  "networkRequirements": ["Installer and image registry access may be required outside this preview."],
+  "proxyRequirements": ["Docker proxy configuration must be reviewed manually."],
+  "securityWarnings": ["Docker changes system services and virtualization settings; review before install."],
+  "notes": ["v0.6.1 only previews Docker detection and dry-run plans."],
+  "docs": [{ "label": "Supported tools", "path": "docs/supported-tools.md" }],
+  "status": "preview"
+}
