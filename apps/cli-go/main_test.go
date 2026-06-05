@@ -121,6 +121,22 @@ func TestPlanRunConfirmWritesAuditLog(t *testing.T) {
 	}
 }
 
+func TestPlanRunConfirmReturnsNonzeroWhenCommandFails(t *testing.T) {
+	outputRoot := t.TempDir()
+	t.Setenv("AI_LOCAL_DEPLOY_OUTPUT_ROOT", outputRoot)
+	path := writeCLITestPlanWithWorkingDirectory(t, filepath.Join(t.TempDir(), "missing-dir"))
+	var out bytes.Buffer
+
+	code := run([]string{"plan", "run", "--file", path, "--confirm"}, &out)
+
+	if code == 0 {
+		t.Fatalf("expected nonzero exit code for failed command, got 0 with output %q", out.String())
+	}
+	if !strings.Contains(out.String(), "status: FAILED") {
+		t.Fatalf("expected failed command status in output, got %q", out.String())
+	}
+}
+
 func TestOutputDirUsesConfiguredOutputRoot(t *testing.T) {
 	outputRoot := t.TempDir()
 	t.Setenv("AI_LOCAL_DEPLOY_OUTPUT_ROOT", outputRoot)
@@ -155,6 +171,11 @@ func TestConfiguredContentRootRequiresInstallPlanSchema(t *testing.T) {
 
 func writeCLITestPlan(t *testing.T) string {
 	t.Helper()
+	return writeCLITestPlanWithWorkingDirectory(t, ".")
+}
+
+func writeCLITestPlanWithWorkingDirectory(t *testing.T, workingDirectory string) string {
+	t.Helper()
 	path := filepath.Join(t.TempDir(), "safe-plan.json")
 	body := `{
   "id": "windows-safe-demo-plan",
@@ -172,7 +193,7 @@ func writeCLITestPlan(t *testing.T) string {
       "shell": "powershell",
       "command": "Write-Output",
       "args": ["hello"],
-      "workingDirectory": ".",
+      "workingDirectory": "` + strings.ReplaceAll(workingDirectory, `\`, `\\`) + `",
       "requiresAdmin": false,
       "riskLevel": "LOW",
       "timeoutSec": 5,
