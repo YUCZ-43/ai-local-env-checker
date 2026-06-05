@@ -88,6 +88,20 @@ v0.7.0 prepares the Tauri desktop app as a Windows packaged installer preview fo
 
 See [docs/windows-packaged-installer.md](docs/windows-packaged-installer.md), [docs/installer-output-policy.md](docs/installer-output-policy.md), [docs/cli-bundling-strategy.md](docs/cli-bundling-strategy.md), and [docs/v0.7.0-roadmap.md](docs/v0.7.0-roadmap.md).
 
+## v0.8.0 controlled automatic installation MVP
+
+v0.8.0 adds controlled runner execution in the Go CLI:
+
+- dry-run remains the default
+- non-dry-run execution requires explicit `--confirm`
+- only LOW-risk allowlisted demo commands may execute
+- admin-required, MEDIUM, HIGH, ADMIN_REQUIRED, and DANGEROUS execution is blocked
+- every controlled runner attempt writes a local audit log and report
+
+The GUI displays selected tool, target platform, plan steps, command preview, risk labels, admin requirement, dry-run status, confirmation state, and run results. It does not silently install software or auto-elevate.
+
+See [docs/controlled-installation-model.md](docs/controlled-installation-model.md), [docs/runner-policy.md](docs/runner-policy.md), [docs/audit-log-model.md](docs/audit-log-model.md), [docs/rollback-strategy.md](docs/rollback-strategy.md), and [docs/v0.8.0-roadmap.md](docs/v0.8.0-roadmap.md).
+
 ## 2. Why it exists
 
 Many users get blocked while setting up local AI development tools because the required system pieces are spread across terminals, package managers, PATH, proxy settings, permissions, and operating-system features. A user may not know whether the failure comes from Node.js, npm, Git, VS Code CLI, WSL, a proxy, a missing package manager, or a terminal permission issue.

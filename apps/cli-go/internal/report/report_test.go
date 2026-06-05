@@ -30,4 +30,7 @@ func TestNewPlanReportIncludesRequiredSections(t *testing.T) {
 	if len(got.Commands) != 1 || len(got.Results) != 1 || len(got.Verification) != 1 {
 		t.Fatalf("expected commands, results, and verification sections: %#v", got)
 	}
+	if got.NextRecommendedAction == "" {
+		t.Fatalf("expected next recommended action in report")
+	}
 }

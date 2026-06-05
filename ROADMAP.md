@@ -61,11 +61,20 @@
 
 ## v0.8.0
 
-- Controlled automatic installation design.
+- Controlled automatic installation MVP.
+- CLI `--confirm` required for non-dry-run execution.
+- LOW-risk allowlisted demo execution only.
+- Audit JSONL logs and local reports for runner attempts.
+- GUI confirmation state and run-result display.
+- Admin, MEDIUM, HIGH, ADMIN_REQUIRED, and DANGEROUS execution blocked.
+
+## v0.9.0
+
+- Controlled installation expansion design.
 - Explicit user intent before every install action.
-- Per-command confirmation and audit log.
-- Admin elevation design without automatic UAC.
-- Rollback and recovery strategy.
+- Per-command confirmation and richer audit viewer.
+- Admin elevation UX design without automatic UAC.
+- Rollback and recovery implementation strategy.
 - Signed installer and provenance planning.
 - Offline local checks must remain available without backend login.
 

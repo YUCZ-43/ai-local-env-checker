@@ -152,7 +152,9 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = "Stop"
-          if (Test-Path -LiteralPath "scripts/dev/check-v0.7.0-packaging.ps1") {
+          if (Test-Path -LiteralPath "scripts/dev/check-v0.8.0-controlled-installation.ps1") {
+            pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev\check-v0.8.0-controlled-installation.ps1
+          } elseif (Test-Path -LiteralPath "scripts/dev/check-v0.7.0-packaging.ps1") {
             pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev\check-v0.7.0-packaging.ps1
           } elseif (Test-Path -LiteralPath "scripts/dev/check-v0.6.1-tool-catalog.ps1") {
             pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\dev\check-v0.6.1-tool-catalog.ps1

@@ -2,6 +2,7 @@ import "./styles.css";
 import {
   buildPlanSummary,
   commandLine,
+  getControlledExecutionState,
   parseInstallPlan,
   type InstallPlan,
   type PlanSummary,
@@ -31,7 +32,9 @@ type SectionId =
   | "toolCatalog"
   | "plan"
   | "policy"
+  | "confirmation"
   | "dryrun"
+  | "runResult"
   | "logs"
   | "reports"
   | "settings";
@@ -50,12 +53,14 @@ interface AppState {
   reportLocation: string;
   tools: ToolManifest[];
   selectedToolId: string;
+  confirmationChecked: boolean;
+  lastRunResult: string;
 }
 
 const state: AppState = {
   section: "dashboard",
   appName: "AI Local Environment Checker",
-  appVersion: "0.7.0",
+  appVersion: "0.8.0",
   safetyMode: "safe-preview",
   plans: [],
   selectedPath: "",
@@ -66,6 +71,8 @@ const state: AppState = {
   reportLocation: "",
   tools: [],
   selectedToolId: "",
+  confirmationChecked: false,
+  lastRunResult: "No execution result yet.",
 };
 
 const sections: Array<{ id: SectionId; label: string }> = [
@@ -74,7 +81,9 @@ const sections: Array<{ id: SectionId; label: string }> = [
   { id: "toolCatalog", label: "Tool Catalog" },
   { id: "plan", label: "Install Plan Viewer" },
   { id: "policy", label: "Policy / Risk Review" },
+  { id: "confirmation", label: "Confirmation" },
   { id: "dryrun", label: "Dry Run / Simulate" },
+  { id: "runResult", label: "Run Result" },
   { id: "logs", label: "Logs" },
   { id: "reports", label: "Reports" },
   { id: "settings", label: "Settings" },
@@ -92,6 +101,8 @@ function setPlan(raw: string, path: string): void {
   state.rawPlan = raw;
   state.plan = plan;
   state.summary = buildPlanSummary(plan);
+  state.confirmationChecked = false;
+  state.lastRunResult = "No execution result yet.";
 }
 
 async function loadSelectedPlan(path: string): Promise<void> {
@@ -117,6 +128,7 @@ async function runSimulate(): Promise<void> {
     appendLog("Running safe CLI simulation.");
     const result = await simulatePlan(state.selectedPath, state.plan);
     appendLog(formatRunnerResult(result.stdout, result.stderr));
+    state.lastRunResult = formatRunnerResult(result.stdout, result.stderr);
     if (result.reportPath) state.reportLocation = result.reportPath;
   } catch (error) {
     appendLog(`Simulation blocked: ${formatError(error)}`);
@@ -129,6 +141,7 @@ async function runDryRun(): Promise<void> {
     appendLog("Running safe CLI dry-run.");
     const result = await dryRunPlan(state.selectedPath, state.plan);
     appendLog(formatRunnerResult(result.stdout, result.stderr));
+    state.lastRunResult = formatRunnerResult(result.stdout, result.stderr);
     if (result.reportPath) state.reportLocation = result.reportPath;
   } catch (error) {
     appendLog(`Dry-run blocked: ${formatError(error)}`);
@@ -205,6 +218,7 @@ function render(): void {
         <div class="status-row">
           ${badge("Real install disabled", "blocked")}
           ${badge("Dry-run allowed", "ok")}
+          ${badge("LOW allowlist CLI only", "warn")}
           ${badge("Admin disabled", "warn")}
         </div>
       </header>
@@ -227,8 +241,12 @@ function renderSection(): string {
       return renderPlanViewer();
     case "policy":
       return renderPolicy();
+    case "confirmation":
+      return renderConfirmation();
     case "dryrun":
       return renderDryRun();
+    case "runResult":
+      return renderRunResult();
     case "logs":
       return renderLogs();
     case "reports":
@@ -244,12 +262,12 @@ function renderDashboard(): string {
     <section class="panel-grid">
       <article class="panel">
         <h3>Safety model</h3>
-        <p>The v0.7.0 desktop app is a packaged Windows installer preview around the Go CLI runner. It can load, validate, simulate, and dry-run plans, but cannot perform real installation or repair.</p>
+        <p>The v0.8.0 desktop app is a controlled installation preview around the Go CLI runner. It can load, validate, simulate, and dry-run plans. The CLI can execute only explicitly confirmed LOW-risk allowlisted demo commands; this GUI keeps real installation disabled.</p>
         <div class="badge-row">
           ${badge("No UAC", "neutral")}
           ${badge("No PATH edits", "neutral")}
           ${badge("No global env edits", "neutral")}
-          ${badge("No confirm run", "blocked")}
+          ${badge("Confirm required", "warn")}
         </div>
       </article>
       <article class="panel">
@@ -273,7 +291,7 @@ function renderEnvironment(): string {
   return `
     <section class="panel">
       <h3>Environment check target</h3>
-      <p>This screen is reserved for ` + "`ai-local-deploy doctor`" + ` output. v0.7.0 keeps the check-only posture and does not repair or install missing tools.</p>
+      <p>This screen is reserved for ` + "`ai-local-deploy doctor`" + ` output. v0.8.0 keeps the check-only posture and does not repair or install missing tools.</p>
       <button class="primary" id="doctor-button">Run doctor manually later</button>
     </section>
   `;
@@ -352,7 +370,7 @@ function renderToolDetails(tool: ToolManifest): string {
       <dt>Risk</dt><dd>${badge(summary.riskLevel, summary.riskLevel === "LOW" ? "ok" : "warn")}</dd>
       <dt>Requires admin</dt><dd>${summary.requiresAdmin ? "Yes" : "No"}</dd>
       <dt>Install mode</dt><dd>${escapeHtml(summary.recommendedInstallMode)}</dd>
-      <dt>Install</dt><dd>${summary.installDisabled ? "Disabled in v0.7.0" : "Unavailable"}</dd>
+      <dt>Install</dt><dd>${summary.installDisabled ? "Disabled in GUI preview" : "Unavailable"}</dd>
     </dl>
     <p>${escapeHtml(tool.description)}</p>
     <div class="actions">
@@ -404,7 +422,7 @@ function renderCommands(): string {
               </div>
               <p>${escapeHtml(command.description ?? "")}</p>
               <code>${escapeHtml(commandLine(command))}</code>
-              <small>requiresAdmin=${Boolean(command.requiresAdmin)} · confirmationRequired=${Boolean(command.confirmationRequired)}</small>
+              <small>requiresAdmin=${Boolean(command.requiresAdmin)} · dryRunOnly=${Boolean(command.dryRunOnly)} · confirmationRequired=${Boolean(command.confirmationRequired)} · expected=${escapeHtml(command.expectedResult ?? "not specified")}</small>
             </div>
           `,
         )
@@ -418,7 +436,7 @@ function renderPolicy(): string {
   return `
     <section class="panel">
       <h3>Policy / risk review</h3>
-      <p>v0.7.0 blocks MEDIUM, HIGH, and DANGEROUS plans, blocks admin plans, and never calls ` + "`plan run --confirm`" + `.</p>
+      <p>v0.8.0 blocks MEDIUM, HIGH, ADMIN_REQUIRED, and DANGEROUS risk execution, blocks admin plans, and requires explicit confirmation before any LOW-risk allowlisted CLI execution.</p>
       ${
         reasons.length
           ? `<ul class="reason-list">${reasons.map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")}</ul>`
@@ -428,17 +446,57 @@ function renderPolicy(): string {
   `;
 }
 
+function renderConfirmation(): string {
+  if (!state.plan) {
+    return `<section class="panel"><h3>Confirmation</h3><p>Select an install plan before reviewing confirmation state.</p></section>`;
+  }
+  const execution = getControlledExecutionState(state.plan, state.confirmationChecked);
+  return `
+    <section class="panel">
+      <h3>Confirmation</h3>
+      <p>Default mode is dry-run. Real installation is not enabled in this GUI preview. v0.8.0 supports controlled simulation and LOW-risk allowlisted execution only through the CLI with explicit ` + "`--confirm`" + `.</p>
+      <dl class="summary-list">
+        <dt>Selected tool</dt><dd>${escapeHtml(state.plan.toolId || state.plan.id)}</dd>
+        <dt>Target platform</dt><dd>${escapeHtml(state.plan.platform)}</dd>
+        <dt>Dry-run default</dt><dd>${execution.dryRunDefault ? "Yes" : "No"}</dd>
+        <dt>Confirmation</dt><dd>${execution.confirmationChecked ? "Checked" : "Not checked"}</dd>
+        <dt>Controlled CLI run</dt><dd>${execution.confirmedExecutionAllowed ? "Eligible in CLI" : "Blocked"}</dd>
+      </dl>
+      <label class="check-field">
+        <input type="checkbox" id="confirmation-checkbox" ${state.confirmationChecked ? "checked" : ""} />
+        <span>I reviewed the selected plan, risk labels, admin requirement, dry-run status, command preview, expected result, and rollback notes.</span>
+      </label>
+      <div class="actions">
+        <button class="secondary" id="simulate-button">Simulate plan</button>
+        <button class="primary" id="dryrun-button">Dry-run plan</button>
+        <button class="danger" id="real-run-button" disabled>Real run disabled in GUI preview</button>
+      </div>
+      <p class="blocked-note">${escapeHtml(execution.disabledReason || "The loaded plan is eligible only for explicit CLI-controlled LOW-risk allowlisted execution.")}</p>
+    </section>
+  `;
+}
+
 function renderDryRun(): string {
   const disabled = state.selectedPath ? "" : "disabled";
   return `
     <section class="panel">
       <h3>Dry-run and simulate</h3>
-      <p>These controls call the Go CLI in safe modes only. Real installation, repair, PATH changes, elevation, and confirm execution are not wired in this GUI.</p>
+      <p>These controls call the Go CLI in safe modes. Real installation, repair, PATH changes, elevation, and silent execution are not wired in this GUI.</p>
       <div class="actions">
         <button class="secondary" id="validate-button" ${disabled}>Validate plan</button>
         <button class="secondary" id="simulate-button" ${disabled}>Simulate plan</button>
         <button class="primary" id="dryrun-button" ${disabled}>Dry-run plan</button>
       </div>
+    </section>
+  `;
+}
+
+function renderRunResult(): string {
+  return `
+    <section class="panel log-panel">
+      <h3>Run Result</h3>
+      <p>Execution result and report paths appear here after validation, simulation, or dry-run.</p>
+      <pre>${escapeHtml(state.lastRunResult)}</pre>
     </section>
   `;
 }
@@ -468,8 +526,8 @@ function renderSettings(): string {
       <h3>Settings</h3>
       <dl class="summary-list">
         <dt>Safety mode</dt><dd>${escapeHtml(state.safetyMode)}</dd>
-        <dt>CLI integration</dt><dd>Safe backend adapter, dry-run and simulate only</dd>
-        <dt>Install execution</dt><dd>Disabled in v0.7.0</dd>
+        <dt>CLI integration</dt><dd>Safe backend adapter with dry-run, simulate, and CLI-only controlled LOW-risk allowlisted execution</dd>
+        <dt>Install execution</dt><dd>Disabled in GUI preview</dd>
         <dt>Admin elevation</dt><dd>Not implemented</dd>
       </dl>
     </section>
@@ -492,8 +550,12 @@ function bindEvents(): void {
   document.querySelector<HTMLButtonElement>("#validate-button")?.addEventListener("click", () => void runValidate());
   document.querySelector<HTMLButtonElement>("#simulate-button")?.addEventListener("click", () => void runSimulate());
   document.querySelector<HTMLButtonElement>("#dryrun-button")?.addEventListener("click", () => void runDryRun());
+  document.querySelector<HTMLInputElement>("#confirmation-checkbox")?.addEventListener("change", (event) => {
+    state.confirmationChecked = (event.currentTarget as HTMLInputElement).checked;
+    render();
+  });
   document.querySelector<HTMLButtonElement>("#doctor-button")?.addEventListener("click", () => {
-    appendLog("Doctor command adapter is documented for v0.7.0; UI execution will be expanded after the packaged preview.");
+    appendLog("Doctor command adapter is documented for v0.8.0; UI execution will be expanded after the controlled installation preview.");
   });
   document.querySelector<HTMLButtonElement>("#tool-detect-button")?.addEventListener("click", () => void runToolDetectionPreview());
   document.querySelector<HTMLButtonElement>("#tool-plan-button")?.addEventListener("click", () => {

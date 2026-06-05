@@ -1,7 +1,7 @@
 {
   "name": "ai-local-env-checker-desktop",
-  "version": "0.7.0",
-  "description": "Safe Windows installer preview for AI Local Environment Checker",
+  "version": "0.8.0",
+  "description": "Controlled automatic installation MVP for AI Local Environment Checker",
   "author": "AI Local Environment Checker maintainers",
   "private": true,
   "type": "module",

@@ -20,13 +20,27 @@ func TestEvaluateRequiresDryRunWithoutConfirm(t *testing.T) {
 	}
 }
 
-func TestEvaluateRefusesHighAndDangerousRisk(t *testing.T) {
-	for _, risk := range []string{"HIGH", "DANGEROUS"} {
+func TestEvaluateRefusesMediumAdminHighAndDangerousRisk(t *testing.T) {
+	for _, risk := range []string{"MEDIUM", "ADMIN_REQUIRED", "HIGH", "DANGEROUS"} {
 		p := demoPlan(risk)
 		decision := Evaluate(p, Options{Confirm: true, Elevated: true})
 		if decision.Allowed {
 			t.Fatalf("expected %s to be refused: %#v", risk, decision)
 		}
+	}
+}
+
+func TestEvaluateRefusesAdminRequiredPlanEvenWhenElevated(t *testing.T) {
+	p := demoPlan("LOW")
+	p.RequiresAdmin = true
+
+	decision := Evaluate(p, Options{Confirm: true, Elevated: true})
+
+	if decision.Allowed {
+		t.Fatalf("expected admin-required plan to be refused in v0.8.0: %#v", decision)
+	}
+	if !strings.Contains(strings.Join(decision.Reasons, " "), "admin") {
+		t.Fatalf("expected admin reason, got %#v", decision.Reasons)
 	}
 }
 

@@ -283,13 +283,13 @@ fn assert_safe_preview_plan(path: &Path) -> Result<(), String> {
 
     if blocked_risk(&plan_risk) {
         return Err(format!(
-            "plan {} risk level {} is blocked in the v0.7.0 installer preview",
+            "plan {} risk level {} is blocked in the v0.8.0 controlled installation preview",
             plan.id, plan_risk
         ));
     }
     if plan.requires_admin {
         return Err(format!(
-            "plan {} requires admin privileges, which are disabled in the v0.7.0 installer preview",
+            "plan {} requires admin privileges, which are disabled in the v0.8.0 controlled installation preview",
             plan.id
         ));
     }
@@ -302,13 +302,13 @@ fn assert_safe_preview_plan(path: &Path) -> Result<(), String> {
         };
         if blocked_risk(&command_risk) {
             return Err(format!(
-                "command {} risk level {} is blocked in the v0.7.0 installer preview",
+                "command {} risk level {} is blocked in the v0.8.0 controlled installation preview",
                 command.id, command_risk
             ));
         }
         if command.requires_admin {
             return Err(format!(
-                "command {} requires admin privileges, which are disabled in the v0.7.0 installer preview",
+                "command {} requires admin privileges, which are disabled in the v0.8.0 controlled installation preview",
                 command.id
             ));
         }
@@ -322,7 +322,7 @@ fn normalize_risk(risk: &str) -> String {
 }
 
 fn blocked_risk(risk: &str) -> bool {
-    matches!(risk, "MEDIUM" | "HIGH" | "DANGEROUS")
+    matches!(risk, "MEDIUM" | "HIGH" | "ADMIN_REQUIRED" | "DANGEROUS")
 }
 
 fn run_cli(mode: &str, args: &[&str]) -> Result<RunnerResult, String> {
@@ -501,6 +501,7 @@ mod tests {
         assert!(!blocked_risk("LOW"));
         assert!(blocked_risk("MEDIUM"));
         assert!(blocked_risk("HIGH"));
+        assert!(blocked_risk("ADMIN_REQUIRED"));
         assert!(blocked_risk("DANGEROUS"));
     }
 

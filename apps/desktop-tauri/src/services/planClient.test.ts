@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertSafePreviewPlan,
   buildPlanSummary,
+  getControlledExecutionState,
   parseInstallPlan,
 } from "./planClient";
 
@@ -59,5 +60,24 @@ describe("planClient", () => {
     const plan = parseInstallPlan(safePlanJson.replace('"LOW"', '"MEDIUM"'));
 
     expect(() => assertSafePreviewPlan(plan)).toThrow(/risk level MEDIUM/i);
+  });
+
+  it("requires explicit confirmation before controlled LOW-risk execution", () => {
+    const plan = parseInstallPlan(safePlanJson.replaceAll('"dryRunOnly":true', '"dryRunOnly":false'));
+
+    expect(getControlledExecutionState(plan, false)).toMatchObject({
+      dryRunDefault: true,
+      confirmedExecutionAllowed: false,
+    });
+    expect(getControlledExecutionState(plan, true)).toMatchObject({
+      dryRunDefault: true,
+      confirmedExecutionAllowed: true,
+    });
+  });
+
+  it("keeps admin and medium-risk plans blocked even after confirmation", () => {
+    const plan = parseInstallPlan(safePlanJson.replace('"LOW"', '"ADMIN_REQUIRED"'));
+
+    expect(getControlledExecutionState(plan, true).confirmedExecutionAllowed).toBe(false);
   });
 });

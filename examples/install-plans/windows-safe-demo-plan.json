@@ -1,8 +1,9 @@
 {
   "id": "windows-safe-demo-plan",
+  "toolId": "safe-demo",
   "platform": "windows",
   "action": "safe-demo",
-  "description": "Safe v0.5.0 demo plan for exercising the install-plan runner without installing, repairing, deleting, or changing system settings.",
+  "description": "Safe v0.8.0 demo plan for exercising controlled LOW-risk allowlisted execution without installing, repairing, deleting, or changing system settings.",
   "commands": [
     {
       "id": "demo-write-output",
@@ -16,6 +17,8 @@
       "timeoutSec": 5,
       "dryRunOnly": false,
       "confirmationRequired": true,
+      "expectedResult": "Prints a harmless demo message.",
+      "rollbackNote": "No rollback is required because the command does not modify system state.",
       "verificationCommands": ["Write-Output verification-ok"]
     },
     {
@@ -30,6 +33,8 @@
       "timeoutSec": 5,
       "dryRunOnly": false,
       "confirmationRequired": true,
+      "expectedResult": "Prints the current user name for local validation.",
+      "rollbackNote": "No rollback is required because the command is read-only.",
       "verificationCommands": ["whoami"]
     },
     {
@@ -44,6 +49,8 @@
       "timeoutSec": 5,
       "dryRunOnly": false,
       "confirmationRequired": true,
+      "expectedResult": "Prints the PowerShell version for local validation.",
+      "rollbackNote": "No rollback is required because the command is read-only.",
       "verificationCommands": ["$PSVersionTable.PSVersion"]
     },
     {
@@ -58,6 +65,8 @@
       "timeoutSec": 5,
       "dryRunOnly": false,
       "confirmationRequired": true,
+      "expectedResult": "Prints the Git version if Git is already available.",
+      "rollbackNote": "No rollback is required because the command is read-only.",
       "verificationCommands": ["git --version"]
     }
   ],
@@ -73,7 +82,10 @@
   ],
   "autoExecute": false,
   "dryRunOnly": false,
+  "expectedResult": "A local audit log and report are generated for harmless LOW-risk demo commands.",
+  "rollbackNote": "No rollback is required because this plan performs no installation or system mutation.",
   "notes": [
-    "This plan is intentionally harmless and exists only to validate the v0.5.0 runner pipeline."
+    "This plan is intentionally harmless and exists only to validate the v0.8.0 controlled runner pipeline.",
+    "Real execution still requires the explicit CLI --confirm flag."
   ]
 }

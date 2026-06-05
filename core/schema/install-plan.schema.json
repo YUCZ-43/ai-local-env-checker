@@ -21,6 +21,10 @@
       "type": "string",
       "minLength": 1
     },
+    "toolId": {
+      "type": "string",
+      "minLength": 1
+    },
     "platform": {
       "type": "string",
       "enum": ["windows", "wsl", "linux", "macos", "darwin", "cross-platform"]
@@ -77,6 +81,14 @@
       "type": "boolean",
       "default": false
     },
+    "expectedResult": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rollbackNote": {
+      "type": "string",
+      "minLength": 1
+    },
     "notes": {
       "type": "array",
       "items": {
@@ -88,7 +100,7 @@
   "$defs": {
     "RiskLevel": {
       "type": "string",
-      "enum": ["LOW", "MEDIUM", "HIGH", "DANGEROUS"]
+      "enum": ["LOW", "MEDIUM", "HIGH", "ADMIN_REQUIRED", "DANGEROUS"]
     },
     "Command": {
       "type": "object",
@@ -147,6 +159,14 @@
         "confirmationRequired": {
           "type": "boolean",
           "default": true
+        },
+        "expectedResult": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rollbackNote": {
+          "type": "string",
+          "minLength": 1
         },
         "verificationCommands": {
           "type": "array",

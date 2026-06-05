@@ -82,6 +82,20 @@ v0.7.0 将 Tauri 桌面应用准备为 AI Local Environment Checker 自身的 Wi
 
 详见 [docs/windows-packaged-installer.md](docs/windows-packaged-installer.md)、[docs/installer-output-policy.md](docs/installer-output-policy.md)、[docs/cli-bundling-strategy.md](docs/cli-bundling-strategy.md) 和 [docs/v0.7.0-roadmap.md](docs/v0.7.0-roadmap.md)。
 
+## v0.8.0 受控自动安装 MVP
+
+v0.8.0 在 Go CLI 中加入受控执行层：
+
+- 默认仍然是 dry-run。
+- 非 dry-run 执行必须显式传入 `--confirm`。
+- 只允许 LOW 风险且在安全 allowlist 中的演示命令执行。
+- 管理员权限、MEDIUM、HIGH、ADMIN_REQUIRED 和 DANGEROUS 风险执行都会被阻止。
+- 每次受控 runner 尝试都会写入本地 audit log 和 report。
+
+GUI 会展示已选择工具、目标平台、计划步骤、命令预览、风险标签、管理员权限要求、dry-run 状态、确认状态和运行结果。GUI 不会静默安装软件，也不会自动提权。
+
+详见 [docs/controlled-installation-model.md](docs/controlled-installation-model.md)、[docs/runner-policy.md](docs/runner-policy.md)、[docs/audit-log-model.md](docs/audit-log-model.md)、[docs/rollback-strategy.md](docs/rollback-strategy.md) 和 [docs/v0.8.0-roadmap.md](docs/v0.8.0-roadmap.md)。
+
 ## 1. 项目名称
 
 AI Local Environment Checker
