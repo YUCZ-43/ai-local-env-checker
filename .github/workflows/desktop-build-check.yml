@@ -1,0 +1,73 @@
+name: Desktop Build Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_tauri_build:
+        description: Run npm run tauri build after tests
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+
+jobs:
+  desktop-build-check:
+    name: Manual desktop build readiness
+    runs-on: windows-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/desktop-tauri/package-lock.json
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: apps/cli-go/go.mod
+
+      - name: Check preinstalled Rust toolchain
+        shell: pwsh
+        run: |
+          cargo --version
+          rustc --version
+
+      - name: Desktop npm test and build
+        shell: pwsh
+        working-directory: apps/desktop-tauri
+        run: |
+          $ErrorActionPreference = "Stop"
+          npm ci --ignore-scripts
+          npm test
+          npm run build
+
+      - name: Tauri backend cargo test
+        shell: pwsh
+        working-directory: apps/desktop-tauri/src-tauri
+        run: |
+          $ErrorActionPreference = "Stop"
+          cargo test
+
+      - name: Optional Tauri build
+        if: ${{ github.event.inputs.run_tauri_build == 'true' }}
+        shell: pwsh
+        working-directory: apps/desktop-tauri
+        run: |
+          $ErrorActionPreference = "Stop"
+          npm run tauri build
+
+      - name: Generated artifact reminder
+        shell: pwsh
+        run: |
+          Write-Host "This workflow does not upload installers, create tags, create releases, or publish artifacts."

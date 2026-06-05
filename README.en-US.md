@@ -68,6 +68,14 @@ The catalog helps the GUI show supported tools, detection preview commands, risk
 
 See [docs/tool-catalog.md](docs/tool-catalog.md), [docs/supported-tools.md](docs/supported-tools.md), [docs/tool-manifest-schema.md](docs/tool-manifest-schema.md), and [docs/agent-tool-security.md](docs/agent-tool-security.md).
 
+## v0.6.2 GitHub Actions CI
+
+v0.6.2 adds GitHub Actions CI validation for pull requests and pushes. CI validates schemas, tool catalog manifests, examples, Go CLI tests/build, desktop npm tests/build, Tauri backend cargo tests, script syntax, and safety guards.
+
+Release automation is not enabled yet. SLSA provenance workflows and Datadog Synthetics are intentionally deferred.
+
+See [docs/github-actions-ci.md](docs/github-actions-ci.md).
+
 ## 2. Why it exists
 
 Many users get blocked while setting up local AI development tools because the required system pieces are spread across terminals, package managers, PATH, proxy settings, permissions, and operating-system features. A user may not know whether the failure comes from Node.js, npm, Git, VS Code CLI, WSL, a proxy, a missing package manager, or a terminal permission issue.

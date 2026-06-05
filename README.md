@@ -50,6 +50,12 @@ v0.6.1 adds a data-driven tool catalog for AI and local-development tools. The c
 
 See [docs/tool-catalog.md](docs/tool-catalog.md), [docs/supported-tools.md](docs/supported-tools.md), and [docs/agent-tool-security.md](docs/agent-tool-security.md).
 
+## v0.6.2 GitHub Actions CI
+
+v0.6.2 adds GitHub Actions CI validation for schemas, tool catalog data, Go CLI checks, desktop tests/build checks, script syntax, and safety guards. Release automation is not enabled yet.
+
+See [docs/github-actions-ci.md](docs/github-actions-ci.md).
+
 ## 1. What this project does
 
 This project runs local readiness checks before users install or troubleshoot local AI development tools. It reports what is installed, what is missing, which settings may need review, and where follow-up action may be needed.
