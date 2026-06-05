@@ -47,7 +47,8 @@ jobs:
             "install.ps1",
             "verify.ps1",
             "scripts/windows",
-            "scripts/dev"
+            "scripts/dev",
+            "scripts/packaging"
           )
           foreach ($path in $paths) {
             if (-not (Test-Path -LiteralPath $path)) { continue }
@@ -117,6 +118,7 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           if (Test-Path -LiteralPath "Cargo.toml") {
+            pwsh -NoProfile -ExecutionPolicy Bypass -File ..\..\..\scripts\packaging\build-bundled-cli.ps1
             cargo test
           }
 

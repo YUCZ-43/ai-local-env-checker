@@ -6,7 +6,8 @@ v0.7.0 prepares AI Local Environment Checker as a Windows desktop software packa
 
 - Tauri package metadata updated to version `0.7.0`.
 - A Windows-focused installer preview configuration using a local NSIS bundle target.
-- Safe CLI discovery design for future packaged app layouts.
+- Safe CLI sidecar bundling for this project's own `ai-local-deploy` binary.
+- Packaged runtime resources for `core/schema`, `core/tool-catalog`, `examples/install-plans`, and `examples/reports`.
 - Documentation for app data, logs, reports, temporary files, and generated installer handling.
 - A safe validation script for packaging readiness.
 
@@ -38,6 +39,8 @@ Runtime artifacts should stay local:
 
 Generated logs and reports may contain local paths, usernames, proxy details, command output, and system details. They must remain ignored unless they are sanitized examples under `examples/`.
 
+Packaged read-only resources are separate from runtime artifacts. The installer may include `core/`, `examples/`, and the app's own CLI sidecar, but generated `logs/` and `reports/` should be written to the per-user output root selected by the desktop backend.
+
 ## Installer Output
 
 Local package builds may create `.exe`, `.msi`, `.zip`, `.tar.gz`, `.tgz`, `dist/`, and `target/` outputs. These are generated artifacts and must not be committed.
@@ -57,5 +60,7 @@ cargo test
 cd ..
 npm run tauri build
 ```
+
+`npm run tauri build` runs the configured Tauri prebuild command, which builds the local `ai-local-deploy` sidecar before packaging. The generated sidecar under `src-tauri/binaries/` and generated installer outputs under `src-tauri/target/` are ignored and must not be committed.
 
 If `npm run tauri build` fails because a local bundler prerequisite is missing, do not install anything from this workflow. Record the blocker and keep source validation passing.

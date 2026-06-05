@@ -7,7 +7,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run build:frontend",
+    "build:frontend": "tsc && vite build",
+    "build:cli-bundle": "powershell -ExecutionPolicy Bypass -File ../../scripts/packaging/build-bundled-cli.ps1",
     "preview": "vite preview",
     "test": "vitest run",
     "tauri": "tauri"

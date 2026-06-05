@@ -6,7 +6,7 @@
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm run build:cli-bundle && npm run build:frontend",
     "frontendDist": "../dist"
   },
   "app": {
@@ -32,6 +32,13 @@
     "longDescription": "AI Local Environment Checker is a safe preview desktop application for diagnosing local AI development readiness. Real third-party installation remains disabled in v0.7.0.",
     "copyright": "Copyright (c) AI Local Environment Checker maintainers",
     "icon": [],
+    "resources": {
+      "../../../core/schema": "core/schema",
+      "../../../core/tool-catalog": "core/tool-catalog",
+      "../../../examples/install-plans": "examples/install-plans",
+      "../../../examples/reports": "examples/reports"
+    },
+    "externalBin": ["binaries/ai-local-deploy"],
     "windows": {
       "allowDowngrades": true,
       "nsis": {

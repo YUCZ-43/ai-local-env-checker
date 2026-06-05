@@ -135,6 +135,11 @@ function Test-DesktopApp {
 
     $tauriDir = Join-Path $desktopDir "src-tauri"
     if (Test-Path -LiteralPath (Join-Path $tauriDir "Cargo.toml")) {
+        $bundleCliScript = Join-Path $script:RepoRoot "scripts\packaging\build-bundled-cli.ps1"
+        if (Test-Path -LiteralPath $bundleCliScript) {
+            & powershell -ExecutionPolicy Bypass -File $bundleCliScript
+            if ($LASTEXITCODE -ne 0) { throw "bundled CLI build failed" }
+        }
         Push-Location $tauriDir
         try {
             & cargo test
@@ -158,6 +163,7 @@ function Test-GeneratedOutputsIgnored {
         "apps\desktop-tauri\dist\index.html",
         "apps\desktop-tauri\src-tauri\target\release\preview.exe",
         "apps\desktop-tauri\src-tauri\gen\schemas\desktop-schema.json",
+        "apps\desktop-tauri\src-tauri\binaries\ai-local-deploy-x86_64-pc-windows-msvc.exe",
         "apps\cli-go\ai-local-deploy.exe"
     )
     foreach ($relative in $paths) {
@@ -190,6 +196,38 @@ function Test-StagedArtifacts {
         throw "Generated or secret-like artifacts are staged"
     }
     Write-Host "  OK staged artifact guard"
+}
+
+function Test-TauriBundleInputs {
+    Write-Check "Tauri packaged app bundle inputs"
+    $configPath = Join-Path $script:RepoRoot "apps\desktop-tauri\src-tauri\tauri.conf.json"
+    $packagePath = Join-Path $script:RepoRoot "apps\desktop-tauri\package.json"
+    if (-not (Test-Path -LiteralPath $configPath)) {
+        throw "Missing Tauri config"
+    }
+    if (-not (Test-Path -LiteralPath $packagePath)) {
+        throw "Missing desktop package.json"
+    }
+
+    $config = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json
+    $package = Get-Content -LiteralPath $packagePath -Raw | ConvertFrom-Json
+    $resources = $config.bundle.resources
+    foreach ($source in @("../../../core/schema", "../../../core/tool-catalog", "../../../examples/install-plans", "../../../examples/reports")) {
+        if (-not $resources.PSObject.Properties.Name.Contains($source)) {
+            throw "Tauri bundle resources missing source: $source"
+        }
+        Write-Host "  OK resource $source"
+    }
+    if (-not ($config.bundle.externalBin -contains "binaries/ai-local-deploy")) {
+        throw "Tauri bundle externalBin missing ai-local-deploy sidecar"
+    }
+    if (-not $package.scripts.PSObject.Properties.Name.Contains("build:cli-bundle")) {
+        throw "package.json missing build:cli-bundle script"
+    }
+    if ($config.build.beforeBuildCommand -notmatch "build:cli-bundle") {
+        throw "Tauri beforeBuildCommand does not build the bundled CLI"
+    }
+    Write-Host "  OK Tauri bundle includes runtime data and CLI sidecar"
 }
 
 function Test-ForbiddenValues {
@@ -247,6 +285,7 @@ Test-PowerShellSyntax @(
     "install.ps1",
     "verify.ps1",
     "scripts\dev",
+    "scripts\packaging",
     "scripts\windows",
     "scripts\release"
 )
@@ -262,6 +301,7 @@ Test-WorkflowYaml
 Test-GoCli
 Test-DesktopApp
 Test-GeneratedOutputsIgnored
+Test-TauriBundleInputs
 Test-StagedArtifacts
 Test-ForbiddenValues
 

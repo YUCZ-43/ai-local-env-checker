@@ -12,6 +12,7 @@ The repository and validation scripts block staging of:
 - `apps/desktop-tauri/dist/`
 - `apps/desktop-tauri/src-tauri/target/`
 - `apps/desktop-tauri/src-tauri/gen/`
+- `apps/desktop-tauri/src-tauri/binaries/`
 - generated `.exe`, `.msi`, `.zip`, `.tar.gz`, `.tgz`, and `.7z` files
 - generated logs and reports
 - `.env` files
@@ -24,6 +25,8 @@ Top-level `logs/.gitkeep`, `reports/.gitkeep`, and `dist/.gitkeep` are allowed p
 Installers and build outputs can contain timestamps, local paths, machine-specific metadata, bundled binaries, and unsigned preview artifacts. They can be reproduced from source and should be distributed only through an explicit release process.
 
 v0.7.0 does not create GitHub Releases, tags, uploaded artifacts, or signed installers.
+
+The packaged app may bundle this repository's own CLI sidecar and read-only `core/` and `examples/` data. Those inputs are source-built or source-controlled, but the generated sidecar binary and installer output remain local-only artifacts.
 
 ## Safe Review Checklist
 

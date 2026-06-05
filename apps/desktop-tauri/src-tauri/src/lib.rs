@@ -83,7 +83,7 @@ fn get_app_info() -> AppInfo {
 
 #[tauri::command]
 fn list_example_plans() -> Result<Vec<ExamplePlanInfo>, String> {
-    let root = repo_root()?;
+    let root = content_root()?;
     let plan_dir = root.join("examples").join("install-plans");
     let mut plans = Vec::new();
 
@@ -115,14 +115,30 @@ fn read_plan(path: String) -> Result<String, String> {
 #[tauri::command]
 fn validate_plan(path: String) -> Result<RunnerResult, String> {
     let safe_path = canonical_example_plan_path(&path)?;
-    run_cli("validate", &["plan", "validate", "--file", safe_path.to_string_lossy().as_ref()])
+    run_cli(
+        "validate",
+        &[
+            "plan",
+            "validate",
+            "--file",
+            safe_path.to_string_lossy().as_ref(),
+        ],
+    )
 }
 
 #[tauri::command]
 fn simulate_plan(path: String) -> Result<RunnerResult, String> {
     let safe_path = canonical_example_plan_path(&path)?;
     assert_safe_preview_plan(&safe_path)?;
-    run_cli("simulate", &["plan", "simulate", "--file", safe_path.to_string_lossy().as_ref()])
+    run_cli(
+        "simulate",
+        &[
+            "plan",
+            "simulate",
+            "--file",
+            safe_path.to_string_lossy().as_ref(),
+        ],
+    )
 }
 
 #[tauri::command]
@@ -143,7 +159,7 @@ fn dry_run_plan(path: String) -> Result<RunnerResult, String> {
 
 #[tauri::command]
 fn get_report_location() -> Result<String, String> {
-    Ok(repo_root()?
+    Ok(runtime_output_root()
         .join("reports")
         .to_string_lossy()
         .to_string())
@@ -151,14 +167,15 @@ fn get_report_location() -> Result<String, String> {
 
 #[tauri::command]
 fn list_tool_catalog() -> Result<Vec<ToolManifest>, String> {
-    let root = repo_root()?;
+    let root = content_root()?;
     let catalog_dir = root.join("core").join("tool-catalog");
     let mut tools = Vec::new();
     for entry in fs::read_dir(&catalog_dir).map_err(|err| format!("read tool catalog: {err}"))? {
         let entry = entry.map_err(|err| format!("read tool catalog entry: {err}"))?;
         let path = entry.path();
         if path.extension().and_then(|value| value.to_str()) == Some("json") {
-            let raw = fs::read_to_string(&path).map_err(|err| format!("read tool manifest: {err}"))?;
+            let raw =
+                fs::read_to_string(&path).map_err(|err| format!("read tool manifest: {err}"))?;
             let tool: ToolManifest =
                 serde_json::from_str(&raw).map_err(|err| format!("parse tool manifest: {err}"))?;
             tools.push(tool);
@@ -176,37 +193,54 @@ fn preview_tool_detection() -> Result<String, String> {
 
 #[tauri::command]
 fn preview_tool_plan(tool_id: String) -> Result<String, String> {
-    let result = run_cli("tools-plan", &["tools", "plan", "--id", &tool_id, "--dry-run"])?;
+    let result = run_cli(
+        "tools-plan",
+        &["tools", "plan", "--id", &tool_id, "--dry-run"],
+    )?;
     Ok(format_runner_text(result))
 }
 
-fn repo_root() -> Result<PathBuf, String> {
+fn content_root() -> Result<PathBuf, String> {
     let mut candidates = Vec::new();
     if let Ok(current_dir) = std::env::current_dir() {
         candidates.push(current_dir);
     }
+    if let Ok(exe_path) = std::env::current_exe() {
+        if let Some(exe_dir) = exe_path.parent() {
+            candidates.push(exe_dir.to_path_buf());
+        }
+    }
     candidates.push(PathBuf::from(env!("CARGO_MANIFEST_DIR")));
-    candidates.push(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("..").join(".."));
+    candidates.push(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join(".."),
+    );
 
     for candidate in candidates {
-        if let Some(root) = find_repo_root_from(&candidate) {
+        if let Some(root) = find_content_root_from(&candidate) {
             return Ok(root);
         }
     }
 
-    Err("repository root not found".to_string())
+    Err("application content root not found".to_string())
 }
 
-fn find_repo_root_from(start: &Path) -> Option<PathBuf> {
+fn development_repo_root() -> Result<PathBuf, String> {
+    let manifest_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..");
+    find_content_root_from(&manifest_root)
+        .ok_or_else(|| "development repository root not found".to_string())
+}
+
+fn find_content_root_from(start: &Path) -> Option<PathBuf> {
     let mut cursor = start.canonicalize().ok()?;
     loop {
-        if cursor
-            .join("core")
-            .join("schema")
-            .join("install-plan.schema.json")
-            .is_file()
-        {
-            return Some(cursor);
+        for candidate in [cursor.clone(), cursor.join("resources")] {
+            if has_install_plan_schema(&candidate) {
+                return Some(candidate);
+            }
         }
         if !cursor.pop() {
             return None;
@@ -214,8 +248,15 @@ fn find_repo_root_from(start: &Path) -> Option<PathBuf> {
     }
 }
 
+fn has_install_plan_schema(root: &Path) -> bool {
+    root.join("core")
+        .join("schema")
+        .join("install-plan.schema.json")
+        .is_file()
+}
+
 fn canonical_example_plan_path(path: &str) -> Result<PathBuf, String> {
-    let root = repo_root()?;
+    let root = content_root()?;
     let plan_dir = root
         .join("examples")
         .join("install-plans")
@@ -285,20 +326,40 @@ fn blocked_risk(risk: &str) -> bool {
 }
 
 fn run_cli(mode: &str, args: &[&str]) -> Result<RunnerResult, String> {
-    let root = repo_root()?;
-    let cli_dir = root.join("apps").join("cli-go");
+    let content_root = content_root()?;
+    let output_root = runtime_output_root();
     let output = if let Some(bundled_bin) = bundled_cli_binary() {
-        Command::new(bundled_bin).args(args).current_dir(&root).output()
+        execute_cli_command(
+            Command::new(bundled_bin),
+            args,
+            &content_root,
+            &content_root,
+            &output_root,
+        )
     } else if let Some(configured_bin) = configured_cli_binary() {
-        Command::new(configured_bin).args(args).current_dir(&root).output()
-    } else if let Some(local_bin) = local_cli_binary(&cli_dir) {
-        Command::new(local_bin).args(args).current_dir(&root).output()
+        execute_cli_command(
+            Command::new(configured_bin),
+            args,
+            &content_root,
+            &content_root,
+            &output_root,
+        )
     } else {
-        Command::new("go")
-            .args(["run", "."])
-            .args(args)
-            .current_dir(&cli_dir)
-            .output()
+        let dev_root = development_repo_root()?;
+        let cli_dir = dev_root.join("apps").join("cli-go");
+        if let Some(local_bin) = local_cli_binary(&cli_dir) {
+            execute_cli_command(
+                Command::new(local_bin),
+                args,
+                &dev_root,
+                &content_root,
+                &output_root,
+            )
+        } else {
+            let mut command = Command::new("go");
+            command.args(["run", "."]);
+            execute_cli_command(command, args, &cli_dir, &content_root, &output_root)
+        }
     }
     .map_err(|err| format!("run ai-local-deploy CLI: {err}"))?;
 
@@ -315,20 +376,46 @@ fn run_cli(mode: &str, args: &[&str]) -> Result<RunnerResult, String> {
     })
 }
 
+fn execute_cli_command(
+    mut command: Command,
+    args: &[&str],
+    working_dir: &Path,
+    content_root: &Path,
+    output_root: &Path,
+) -> std::io::Result<std::process::Output> {
+    command
+        .args(args)
+        .current_dir(working_dir)
+        .env("AI_LOCAL_DEPLOY_CONTENT_ROOT", content_root)
+        .env("AI_LOCAL_DEPLOY_OUTPUT_ROOT", output_root)
+        .output()
+}
+
 fn bundled_cli_binary() -> Option<PathBuf> {
-    let file_name = if cfg!(windows) {
-        "ai-local-deploy.exe"
+    let file_names: &[&str] = if cfg!(windows) {
+        &[
+            "ai-local-deploy.exe",
+            "ai-local-deploy-x86_64-pc-windows-msvc.exe",
+        ]
     } else {
-        "ai-local-deploy"
+        &[
+            "ai-local-deploy",
+            "ai-local-deploy-x86_64-unknown-linux-gnu",
+            "ai-local-deploy-aarch64-apple-darwin",
+            "ai-local-deploy-x86_64-apple-darwin",
+        ]
     };
     let exe_dir = std::env::current_exe().ok()?.parent()?.to_path_buf();
     [
-        exe_dir.join(file_name),
-        exe_dir.join("bin").join(file_name),
-        exe_dir.join("resources").join(file_name),
-        exe_dir.join("resources").join("bin").join(file_name),
+        exe_dir.clone(),
+        exe_dir.join("bin"),
+        exe_dir.join("binaries"),
+        exe_dir.join("resources"),
+        exe_dir.join("resources").join("bin"),
+        exe_dir.join("resources").join("binaries"),
     ]
     .into_iter()
+    .flat_map(|dir| file_names.iter().map(move |file_name| dir.join(file_name)))
     .find(|path| path.is_file())
 }
 
@@ -346,6 +433,30 @@ fn local_cli_binary(cli_dir: &Path) -> Option<PathBuf> {
         "ai-local-deploy"
     });
     exe.is_file().then_some(exe)
+}
+
+fn runtime_output_root() -> PathBuf {
+    if let Ok(value) = std::env::var("AI_LOCAL_DEPLOY_OUTPUT_ROOT") {
+        let trimmed = value.trim();
+        if !trimmed.is_empty() {
+            return PathBuf::from(trimmed);
+        }
+    }
+    if cfg!(windows) {
+        if let Ok(local_app_data) = std::env::var("LOCALAPPDATA") {
+            let trimmed = local_app_data.trim();
+            if !trimmed.is_empty() {
+                return PathBuf::from(trimmed).join("AI Local Environment Checker");
+            }
+        }
+        if let Ok(app_data) = std::env::var("APPDATA") {
+            let trimmed = app_data.trim();
+            if !trimmed.is_empty() {
+                return PathBuf::from(trimmed).join("AI Local Environment Checker");
+            }
+        }
+    }
+    std::env::temp_dir().join("ai-local-env-checker")
 }
 
 fn extract_report_path(stdout: &str) -> Option<String> {
@@ -383,7 +494,7 @@ pub fn run() {
 
 #[cfg(test)]
 mod tests {
-    use super::{blocked_risk, extract_report_path, normalize_risk};
+    use super::{blocked_risk, extract_report_path, find_content_root_from, normalize_risk};
 
     #[test]
     fn blocks_medium_and_higher_risk_levels() {
@@ -404,6 +515,20 @@ mod tests {
         assert_eq!(
             extract_report_path(output),
             Some("C:\\repo\\reports\\plan-report.json".to_string())
+        );
+    }
+
+    #[test]
+    fn finds_content_root_from_packaged_resources_directory() {
+        let temp = tempfile::tempdir().expect("create temp dir");
+        let resources = temp.path().join("resources");
+        let schema_dir = resources.join("core").join("schema");
+        std::fs::create_dir_all(&schema_dir).expect("create schema dir");
+        std::fs::write(schema_dir.join("install-plan.schema.json"), "{}").expect("write schema");
+
+        assert_eq!(
+            find_content_root_from(temp.path()).expect("content root"),
+            resources.canonicalize().expect("canonical resources")
         );
     }
 }
