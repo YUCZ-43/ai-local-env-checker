@@ -1,18 +1,20 @@
 # AI Local Environment Checker Desktop
 
-This is the v0.8.0 controlled automatic installation MVP for AI Local Environment Checker.
+This is the v0.9.0 admin permission approval UX local self-test version for AI Local Environment Checker.
 
-The desktop app is a safe preview interface around the Go CLI controlled runner. It can load example install plans, show commands and policy fields, validate plans, simulate safe plans, dry-run safe plans, show logs, and show report locations.
+The desktop app is a safe approval dashboard around the Go CLI controlled runner. It can load example install plans, show commands and policy fields, validate plans, simulate safe plans, dry-run safe plans, review admin permission, review real installer approval state, inspect command approvals, show rollback state, show logs, and show report locations.
 
-v0.8.0 adds user-facing confirmation state and controlled execution review. Generated installers are local-only artifacts and must not be committed.
+v0.9.0 adds a premium rounded UI design system, theme switching, and UI-level language selection. Generated installers are local-only artifacts and must not be committed.
 
 The package preview includes read-only runtime data (`core/schema`, `core/tool-catalog`, `examples/install-plans`, and `examples/reports`) plus this repository's own `ai-local-deploy` CLI sidecar. It does not bundle third-party installers.
 
 ## Safety limits
 
 - GUI real installation is disabled by default.
+- Real installer controls are disabled or preview-only in v0.9.0.
 - CLI real execution requires explicit `plan run --confirm`.
 - Admin elevation is not implemented.
+- The desktop app must not auto-trigger UAC.
 - MEDIUM, HIGH, ADMIN_REQUIRED, and DANGEROUS execution is blocked.
 - LOW-risk execution is limited to safe demo allowlisted commands in the CLI.
 - PATH, proxy, global environment variables, and PowerShell execution policy are not modified.

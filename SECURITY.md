@@ -17,6 +17,9 @@ The default mode is check-only. The project must not install software, modify PA
 - System-level PATH must not be modified by default.
 - Proxy detection is read-only.
 - Logs and reports are local.
+- v0.9.0 desktop real installation is disabled by default.
+- v0.9.0 desktop admin permission review must not auto-trigger UAC.
+- Theme and language settings must not change installer policy or approval state.
 
 ## Logs and reports
 

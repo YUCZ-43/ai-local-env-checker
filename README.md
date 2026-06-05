@@ -72,6 +72,14 @@ The GUI shows confirmation state, risk review, dry-run status, and run results, 
 
 See [docs/controlled-installation-model.md](docs/controlled-installation-model.md), [docs/runner-policy.md](docs/runner-policy.md), [docs/audit-log-model.md](docs/audit-log-model.md), [docs/rollback-strategy.md](docs/rollback-strategy.md), and [docs/v0.8.0-roadmap.md](docs/v0.8.0-roadmap.md).
 
+## v0.9.0 admin permission approval UX
+
+v0.9.0 adds a local self-test approval dashboard for admin permission review, real installer approval modeling, command-level approval, rollback strategy display, audit/report viewer structure, theme switching, language selection, and a premium rounded desktop UI design system.
+
+Real third-party installation remains disabled. The desktop app does not auto-trigger UAC, does not modify PATH, does not change proxy settings, does not modify global environment variables, and does not run real installer commands.
+
+See [docs/v0.9.0-admin-permission-approval-ux.md](docs/v0.9.0-admin-permission-approval-ux.md), [docs/admin-permission-model.md](docs/admin-permission-model.md), [docs/real-installer-approval-model.md](docs/real-installer-approval-model.md), [docs/command-approval-model.md](docs/command-approval-model.md), [docs/audit-report-viewer.md](docs/audit-report-viewer.md), [docs/ux-ui-design-system.md](docs/ux-ui-design-system.md), and [docs/theme-and-language-model.md](docs/theme-and-language-model.md).
+
 ## 1. What this project does
 
 This project runs local readiness checks before users install or troubleshoot local AI development tools. It reports what is installed, what is missing, which settings may need review, and where follow-up action may be needed.

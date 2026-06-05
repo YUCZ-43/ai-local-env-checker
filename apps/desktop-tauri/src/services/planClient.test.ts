@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   assertSafePreviewPlan,
+  buildApprovalSummary,
   buildPlanSummary,
   getControlledExecutionState,
   parseInstallPlan,
@@ -79,5 +80,39 @@ describe("planClient", () => {
     const plan = parseInstallPlan(safePlanJson.replace('"LOW"', '"ADMIN_REQUIRED"'));
 
     expect(getControlledExecutionState(plan, true).confirmedExecutionAllowed).toBe(false);
+  });
+
+  it("builds the v0.9.0 approval summary with real run disabled by default", () => {
+    const plan = parseInstallPlan(
+      safePlanJson
+        .replace('"requiresAdmin":false', '"requiresAdmin":true')
+        .replace('"rollbackAvailable":false', '"rollbackAvailable":true'),
+    );
+
+    const approval = buildApprovalSummary(plan);
+
+    expect(approval.realRunDisabled).toBe(true);
+    expect(approval.dryRunDefault).toBe(true);
+    expect(approval.requiresAdmin).toBe(true);
+    expect(approval.adminState).toBe("blocked");
+    expect(approval.commandApprovals[0]).toMatchObject({
+      id: "check-node",
+      approvalRequired: true,
+      approvalState: "blocked",
+      uiSeverity: "danger",
+    });
+    expect(approval.rollbackAvailable).toBe(true);
+  });
+
+  it("keeps low risk preview commands allowed for dry-run approval review", () => {
+    const plan = parseInstallPlan(safePlanJson);
+
+    const approval = buildApprovalSummary(plan);
+
+    expect(approval.commandApprovals[0]).toMatchObject({
+      approvalRequired: true,
+      approvalState: "preview-only",
+      uiSeverity: "success",
+    });
   });
 });

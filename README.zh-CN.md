@@ -96,6 +96,14 @@ GUI 会展示已选择工具、目标平台、计划步骤、命令预览、风�
 
 详见 [docs/controlled-installation-model.md](docs/controlled-installation-model.md)、[docs/runner-policy.md](docs/runner-policy.md)、[docs/audit-log-model.md](docs/audit-log-model.md)、[docs/rollback-strategy.md](docs/rollback-strategy.md) 和 [docs/v0.8.0-roadmap.md](docs/v0.8.0-roadmap.md)。
 
+## v0.9.0 管理员权限审批 UX
+
+v0.9.0 增加本地自测版审批仪表盘，用于展示管理员权限复核、真实安装审批模型、命令级审批、回滚策略、审计/报告查看结构、主题切换、语言选择，以及更高质感的圆角桌面 UI 设计系统。
+
+真实第三方安装仍然禁用。桌面应用不会自动触发 UAC，不会修改 PATH，不会修改代理设置，不会修改全局环境变量，也不会运行真实安装器命令。
+
+详见 [docs/v0.9.0-admin-permission-approval-ux.md](docs/v0.9.0-admin-permission-approval-ux.md)、[docs/admin-permission-model.md](docs/admin-permission-model.md)、[docs/real-installer-approval-model.md](docs/real-installer-approval-model.md)、[docs/command-approval-model.md](docs/command-approval-model.md)、[docs/audit-report-viewer.md](docs/audit-report-viewer.md)、[docs/ux-ui-design-system.md](docs/ux-ui-design-system.md) 和 [docs/theme-and-language-model.md](docs/theme-and-language-model.md)。
+
 ## 1. 项目名称
 
 AI Local Environment Checker

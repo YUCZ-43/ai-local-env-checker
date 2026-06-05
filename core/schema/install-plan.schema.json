@@ -89,6 +89,60 @@
       "type": "string",
       "minLength": 1
     },
+    "adminReason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approvalRequired": {
+      "type": "boolean"
+    },
+    "approvalState": {
+      "$ref": "#/$defs/ApprovalState"
+    },
+    "approvalSummary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rollbackPlan": {
+      "type": "string",
+      "minLength": 1
+    },
+    "rollbackWarning": {
+      "type": "string",
+      "minLength": 1
+    },
+    "realRunDisabled": {
+      "type": "boolean",
+      "const": true,
+      "default": true
+    },
+    "dryRunDefault": {
+      "type": "boolean",
+      "default": true
+    },
+    "permissionReview": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userConfirmed": {
+      "type": "boolean",
+      "default": false
+    },
+    "blockedReason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "uiSeverity": {
+      "$ref": "#/$defs/UiSeverity"
+    },
+    "displayLanguage": {
+      "type": "string",
+      "enum": ["en-US", "zh-CN", "zh-TW"]
+    },
+    "themePreference": {
+      "type": "string",
+      "enum": ["light", "dark", "system"]
+    },
     "notes": {
       "type": "array",
       "items": {
@@ -101,6 +155,14 @@
     "RiskLevel": {
       "type": "string",
       "enum": ["LOW", "MEDIUM", "HIGH", "ADMIN_REQUIRED", "DANGEROUS"]
+    },
+    "ApprovalState": {
+      "type": "string",
+      "enum": ["allowed", "preview-only", "blocked"]
+    },
+    "UiSeverity": {
+      "type": "string",
+      "enum": ["success", "warning", "high", "danger", "neutral"]
     },
     "Command": {
       "type": "object",
@@ -167,6 +229,19 @@
         "rollbackNote": {
           "type": "string",
           "minLength": 1
+        },
+        "approvalRequired": {
+          "type": "boolean"
+        },
+        "approvalState": {
+          "$ref": "#/$defs/ApprovalState"
+        },
+        "blockedReason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uiSeverity": {
+          "$ref": "#/$defs/UiSeverity"
         },
         "verificationCommands": {
           "type": "array",
