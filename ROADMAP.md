@@ -70,14 +70,15 @@
 
 ## v0.9.0
 
-- Admin permission approval UX local self-test.
+- Admin permission approval UX and v0.9.0-alpha.1 product UI preview.
 - Real installer approval model with real installation disabled by default.
 - Command-level approval model and blocked command visibility.
 - Rollback strategy review surface.
 - Audit/report viewer structure.
 - Light/dark theme switching.
-- English, Simplified Chinese, and Traditional Chinese UI-level language selector.
-- Premium rounded desktop UI design system.
+- English and Simplified Chinese active UI-level language selector, with Traditional Chinese locale files preserved for future work.
+- Premium rounded desktop UI design system with platform cards, command timeline, report preview cards, and static website preview.
+- Windows alpha package target for this app only; macOS and Linux packages planned.
 - No automatic UAC, PATH modification, proxy modification, global environment modification, silent install, tag, PR, release, or push.
 
 ## v1.0.0

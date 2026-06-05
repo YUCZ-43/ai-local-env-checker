@@ -1,6 +1,6 @@
 # Website Hosting Options
 
-This document is planning only. v0.9.0 does not deploy a website.
+This document covers hosting routes for the static `website/` preview added for v0.9.0-alpha.1. The preview can be served as static files, but this alpha does not deploy production, bind a custom domain, modify DNS, or create paid resources.
 
 ## GitHub Pages
 
@@ -44,4 +44,4 @@ Tradeoffs:
 
 ## Recommendation
 
-Use GitHub Pages first for a temporary static preview. Revisit Vercel or Cloudflare Pages when the landing page, docs structure, screenshots, and download strategy are ready. Defer domestic hosting until there is a clear public launch plan.
+Use GitHub Pages first for a temporary static preview. Vercel or Cloudflare Pages can be used for preview deployment after owner confirmation, with no production domain and no DNS changes. Defer domestic hosting until product ownership, ICP/compliance requirements, download policy, and public launch timing are clear.

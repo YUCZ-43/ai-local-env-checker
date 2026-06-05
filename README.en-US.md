@@ -102,13 +102,13 @@ The GUI displays selected tool, target platform, plan steps, command preview, ri
 
 See [docs/controlled-installation-model.md](docs/controlled-installation-model.md), [docs/runner-policy.md](docs/runner-policy.md), [docs/audit-log-model.md](docs/audit-log-model.md), [docs/rollback-strategy.md](docs/rollback-strategy.md), and [docs/v0.8.0-roadmap.md](docs/v0.8.0-roadmap.md).
 
-## v0.9.0 admin permission approval UX
+## v0.9.0 alpha product UI and approval UX
 
-v0.9.0 adds a local self-test approval dashboard for admin permission review, real installer approval modeling, command-level approval, rollback strategy display, audit/report viewer structure, theme switching, language selection, and a premium rounded desktop UI design system.
+v0.9.0-alpha.1 prepares a product-grade local self-test approval dashboard and static website preview. The desktop app now emphasizes a stronger open-source AI infrastructure identity, platform cards, safety rails, command approval timeline, report/audit preview cards, refined light/dark themes, and active language controls for English and Simplified Chinese.
 
-Real third-party installation remains disabled. The desktop app does not auto-trigger UAC, modify PATH, change proxy settings, modify global environment variables, or run real installer commands.
+Real third-party installation remains disabled. The desktop app does not auto-trigger UAC, modify PATH, change proxy settings, modify global environment variables, or run real installer commands. The Windows alpha package, if produced, is for this app only. macOS and Linux packages remain planned and must not be claimed as available until artifacts exist.
 
-See [docs/v0.9.0-admin-permission-approval-ux.md](docs/v0.9.0-admin-permission-approval-ux.md), [docs/admin-permission-model.md](docs/admin-permission-model.md), [docs/real-installer-approval-model.md](docs/real-installer-approval-model.md), [docs/command-approval-model.md](docs/command-approval-model.md), [docs/audit-report-viewer.md](docs/audit-report-viewer.md), [docs/ux-ui-design-system.md](docs/ux-ui-design-system.md), and [docs/theme-and-language-model.md](docs/theme-and-language-model.md).
+See [docs/v0.9.0-admin-permission-approval-ux.md](docs/v0.9.0-admin-permission-approval-ux.md), [docs/platform-package-plan.md](docs/platform-package-plan.md), [docs/website-landing-page-plan.md](docs/website-landing-page-plan.md), [docs/website-hosting-options.md](docs/website-hosting-options.md), [docs/admin-permission-model.md](docs/admin-permission-model.md), [docs/real-installer-approval-model.md](docs/real-installer-approval-model.md), [docs/command-approval-model.md](docs/command-approval-model.md), [docs/audit-report-viewer.md](docs/audit-report-viewer.md), [docs/ux-ui-design-system.md](docs/ux-ui-design-system.md), and [docs/theme-and-language-model.md](docs/theme-and-language-model.md).
 
 ## 2. Why it exists
 

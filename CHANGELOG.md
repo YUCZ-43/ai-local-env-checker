@@ -4,12 +4,15 @@
 
 Added:
 
+- Added v0.9.0-alpha.1 product-grade desktop UI refinement and static website preview.
+- Added platform package plan documenting Windows alpha package scope and macOS/Linux planned package requirements.
+- Added GitHub Pages, Vercel, and Cloudflare Pages preview-hosting guidance without production domain or DNS changes.
 - Added desktop admin permission review UX.
 - Added real installer approval model with real execution disabled.
 - Added command-level approval model and command approval screen.
 - Added rollback strategy screen and audit/report viewer structure.
 - Added light/dark/system theme control.
-- Added English, Simplified Chinese, and Traditional Chinese UI-level language selector.
+- Added English and Simplified Chinese active UI-level language selector, with Traditional Chinese locale files preserved for future work.
 - Added premium rounded desktop UI design tokens and racing-blue-inspired custom palette.
 - Added v0.9.0 install-plan schema fields and dry-run-only approval preview example.
 - Added v0.9.0 documentation set and safe validation script.

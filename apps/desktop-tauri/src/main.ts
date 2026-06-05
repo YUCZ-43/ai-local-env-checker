@@ -47,7 +47,7 @@ type SectionId =
   | "settings";
 
 type ThemePreference = "light" | "dark" | "system";
-type DisplayLanguage = "en-US" | "zh-CN" | "zh-TW";
+type DisplayLanguage = "en-US" | "zh-CN";
 
 interface AppState {
   section: SectionId;
@@ -131,42 +131,12 @@ const labels = {
     allowed: "允许",
     simulated: "已模拟",
   },
-  "zh-TW": {
-    dashboard: "儀表板",
-    environment: "環境檢查",
-    toolCatalog: "工具目錄",
-    plan: "安裝計畫",
-    policy: "風險複核",
-    adminReview: "管理員權限複核",
-    installerApproval: "真實安裝審批",
-    commandApproval: "命令審批",
-    rollback: "回滾策略",
-    dryrun: "試執行",
-    controlledRun: "受控執行",
-    progress: "執行進度",
-    logs: "日誌",
-    reports: "報告",
-    settings: "設定",
-    light: "淺色模式",
-    dark: "深色模式",
-    system: "跟隨系統",
-    language: "語言",
-    realDisabled: "真實安裝已停用",
-    dryRunEnabled: "試執行已啟用",
-    adminRequired: "需要管理員權限",
-    commandRequired: "需要命令審批",
-    rollbackAvailable: "可回滾",
-    rollbackUnavailable: "不可回滾",
-    blocked: "已阻止",
-    allowed: "允許",
-    simulated: "已模擬",
-  },
 } satisfies Record<DisplayLanguage, Record<string, string>>;
 
 const state: AppState = {
   section: "dashboard",
   appName: "AI Local Environment Checker",
-  appVersion: "0.9.0",
+  appVersion: "0.9.0-alpha.1",
   safetyMode: "approval-preview",
   themePreference: readThemePreference(),
   displayLanguage: readDisplayLanguage(),
@@ -176,7 +146,7 @@ const state: AppState = {
   plan: null,
   summary: null,
   approval: null,
-  log: ["v0.9.0 GUI initialized in local approval-preview mode."],
+  log: ["v0.9.0-alpha.1 GUI initialized in local approval-preview mode."],
   reportLocation: "",
   tools: [],
   selectedToolId: "",
@@ -206,6 +176,42 @@ const sections: Array<{ id: SectionId; labelKey: keyof (typeof labels)["en-US"] 
   { id: "settings", labelKey: "settings" },
 ];
 
+const repoUrl = "https://github.com/YUCZ-43/ai-local-env-checker";
+const docsUrl = `${repoUrl}/tree/main/docs`;
+const alphaUrl = `${repoUrl}/releases/tag/v0.9.0-alpha.1`;
+
+const platformCards = [
+  {
+    title: "Windows Alpha Preview",
+    detail: "Desktop package target for this app only. Third-party installers stay disabled.",
+    tone: "ok" as const,
+  },
+  {
+    title: "macOS Planned",
+    detail: "Packaging requirements documented. No macOS installer is claimed in this alpha.",
+    tone: "neutral" as const,
+  },
+  {
+    title: "Linux Planned",
+    detail: "Linux package route is planned after desktop validation and release review.",
+    tone: "neutral" as const,
+  },
+  {
+    title: "WSL Detection Preview",
+    detail: "Check-first detection remains available without repair or install actions.",
+    tone: "warn" as const,
+  },
+];
+
+const safetyRails = [
+  "No silent install",
+  "No automatic UAC bypass",
+  "No automatic PATH modification",
+  "No automatic proxy modification",
+  "Approval-first workflow",
+  "Local logs and reports",
+];
+
 function readThemePreference(): ThemePreference {
   const stored = window.localStorage?.getItem("ai-local-theme");
   return stored === "light" || stored === "dark" || stored === "system" ? stored : "light";
@@ -213,7 +219,7 @@ function readThemePreference(): ThemePreference {
 
 function readDisplayLanguage(): DisplayLanguage {
   const stored = window.localStorage?.getItem("ai-local-language");
-  return stored === "en-US" || stored === "zh-CN" || stored === "zh-TW" ? stored : "en-US";
+  return stored === "en-US" || stored === "zh-CN" ? stored : "en-US";
 }
 
 function applyTheme(): void {
@@ -349,6 +355,11 @@ function render(): void {
           <p>v${escapeHtml(state.appVersion)} approval preview</p>
         </div>
       </div>
+      <div class="sidebar-signal">
+        <span>local-first</span>
+        <strong>Approval archive</strong>
+        <small>Check, plan, review, then dry-run.</small>
+      </div>
       <nav>${sections
         .map(
           (section) =>
@@ -359,7 +370,7 @@ function render(): void {
     <main class="workspace">
       <header class="topbar">
         <div>
-          <p class="eyebrow">v0.9.0 local self-test</p>
+          <p class="eyebrow">v0.9.0-alpha.1 local self-test</p>
           <h2>${escapeHtml(current ? t(current.labelKey) : t("dashboard"))}</h2>
         </div>
         <div class="status-row">
@@ -413,16 +424,18 @@ function renderSection(): string {
 
 function renderDashboard(): string {
   return `
-    <section class="hero-panel">
-      <div>
-        <p class="eyebrow">permission-first installer UX</p>
-        <h3>Safe local approval dashboard for AI development environment setup</h3>
-        <p>v0.9.0 adds the approval layer around controlled installation. It shows admin sensitivity, command risk, rollback coverage, audit visibility, and dry-run versus real-run state without enabling silent installation.</p>
+    <section class="hero-panel product-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">permission-first AI infrastructure</p>
+        <h3>Premium local approval cockpit for AI development environments</h3>
+        <p>AI Local Environment Checker turns machine readiness, install plans, admin sensitivity, command risk, rollback coverage, and audit reports into one calm review journey. Real third-party installation remains disabled for this alpha.</p>
+        <div class="actions hero-actions">
+          <a class="button-link primary-link" href="${repoUrl}" target="_blank" rel="noreferrer">GitHub</a>
+          <a class="button-link secondary-link" href="${docsUrl}" target="_blank" rel="noreferrer">Docs</a>
+          <a class="button-link secondary-link" href="${alphaUrl}" target="_blank" rel="noreferrer">Alpha preview</a>
+        </div>
       </div>
-      <div class="approval-banner">
-        <strong>${escapeHtml(t("realDisabled"))}</strong>
-        <span>No UAC, no PATH edits, no proxy changes, no global environment mutation.</span>
-      </div>
+      ${renderProductPreview()}
     </section>
     <section class="status-card-grid">
       ${statusCard(t("dryRunEnabled"), "Default execution posture", "ok")}
@@ -430,6 +443,8 @@ function renderDashboard(): string {
       ${statusCard(t("realDisabled"), "Real installer controls are preview-only.", "blocked")}
       ${statusCard(state.approval?.rollbackAvailable ? t("rollbackAvailable") : t("rollbackUnavailable"), state.approval?.rollbackWarning ?? "Load a plan to review rollback state.", state.approval?.rollbackAvailable ? "ok" : "warn")}
     </section>
+    ${renderPlatformCards()}
+    ${renderSafetyRails()}
     <section class="panel-grid">
       <article class="panel">
         <h3>Current plan</h3>
@@ -446,7 +461,7 @@ function renderDashboard(): string {
 function statusCard(title: string, detail: string, tone: "ok" | "warn" | "blocked" | "neutral"): string {
   return `
     <article class="status-card ${tone}">
-      <div class="icon-box"></div>
+      <div class="icon-box"><span class="signal-dot"></span></div>
       <div>
         <strong>${escapeHtml(title)}</strong>
         <span>${escapeHtml(detail)}</span>
@@ -455,12 +470,76 @@ function statusCard(title: string, detail: string, tone: "ok" | "warn" | "blocke
   `;
 }
 
+function renderProductPreview(): string {
+  return `
+    <div class="product-preview" aria-label="Product workflow preview">
+      <div class="preview-header">
+        <span>alpha package</span>
+        ${badge(t("realDisabled"), "blocked")}
+      </div>
+      <div class="preview-orbit">
+        <div>
+          <strong>Check</strong>
+          <small>environment readiness</small>
+        </div>
+        <div>
+          <strong>Plan</strong>
+          <small>commands visible</small>
+        </div>
+        <div>
+          <strong>Review</strong>
+          <small>admin and rollback</small>
+        </div>
+      </div>
+      <div class="approval-banner">
+        <strong>${escapeHtml(t("realDisabled"))}</strong>
+        <span>No UAC, no PATH edits, no proxy changes, no global environment mutation.</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderPlatformCards(): string {
+  return `
+    <section class="platform-grid">
+      ${platformCards
+        .map(
+          (platform) => `
+            <article class="platform-card ${platform.tone}">
+              <span class="platform-rail"></span>
+              <strong>${escapeHtml(platform.title)}</strong>
+              <p>${escapeHtml(platform.detail)}</p>
+            </article>
+          `,
+        )
+        .join("")}
+    </section>
+  `;
+}
+
+function renderSafetyRails(): string {
+  return `
+    <section class="safety-rail" aria-label="Safety guardrails">
+      ${safetyRails.map((rail) => `<span>${escapeHtml(rail)}</span>`).join("")}
+    </section>
+  `;
+}
+
 function renderEnvironment(): string {
   return `
-    <section class="panel">
-      <h3>${escapeHtml(t("environment"))}</h3>
-      <p>This screen stays check-first. It is reserved for safe doctor output and does not repair, install, elevate, modify PATH, change proxy settings, or write global environment variables.</p>
-      <button class="secondary" id="doctor-button">Record doctor preview note</button>
+    <section class="split">
+      <article class="panel">
+        <p class="eyebrow">doctor surface</p>
+        <h3>${escapeHtml(t("environment"))}</h3>
+        <p>This screen stays check-first. It is reserved for safe doctor output and does not repair, install, elevate, modify PATH, change proxy settings, or write global environment variables.</p>
+        <button class="secondary" id="doctor-button">Record doctor preview note</button>
+      </article>
+      <article class="panel">
+        <h3>Platform readiness</h3>
+        <div class="mini-grid">
+          ${platformCards.map((platform) => statusCard(platform.title, platform.detail, platform.tone)).join("")}
+        </div>
+      </article>
     </section>
   `;
 }
@@ -603,6 +682,7 @@ function renderPolicy(): string {
     <section class="panel">
       <h3>${escapeHtml(t("policy"))}</h3>
       <p>Policy-driven UI states block real installation by default. MEDIUM, HIGH, ADMIN_REQUIRED, DANGEROUS, and admin-required commands are blocked in the desktop approval preview.</p>
+      ${renderSafetyRails()}
       ${
         reasons.length
           ? `<ul class="reason-list">${reasons.map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")}</ul>`
@@ -662,7 +742,7 @@ function renderCommandApproval(): string {
     <section class="panel">
       <h3>${escapeHtml(t("commandApproval"))}</h3>
       <p>Every command preview stays visible. Blocked commands remain visible so operators can understand why the approval model refused them.</p>
-      <div class="command-list">
+      <div class="command-list timeline">
         ${
           commands.length
             ? commands.map(renderCommandApprovalItem).join("")
@@ -676,6 +756,7 @@ function renderCommandApproval(): string {
 function renderCommandApprovalItem(command: CommandApproval): string {
   return `
     <div class="command-item approval-${escapeHtml(command.uiSeverity)}">
+      <span class="timeline-node"></span>
       <div class="command-title">
         <strong>${escapeHtml(command.id)}</strong>
         <span class="badge-row">
@@ -775,8 +856,9 @@ function renderReports(): string {
       <h3>${escapeHtml(t("reports"))}</h3>
       <p>Report path: <code>${escapeHtml(state.reportLocation || "No report generated in this session.")}</code></p>
       <p>Reports are local artifacts. They may contain machine data and must not be committed unless they are sanitized examples.</p>
-      <div class="status-card-grid">
+      <div class="report-grid">
         ${statusCard("Audit viewer structure", "Events should show timestamp, mode, risk, approval state, and report path.", "neutral")}
+        ${statusCard("Report preview", "Generated reports remain local and should be reviewed before sharing.", "warn")}
         ${statusCard("Never log secrets", "Tokens, keys, passwords, raw proxy credentials, and private file content are forbidden.", "blocked")}
       </div>
     </section>
@@ -813,7 +895,6 @@ function renderSettings(): string {
           <div class="segmented-control language-control" role="group" aria-label="Display language">
             ${renderSegment("language", "en-US", "English", state.displayLanguage === "en-US")}
             ${renderSegment("language", "zh-CN", "简体中文", state.displayLanguage === "zh-CN")}
-            ${renderSegment("language", "zh-TW", "繁體中文", state.displayLanguage === "zh-TW")}
           </div>
         </div>
       </article>
@@ -908,7 +989,7 @@ async function bootstrap(): Promise<void> {
   try {
     const [info, plans, report, tools] = await Promise.all([getAppInfo(), listExamplePlans(), loadReportPreview(), listToolCatalog()]);
     state.appName = info.name;
-    state.appVersion = "0.9.0";
+    state.appVersion = "0.9.0-alpha.1";
     state.safetyMode = "approval-preview";
     state.plans = plans;
     state.reportLocation = report.location;

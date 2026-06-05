@@ -1,6 +1,6 @@
 # Theme and Language Model
 
-v0.9.0 adds visible UI controls for theme and language in the desktop Settings screen.
+v0.9.0-alpha.1 keeps visible UI controls for theme and language in the desktop Settings screen.
 
 Theme options:
 
@@ -16,10 +16,9 @@ Language options:
 
 - English.
 - Simplified Chinese.
-- Traditional Chinese.
 
-The current implementation provides UI-level translation for key navigation and safety labels. Existing locale files are preserved. Full i18n wiring for every string, backend output, report text, and schema validation messages remains future work.
+Traditional Chinese locale files are preserved for future work, but Traditional Chinese is hidden from active Settings controls in this alpha. The current implementation provides UI-level translation for key navigation and safety labels. Full i18n wiring for every string, backend output, report text, and schema validation messages remains future work.
 
 Theme and language preferences are display settings. They must not affect installer policy, approval state, command risk, or execution permissions.
 
-Light mode now uses an Iceland ice blue inspired gradient and a subtle CSS fluid-motion background layer. Dark mode remains graphite/blue with only consistency updates.
+Light mode now uses a glacier-blue inspired gradient and a subtle CSS fluid-motion background layer. Dark mode uses graphite and electric-blue consistency updates.
