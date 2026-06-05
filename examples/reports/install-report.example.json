@@ -1,0 +1,70 @@
+{
+  "Meta": {
+    "Version": "v0.4.1-example",
+    "Timestamp": "2026-01-01T00:00:00Z",
+    "ComputerName": "sample-workstation",
+    "UserName": "sample-user",
+    "IsAdmin": false,
+    "Mode": "CheckOnly",
+    "Language": "en-US",
+    "FixPath": false,
+    "CommandTimeoutSec": 10,
+    "LogFile": "logs/run-example.log"
+  },
+  "Results": {
+    "System": {
+      "WindowsProductName": "Sample Windows",
+      "OsArchitecture": "x64",
+      "IsAdmin": false
+    },
+    "Proxy": {
+      "Environment": [],
+      "Npm": [],
+      "Git": [],
+      "RecommendedProxy": null
+    },
+    "Node": {
+      "NodeExists": true,
+      "NodeVersion": "v0.0.0",
+      "NpmExists": true,
+      "NpmVersion": "0.0.0"
+    },
+    "Git": {
+      "Exists": true,
+      "Version": "git version 0.0.0",
+      "Path": "sample-git"
+    },
+    "VSCode": {
+      "Exists": false,
+      "Skipped": true
+    },
+    "ClaudeCode": {
+      "Exists": false,
+      "Skipped": true
+    },
+    "CodexCLI": {
+      "Status": "MISSING",
+      "Skipped": true
+    },
+    "WSL": {
+      "Status": "PARTIAL",
+      "Distributions": []
+    }
+  },
+  "CommandResults": [
+    {
+      "Command": "sample-command --version",
+      "Status": "OK",
+      "ExitCode": 0,
+      "StdOut": "sample output",
+      "StdErr": "",
+      "ElapsedMs": 12
+    }
+  ],
+  "InstallResults": {},
+  "Errors": [],
+  "Warnings": [
+    "Sample warning for documentation only."
+  ],
+  "FixSuggestions": []
+}

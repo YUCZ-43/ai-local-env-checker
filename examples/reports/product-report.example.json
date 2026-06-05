@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "version": "v0.4.1-example",
+    "platform": "windows",
+    "timestamp": "2026-01-01T00:00:00Z",
+    "checkOnly": true,
+    "logFile": "logs/run-example.log"
+  },
+  "checks": [
+    {
+      "name": "node",
+      "status": "ok",
+      "value": "v0.0.0"
+    },
+    {
+      "name": "codex-cli",
+      "status": "missing",
+      "details": "Sample product check result."
+    }
+  ],
+  "installPlan": {
+    "id": "sample-plan",
+    "dryRun": true
+  },
+  "execution": {
+    "mode": "check-only",
+    "commandsRun": 2
+  },
+  "summary": {
+    "status": "needs-action",
+    "passed": 1,
+    "failed": 1,
+    "warnings": 0
+  }
+}

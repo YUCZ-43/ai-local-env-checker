@@ -2,58 +2,316 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ai-local-env-checker.local/schema/report.schema.json",
   "title": "AI Local Environment Checker Report",
-  "type": "object",
-  "additionalProperties": true,
-  "required": ["meta", "checks"],
-  "properties": {
-    "meta": {
+  "description": "Compatible schema for current script-generated reports and the future product report model.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/CurrentInstallReport"
+    },
+    {
+      "$ref": "#/$defs/CurrentVerifyReport"
+    },
+    {
+      "$ref": "#/$defs/FutureProductReport"
+    }
+  ],
+  "$defs": {
+    "StatusString": {
+      "type": "string"
+    },
+    "FlexibleObject": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "FlexibleArray": {
+      "type": "array",
+      "items": true
+    },
+    "CurrentMeta": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["platform", "timestamp", "checkOnly"],
       "properties": {
-        "platform": {
+        "Version": {
           "type": "string"
         },
-        "timestamp": {
+        "Timestamp": {
           "type": "string"
         },
-        "checkOnly": {
+        "ComputerName": {
+          "type": "string"
+        },
+        "UserName": {
+          "type": "string"
+        },
+        "IsAdmin": {
           "type": "boolean"
         },
-        "logFile": {
+        "Mode": {
+          "type": "string"
+        },
+        "Language": {
+          "type": "string"
+        },
+        "FixPath": {
+          "type": "boolean"
+        },
+        "CommandTimeoutSec": {
+          "type": "integer"
+        },
+        "TimeoutSec": {
+          "type": "integer"
+        },
+        "LogFile": {
           "type": "string"
         }
       }
     },
-    "checks": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": true,
-        "required": ["name", "status"],
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          },
-          "value": {
-            "type": "string"
-          },
-          "details": {
-            "type": "string"
-          }
+    "CommandResult": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "Command": {
+          "type": "string"
+        },
+        "FileName": {
+          "type": "string"
+        },
+        "Arguments": {
+          "type": "string"
+        },
+        "Status": {
+          "$ref": "#/$defs/StatusString"
+        },
+        "ExitCode": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "StdOut": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "StdErr": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ElapsedMs": {
+          "type": [
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        "TimedOut": {
+          "type": "boolean"
         }
       }
     },
-    "proxy": {
-      "type": "object"
+    "CurrentInstallReport": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "Meta"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "Results"
+          ]
+        },
+        {
+          "required": [
+            "CommandResults"
+          ]
+        }
+      ],
+      "properties": {
+        "Meta": {
+          "$ref": "#/$defs/CurrentMeta"
+        },
+        "Results": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "CommandResults": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CommandResult"
+          }
+        },
+        "InstallResults": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "Summary": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "Proxy": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "System": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "Node": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "Git": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "WSL": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "ClaudeCode": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "CodexCLI": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "VSCode": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "PackageManager": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "Errors": {
+          "$ref": "#/$defs/FlexibleArray"
+        },
+        "Warnings": {
+          "$ref": "#/$defs/FlexibleArray"
+        },
+        "FixSuggestions": {
+          "$ref": "#/$defs/FlexibleArray"
+        }
+      }
     },
-    "recommendations": {
-      "type": "array",
-      "items": {
-        "type": "string"
+    "CurrentVerifyReport": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "Meta"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "Status"
+          ]
+        },
+        {
+          "required": [
+            "Commands"
+          ]
+        }
+      ],
+      "properties": {
+        "Meta": {
+          "$ref": "#/$defs/CurrentMeta"
+        },
+        "Status": {
+          "$ref": "#/$defs/StatusString"
+        },
+        "Commands": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "Checks": {
+          "$ref": "#/$defs/FlexibleArray"
+        },
+        "Locations": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "CommandDetails": {
+          "$ref": "#/$defs/FlexibleArray"
+        },
+        "Summary": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "Errors": {
+          "$ref": "#/$defs/FlexibleArray"
+        },
+        "Warnings": {
+          "$ref": "#/$defs/FlexibleArray"
+        }
+      }
+    },
+    "FutureProductReport": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "meta",
+        "summary"
+      ],
+      "properties": {
+        "meta": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "platform",
+            "timestamp",
+            "checkOnly"
+          ],
+          "properties": {
+            "platform": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "string"
+            },
+            "checkOnly": {
+              "type": "boolean"
+            },
+            "version": {
+              "type": "string"
+            },
+            "logFile": {
+              "type": "string"
+            }
+          }
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "name",
+              "status"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string"
+              },
+              "value": {
+                "type": [
+                  "string",
+                  "number",
+                  "boolean",
+                  "null"
+                ]
+              },
+              "details": {
+                "type": [
+                  "string",
+                  "object",
+                  "array",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "installPlan": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "execution": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "summary": {
+          "$ref": "#/$defs/FlexibleObject"
+        }
       }
     }
   }

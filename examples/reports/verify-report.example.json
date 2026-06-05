@@ -1,0 +1,56 @@
+{
+  "Meta": {
+    "Version": "v0.4.1-example",
+    "Timestamp": "2026-01-01T00:00:00Z",
+    "Language": "en-US",
+    "ComputerName": "sample-workstation",
+    "UserName": "sample-user",
+    "TimeoutSec": 10,
+    "LogFile": "logs/run-example-verify.log"
+  },
+  "Status": "PARTIAL_READY",
+  "Commands": {
+    "Passed": 2,
+    "Total": 3,
+    "Timeouts": 0,
+    "Details": {
+      "node": {
+        "Status": "OK",
+        "ExitCode": 0,
+        "StdOut": "v0.0.0"
+      },
+      "git": {
+        "Status": "OK",
+        "ExitCode": 0,
+        "StdOut": "git version 0.0.0"
+      },
+      "codex": {
+        "Status": "MISSING",
+        "ExitCode": 1,
+        "StdErr": "sample command not found"
+      }
+    }
+  },
+  "Locations": {
+    "Passed": 1,
+    "Total": 1,
+    "Details": {
+      "sampleTool": {
+        "Status": "OK",
+        "Value": "sample-tool"
+      }
+    }
+  },
+  "CommandDetails": [
+    {
+      "Command": "sample-command --version",
+      "Status": "OK",
+      "ExitCode": 0,
+      "ElapsedMs": 8
+    }
+  ],
+  "Warnings": [
+    "Sample verification warning."
+  ],
+  "Errors": []
+}
