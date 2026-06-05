@@ -223,7 +223,19 @@ func runPlanRun(args []string, out io.Writer) int {
 	results := runner.Run(context.Background(), p, runner.Options{Confirm: confirm})
 	printRunResults(out, results)
 	writeRunOutputs(out, path, p, decision, results, "execute")
+	if hasFailedResults(results) {
+		return 1
+	}
 	return 0
+}
+
+func hasFailedResults(results []runner.Result) bool {
+	for _, result := range results {
+		if result.Status == "FAILED" {
+			return true
+		}
+	}
+	return false
 }
 
 func simulatePlan(path string, out io.Writer) int {
