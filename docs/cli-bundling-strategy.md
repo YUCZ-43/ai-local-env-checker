@@ -4,7 +4,7 @@ The desktop app is designed to call the Go CLI runner without enabling real inst
 
 ## Discovery Order
 
-The v0.7.0 backend adapter uses this safe discovery order:
+The v0.8.0 backend adapter uses this safe discovery order:
 
 1. Bundled CLI sidecar path for the packaged app.
 2. Configured CLI path from `AI_LOCAL_DEPLOY_BIN`.
@@ -38,7 +38,7 @@ The GUI does not call `plan run --confirm`. It blocks MEDIUM, HIGH, and DANGEROU
 
 Future packaging may place the CLI next to the desktop executable or inside a `resources/bin/` directory. The CLI must be built from this repository and treated as part of the app package.
 
-Do not bundle third-party installers or scripts that install third-party tools in v0.7.0.
+Do not bundle third-party installers or scripts that install third-party tools in v0.8.0.
 
 ## Runtime Roots
 

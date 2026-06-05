@@ -300,7 +300,8 @@ pre {
 }
 
 button.primary,
-button.secondary {
+button.secondary,
+button.danger {
   min-height: 38px;
   border-radius: 6px;
   padding: 8px 12px;
@@ -319,9 +320,33 @@ button.secondary {
   color: #1b1f24;
 }
 
+button.danger {
+  border: 1px solid #d19090;
+  background: #fff2f2;
+  color: #9a2d2d;
+}
+
 button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.check-field {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 18px 0;
+}
+
+.check-field input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.blocked-note {
+  margin: 14px 0 0;
+  color: #7a3a00;
 }
 
 .reason-list {

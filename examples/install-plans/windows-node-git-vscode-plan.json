@@ -1,8 +1,9 @@
 {
   "id": "windows-node-git-vscode-plan",
+  "toolId": "node-git-vscode",
   "platform": "windows",
   "action": "install-node-git-vscode",
-  "description": "Example future plan for installing Node.js, Git, and VS Code on Windows. This file documents intended commands only and must not be executed by the v0.5.0 runner.",
+  "description": "Example future plan for installing Node.js, Git, and VS Code on Windows. This file documents intended commands only and remains blocked for real execution in v0.8.0.",
   "commands": [
     {
       "id": "install-nodejs-lts",
@@ -16,6 +17,8 @@
       "timeoutSec": 600,
       "dryRunOnly": true,
       "confirmationRequired": true,
+      "expectedResult": "Future installer would install Node.js LTS if admin and installer execution are enabled in a later version.",
+      "rollbackNote": "Future rollback design must use the package manager uninstall path and must not delete user projects.",
       "verificationCommands": ["node --version", "npm --version"]
     },
     {
@@ -30,6 +33,8 @@
       "timeoutSec": 600,
       "dryRunOnly": true,
       "confirmationRequired": true,
+      "expectedResult": "Future installer would install Git if admin and installer execution are enabled in a later version.",
+      "rollbackNote": "Future rollback design must use the package manager uninstall path and must not delete repositories.",
       "verificationCommands": ["git --version"]
     },
     {
@@ -44,6 +49,8 @@
       "timeoutSec": 600,
       "dryRunOnly": true,
       "confirmationRequired": true,
+      "expectedResult": "Future installer would install VS Code if admin and installer execution are enabled in a later version.",
+      "rollbackNote": "Future rollback design must use the package manager uninstall path and must not delete user settings.",
       "verificationCommands": ["code --version"]
     }
   ],
@@ -59,8 +66,11 @@
   ],
   "autoExecute": false,
   "dryRunOnly": true,
+  "expectedResult": "v0.8.0 validates, simulates, and dry-runs this plan but blocks confirmed execution.",
+  "rollbackNote": "Rollback for real Node.js, Git, and VS Code installation is not implemented in v0.8.0.",
   "notes": [
-    "Example only. v0.5.0 must validate and dry-run this plan, not execute it.",
-    "Administrator elevation is not auto-launched in v0.5.0."
+    "Example only. v0.8.0 must validate, simulate, and dry-run this plan, not execute it.",
+    "Administrator elevation is not auto-launched in v0.8.0.",
+    "winget install remains blocked by the safe demo allowlist."
   ]
 }

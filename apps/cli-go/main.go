@@ -7,8 +7,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
+	"github.com/ai-local-env-checker/ai-local-deploy/internal/audit"
 	"github.com/ai-local-env-checker/ai-local-deploy/internal/catalog"
 	"github.com/ai-local-env-checker/ai-local-deploy/internal/detect"
 	"github.com/ai-local-env-checker/ai-local-deploy/internal/logutil"
@@ -204,7 +206,7 @@ func runPlanRun(args []string, out io.Writer) int {
 	if dryRun {
 		results := runner.DryRun(p)
 		printRunResults(out, results)
-		writeRunOutputs(out, p, policy.Decision{Allowed: true, Mode: "dry-run"}, results, "dry-run")
+		writeRunOutputs(out, path, p, policy.Decision{Allowed: true, Mode: "dry-run"}, results, "dry-run")
 		return 0
 	}
 	decision := policy.Evaluate(p, policy.Options{Confirm: confirm})
@@ -215,12 +217,12 @@ func runPlanRun(args []string, out io.Writer) int {
 		}
 		results := runner.Run(context.Background(), p, runner.Options{Confirm: confirm})
 		printRunResults(out, results)
-		writeRunOutputs(out, p, decision, results, "refused")
+		writeRunOutputs(out, path, p, decision, results, "refused")
 		return 1
 	}
 	results := runner.Run(context.Background(), p, runner.Options{Confirm: confirm})
 	printRunResults(out, results)
-	writeRunOutputs(out, p, decision, results, "execute")
+	writeRunOutputs(out, path, p, decision, results, "execute")
 	return 0
 }
 
@@ -246,15 +248,21 @@ func simulatePlan(path string, out io.Writer) int {
 		fmt.Fprintf(out, "failed to write report: %v\n", err)
 		return 1
 	}
+	auditPath, err := writeAuditRecords(path, p, results, "simulate", reportPath)
+	if err != nil {
+		fmt.Fprintf(out, "failed to write audit log: %v\n", err)
+		return 1
+	}
 	fmt.Fprintf(out, "simulation complete for plan: %s\n", p.ID)
+	fmt.Fprintf(out, "audit log written: %s\n", auditPath)
 	fmt.Fprintf(out, "report written: %s\n", reportPath)
 	printRunResults(out, results)
 	return 0
 }
 
-func writeRunOutputs(out io.Writer, p *plan.Plan, decision policy.Decision, results []runner.Result, mode string) {
+func writeRunOutputs(out io.Writer, planFile string, p *plan.Plan, decision policy.Decision, results []runner.Result, mode string) {
 	lines := []string{
-		"ai-local-deploy v0.5.0 plan runner",
+		"ai-local-deploy v0.8.0 controlled runner",
 		"mode=" + mode,
 		"plan=" + p.ID,
 	}
@@ -272,8 +280,64 @@ func writeRunOutputs(out io.Writer, p *plan.Plan, decision policy.Decision, resu
 		fmt.Fprintf(out, "failed to write report: %v\n", err)
 		return
 	}
+	auditPath, err := writeAuditRecords(planFile, p, results, mode, reportPath)
+	if err != nil {
+		fmt.Fprintf(out, "failed to write audit log: %v\n", err)
+		return
+	}
 	fmt.Fprintf(out, "log written: %s\n", logPath)
+	fmt.Fprintf(out, "audit log written: %s\n", auditPath)
 	fmt.Fprintf(out, "report written: %s\n", reportPath)
+}
+
+func writeAuditRecords(planFile string, p *plan.Plan, results []runner.Result, mode string, reportPath string) (string, error) {
+	records := make([]audit.Record, 0, len(results))
+	toolID := ""
+	if p != nil {
+		toolID = p.ToolID
+		if toolID == "" {
+			toolID = p.ID
+		}
+	}
+	for _, result := range results {
+		records = append(records, audit.Record{
+			Platform:       runtime.GOOS + "/" + runtime.GOARCH,
+			ToolID:         toolID,
+			PlanFile:       planFile,
+			CommandPreview: result.Command,
+			Mode:           mode,
+			RiskLevel:      result.RiskLevel,
+			Allowed:        result.Status == "SUCCEEDED" || result.Status == "DRY_RUN",
+			Reason:         auditReason(result),
+			ExitCode:       result.ExitCode,
+			StdoutSummary:  safeSummary(result.Stdout),
+			StderrSummary:  safeSummary(result.Stderr),
+			ReportPath:     reportPath,
+		})
+	}
+	return audit.Write(outputDir("logs"), records)
+}
+
+func auditReason(result runner.Result) string {
+	if result.Error != "" {
+		return result.Error
+	}
+	switch result.Status {
+	case "DRY_RUN":
+		return "dry-run preview; command was not executed"
+	case "SUCCEEDED":
+		return "allowlisted LOW-risk command executed after explicit confirmation"
+	default:
+		return result.Status
+	}
+}
+
+func safeSummary(value string) string {
+	value = strings.TrimSpace(value)
+	if len(value) > 500 {
+		return value[:500] + "...(truncated)"
+	}
+	return value
 }
 
 func outputDir(name string) string {

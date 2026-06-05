@@ -1,4 +1,4 @@
-export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "DANGEROUS";
+export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "ADMIN_REQUIRED" | "DANGEROUS";
 
 export interface InstallCommand {
   id: string;
@@ -13,10 +13,13 @@ export interface InstallCommand {
   dryRunOnly?: boolean;
   confirmationRequired?: boolean;
   verificationCommands?: string[];
+  expectedResult?: string;
+  rollbackNote?: string;
 }
 
 export interface InstallPlan {
   id: string;
+  toolId?: string;
   platform: string;
   action: string;
   description: string;
@@ -28,6 +31,8 @@ export interface InstallPlan {
   verificationCommands: string[];
   autoExecute?: boolean;
   dryRunOnly?: boolean;
+  expectedResult?: string;
+  rollbackNote?: string;
   notes?: string[];
 }
 
@@ -44,7 +49,14 @@ export interface PlanSummary {
   blockReasons: string[];
 }
 
-const blockedRiskLevels = new Set(["MEDIUM", "HIGH", "DANGEROUS"]);
+export interface ControlledExecutionState {
+  dryRunDefault: boolean;
+  confirmationChecked: boolean;
+  confirmedExecutionAllowed: boolean;
+  disabledReason: string;
+}
+
+const blockedRiskLevels = new Set(["MEDIUM", "HIGH", "ADMIN_REQUIRED", "DANGEROUS"]);
 
 export function normalizeRiskLevel(riskLevel: string | undefined): string {
   return (riskLevel ?? "").trim().toUpperCase();
@@ -66,19 +78,18 @@ export function getSafePreviewBlockReasons(plan: InstallPlan): string[] {
   const planRisk = normalizeRiskLevel(String(plan.riskLevel));
 
   if (blockedRiskLevels.has(planRisk)) {
-    reasons.push(`Plan risk level ${planRisk} is blocked in the v0.7.0 installer preview.`);
+    reasons.push(`Plan risk level ${planRisk} is blocked in the v0.8.0 controlled installation preview.`);
   }
   if (plan.requiresAdmin) {
-    reasons.push("Plan requires admin privileges, which are disabled in the v0.7.0 installer preview.");
+    reasons.push("Plan requires admin privileges, which are blocked in v0.8.0.");
   }
-
   for (const command of plan.commands) {
     const commandRisk = normalizeRiskLevel(String(command.riskLevel ?? plan.riskLevel));
     if (blockedRiskLevels.has(commandRisk)) {
-      reasons.push(`Command ${command.id} risk level ${commandRisk} is blocked in the v0.7.0 installer preview.`);
+      reasons.push(`Command ${command.id} risk level ${commandRisk} is blocked in the v0.8.0 controlled installation preview.`);
     }
     if (command.requiresAdmin) {
-      reasons.push(`Command ${command.id} requires admin privileges.`);
+      reasons.push(`Command ${command.id} requires admin privileges and is blocked in v0.8.0.`);
     }
   }
 
@@ -105,6 +116,31 @@ export function buildPlanSummary(plan: InstallPlan): PlanSummary {
     confirmationRequired: Boolean(plan.confirmationRequired),
     blockedInGui: blockReasons.length > 0,
     blockReasons,
+  };
+}
+
+export function getControlledExecutionState(plan: InstallPlan, confirmationChecked: boolean): ControlledExecutionState {
+  const reasons = getSafePreviewBlockReasons(plan);
+  if (plan.dryRunOnly) {
+    reasons.push("Plan is marked dryRunOnly.");
+  }
+  for (const command of plan.commands) {
+    if (command.dryRunOnly) {
+      reasons.push(`Command ${command.id} is marked dryRunOnly.`);
+    }
+  }
+  if (!confirmationChecked) {
+    reasons.push("Explicit confirmation checkbox is required before any controlled LOW-risk execution.");
+  }
+  const confirmedExecutionAllowed = confirmationChecked && reasons.length === 0;
+  return {
+    dryRunDefault: true,
+    confirmationChecked,
+    confirmedExecutionAllowed,
+    disabledReason: confirmedExecutionAllowed
+      ? ""
+      : reasons.join(" ") ||
+        "Real installation is not enabled in this preview. v0.8.0 supports controlled simulation and LOW-risk allowlisted execution only.",
   };
 }
 

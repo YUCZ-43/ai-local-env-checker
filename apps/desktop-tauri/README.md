@@ -1,19 +1,20 @@
 # AI Local Environment Checker Desktop
 
-This is the v0.7.0 Tauri Windows installer preview for AI Local Environment Checker.
+This is the v0.8.0 controlled automatic installation MVP for AI Local Environment Checker.
 
-The desktop app is a safe preview interface around the v0.5.0 Go CLI install-plan runner. It can load example install plans, show commands and policy fields, validate plans, simulate safe plans, dry-run safe plans, show logs, and show report locations.
+The desktop app is a safe preview interface around the Go CLI controlled runner. It can load example install plans, show commands and policy fields, validate plans, simulate safe plans, dry-run safe plans, show logs, and show report locations.
 
-v0.7.0 prepares local Windows packaging metadata and installer output policy. Generated installers are local-only artifacts and must not be committed.
+v0.8.0 adds user-facing confirmation state and controlled execution review. Generated installers are local-only artifacts and must not be committed.
 
 The package preview includes read-only runtime data (`core/schema`, `core/tool-catalog`, `examples/install-plans`, and `examples/reports`) plus this repository's own `ai-local-deploy` CLI sidecar. It does not bundle third-party installers.
 
 ## Safety limits
 
-- Real installation is disabled.
-- `plan run --confirm` is not wired.
+- GUI real installation is disabled by default.
+- CLI real execution requires explicit `plan run --confirm`.
 - Admin elevation is not implemented.
-- MEDIUM, HIGH, and DANGEROUS plans are blocked for simulate and dry-run.
+- MEDIUM, HIGH, ADMIN_REQUIRED, and DANGEROUS execution is blocked.
+- LOW-risk execution is limited to safe demo allowlisted commands in the CLI.
 - PATH, proxy, global environment variables, and PowerShell execution policy are not modified.
 - Tool Catalog entries do not expose real install buttons.
 - Packaged installer output is not uploaded or published by this app.
@@ -37,7 +38,7 @@ If local dependencies are already present, a developer may run:
 npm run tauri build
 ```
 
-This builds a local CLI sidecar under `src-tauri/binaries/` and may create local `.exe` or installer artifacts under `src-tauri/target/`. They are ignored and must not be committed, uploaded, tagged, or released in v0.7.0.
+This builds a local CLI sidecar under `src-tauri/binaries/` and may create local `.exe` or installer artifacts under `src-tauri/target/`. They are ignored and must not be committed, uploaded, tagged, or released in v0.8.0.
 
 ## Adapter layout
 

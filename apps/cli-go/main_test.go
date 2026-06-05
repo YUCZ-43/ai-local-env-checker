@@ -94,6 +94,33 @@ func TestPlanRunDryRunPrintsCommandDetails(t *testing.T) {
 	}
 }
 
+func TestPlanRunConfirmWritesAuditLog(t *testing.T) {
+	outputRoot := t.TempDir()
+	t.Setenv("AI_LOCAL_DEPLOY_OUTPUT_ROOT", outputRoot)
+	path := writeCLITestPlan(t)
+	var out bytes.Buffer
+
+	code := run([]string{"plan", "run", "--file", path, "--confirm"}, &out)
+
+	if code != 0 {
+		t.Fatalf("expected exit code 0, got %d with output %q", code, out.String())
+	}
+	auditDir := filepath.Join(outputRoot, "logs")
+	entries, err := os.ReadDir(auditDir)
+	if err != nil {
+		t.Fatalf("read audit directory: %v", err)
+	}
+	found := false
+	for _, entry := range entries {
+		if strings.HasPrefix(entry.Name(), "audit-") && strings.HasSuffix(entry.Name(), ".jsonl") {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatalf("expected audit jsonl in %s, got %v", auditDir, entries)
+	}
+}
+
 func TestOutputDirUsesConfiguredOutputRoot(t *testing.T) {
 	outputRoot := t.TempDir()
 	t.Setenv("AI_LOCAL_DEPLOY_OUTPUT_ROOT", outputRoot)

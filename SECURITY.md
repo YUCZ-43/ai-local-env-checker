@@ -9,7 +9,10 @@ The default mode is check-only. The project must not install software, modify PA
 ## Default behavior
 
 - Default mode is check-only.
-- Installation requires an explicit install mode.
+- Dry-run is the default for install plans.
+- Non-dry-run CLI execution requires explicit `--confirm`.
+- v0.8.0 confirmed execution is limited to LOW-risk allowlisted demo commands.
+- MEDIUM, HIGH, ADMIN_REQUIRED, DANGEROUS, and admin-required execution is blocked.
 - PATH repair requires an explicit path-fix mode.
 - System-level PATH must not be modified by default.
 - Proxy detection is read-only.

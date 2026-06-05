@@ -9,6 +9,7 @@ import (
 func TestLoadValidPlanWithObjectCommands(t *testing.T) {
 	path := writeTempPlan(t, `{
   "id": "windows-safe-demo-plan",
+  "toolId": "safe-demo",
   "platform": "windows",
   "action": "demo",
   "description": "Safe demo plan",
@@ -41,6 +42,9 @@ func TestLoadValidPlanWithObjectCommands(t *testing.T) {
 	}
 	if got.ID != "windows-safe-demo-plan" {
 		t.Fatalf("unexpected plan id: %q", got.ID)
+	}
+	if got.ToolID != "safe-demo" {
+		t.Fatalf("unexpected tool id: %q", got.ToolID)
 	}
 	if len(got.Commands) != 1 {
 		t.Fatalf("expected 1 command, got %d", len(got.Commands))

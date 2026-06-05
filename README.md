@@ -64,6 +64,14 @@ Real third-party installation remains disabled. Release publishing remains manua
 
 See [docs/windows-packaged-installer.md](docs/windows-packaged-installer.md), [docs/installer-output-policy.md](docs/installer-output-policy.md), [docs/cli-bundling-strategy.md](docs/cli-bundling-strategy.md), and [docs/v0.7.0-roadmap.md](docs/v0.7.0-roadmap.md).
 
+## v0.8.0 controlled automatic installation MVP
+
+v0.8.0 adds a controlled execution layer in the Go CLI. Dry-run remains the default. Non-dry-run execution requires explicit `--confirm` and is limited to LOW-risk allowlisted demo commands. Admin-required, MEDIUM, HIGH, ADMIN_REQUIRED, and DANGEROUS execution remains blocked.
+
+The GUI shows confirmation state, risk review, dry-run status, and run results, but does not silently install software or auto-elevate.
+
+See [docs/controlled-installation-model.md](docs/controlled-installation-model.md), [docs/runner-policy.md](docs/runner-policy.md), [docs/audit-log-model.md](docs/audit-log-model.md), [docs/rollback-strategy.md](docs/rollback-strategy.md), and [docs/v0.8.0-roadmap.md](docs/v0.8.0-roadmap.md).
+
 ## 1. What this project does
 
 This project runs local readiness checks before users install or troubleshoot local AI development tools. It reports what is installed, what is missing, which settings may need review, and where follow-up action may be needed.

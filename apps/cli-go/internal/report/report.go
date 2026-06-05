@@ -21,6 +21,7 @@ type Meta struct {
 
 type PlanSummary struct {
 	ID          string `json:"id"`
+	ToolID      string `json:"toolId,omitempty"`
 	Platform    string `json:"platform"`
 	Action      string `json:"action"`
 	Description string `json:"description"`
@@ -41,19 +42,20 @@ type Summary struct {
 }
 
 type PlanReport struct {
-	Meta           Meta                 `json:"Meta"`
-	Plan           PlanSummary          `json:"Plan"`
-	PolicyDecision policy.Decision      `json:"PolicyDecision"`
-	Commands       []plan.Command       `json:"Commands"`
-	Results        []runner.Result      `json:"Results"`
-	Verification   []VerificationResult `json:"Verification"`
-	Summary        Summary              `json:"Summary"`
+	Meta                  Meta                 `json:"Meta"`
+	Plan                  PlanSummary          `json:"Plan"`
+	PolicyDecision        policy.Decision      `json:"PolicyDecision"`
+	Commands              []plan.Command       `json:"Commands"`
+	Results               []runner.Result      `json:"Results"`
+	Verification          []VerificationResult `json:"Verification"`
+	Summary               Summary              `json:"Summary"`
+	NextRecommendedAction string               `json:"NextRecommendedAction"`
 }
 
 func NewPlanReport(p *plan.Plan, decision policy.Decision, results []runner.Result, verification []VerificationResult, mode string) PlanReport {
 	r := PlanReport{
 		Meta: Meta{
-			Version:   "v0.5.0",
+			Version:   "v0.8.0",
 			Timestamp: time.Now().UTC().Format(time.RFC3339),
 			Mode:      mode,
 			CheckOnly: mode == "simulate" || mode == "dry-run",
@@ -63,7 +65,7 @@ func NewPlanReport(p *plan.Plan, decision policy.Decision, results []runner.Resu
 		Verification:   verification,
 	}
 	if p != nil {
-		r.Plan = PlanSummary{ID: p.ID, Platform: p.Platform, Action: p.Action, Description: p.Description, RiskLevel: p.RiskLevel}
+		r.Plan = PlanSummary{ID: p.ID, ToolID: p.ToolID, Platform: p.Platform, Action: p.Action, Description: p.Description, RiskLevel: p.RiskLevel}
 		r.Commands = p.Commands
 	}
 	for _, result := range results {
@@ -79,7 +81,21 @@ func NewPlanReport(p *plan.Plan, decision policy.Decision, results []runner.Resu
 			r.Summary.Failed++
 		}
 	}
+	r.NextRecommendedAction = nextRecommendedAction(decision, r.Summary, mode)
 	return r
+}
+
+func nextRecommendedAction(decision policy.Decision, summary Summary, mode string) string {
+	if !decision.Allowed || summary.Refused > 0 {
+		return "Review blocked commands and keep execution in dry-run/simulate mode until the plan is LOW risk, non-admin, and allowlisted."
+	}
+	if mode == "simulate" || mode == "dry-run" {
+		return "Review the generated report and audit log before any explicitly confirmed LOW-risk allowlisted execution."
+	}
+	if summary.Failed > 0 {
+		return "Review failed command output and do not retry without updating the plan."
+	}
+	return "No further action is required for this controlled execution attempt."
 }
 
 func SimulatedVerification(commands []string) []VerificationResult {

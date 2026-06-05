@@ -10,6 +10,7 @@ import (
 
 type Plan struct {
 	ID                   string    `json:"id"`
+	ToolID               string    `json:"toolId,omitempty"`
 	Platform             string    `json:"platform"`
 	Action               string    `json:"action"`
 	Description          string    `json:"description"`
@@ -21,6 +22,8 @@ type Plan struct {
 	VerificationCommands []string  `json:"verificationCommands"`
 	AutoExecute          bool      `json:"autoExecute"`
 	DryRunOnly           bool      `json:"dryRunOnly"`
+	ExpectedResult       string    `json:"expectedResult,omitempty"`
+	RollbackNote         string    `json:"rollbackNote,omitempty"`
 	Notes                []string  `json:"notes,omitempty"`
 }
 
@@ -37,11 +40,14 @@ type Command struct {
 	DryRunOnly            bool     `json:"dryRunOnly"`
 	VerificationCommands  []string `json:"verificationCommands"`
 	ConfirmationRequired  bool     `json:"confirmationRequired"`
+	ExpectedResult        string   `json:"expectedResult,omitempty"`
+	RollbackNote          string   `json:"rollbackNote,omitempty"`
 	OriginalCommandString string   `json:"-"`
 }
 
 type rawPlan struct {
 	ID                   string            `json:"id"`
+	ToolID               string            `json:"toolId,omitempty"`
 	Platform             string            `json:"platform"`
 	Action               string            `json:"action"`
 	Description          string            `json:"description"`
@@ -53,6 +59,8 @@ type rawPlan struct {
 	VerificationCommands []string          `json:"verificationCommands"`
 	AutoExecute          bool              `json:"autoExecute"`
 	DryRunOnly           bool              `json:"dryRunOnly"`
+	ExpectedResult       string            `json:"expectedResult,omitempty"`
+	RollbackNote         string            `json:"rollbackNote,omitempty"`
 	Notes                []string          `json:"notes,omitempty"`
 }
 
@@ -67,6 +75,7 @@ func Load(path string) (*Plan, error) {
 	}
 	p := &Plan{
 		ID:                   raw.ID,
+		ToolID:               raw.ToolID,
 		Platform:             raw.Platform,
 		Action:               raw.Action,
 		Description:          raw.Description,
@@ -77,6 +86,8 @@ func Load(path string) (*Plan, error) {
 		VerificationCommands: raw.VerificationCommands,
 		AutoExecute:          raw.AutoExecute,
 		DryRunOnly:           raw.DryRunOnly,
+		ExpectedResult:       raw.ExpectedResult,
+		RollbackNote:         raw.RollbackNote,
 		Notes:                raw.Notes,
 	}
 	for i, item := range raw.Commands {
@@ -113,7 +124,7 @@ func Validate(p *Plan) []string {
 		errs = append(errs, "verificationCommands must contain at least one command")
 	}
 	if !validRisk(p.RiskLevel) {
-		errs = append(errs, "riskLevel must be LOW, MEDIUM, HIGH, or DANGEROUS")
+		errs = append(errs, "riskLevel must be LOW, MEDIUM, HIGH, ADMIN_REQUIRED, or DANGEROUS")
 	}
 	for i, cmd := range p.Commands {
 		if strings.TrimSpace(cmd.ID) == "" {
@@ -123,7 +134,7 @@ func Validate(p *Plan) []string {
 			errs = append(errs, fmt.Sprintf("commands[%d].command is required", i))
 		}
 		if !validRisk(cmd.RiskLevel) {
-			errs = append(errs, fmt.Sprintf("commands[%d].riskLevel must be LOW, MEDIUM, HIGH, or DANGEROUS", i))
+			errs = append(errs, fmt.Sprintf("commands[%d].riskLevel must be LOW, MEDIUM, HIGH, ADMIN_REQUIRED, or DANGEROUS", i))
 		}
 	}
 	return errs
@@ -180,7 +191,7 @@ func normalizeCommand(index int, cmd Command, p *Plan) Command {
 
 func validRisk(risk string) bool {
 	switch normalizeRisk(risk) {
-	case "LOW", "MEDIUM", "HIGH", "DANGEROUS":
+	case "LOW", "MEDIUM", "HIGH", "ADMIN_REQUIRED", "DANGEROUS":
 		return true
 	default:
 		return false

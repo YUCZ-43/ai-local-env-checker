@@ -78,17 +78,17 @@ func runCommand(ctx context.Context, cmd plan.Command, opts Options) Result {
 	}
 	if cmd.RequiresAdmin && !platform.IsElevated() {
 		result.Status = "REFUSED"
-		result.Error = "administrator elevation is required; no auto-elevation is performed in v0.5.0"
+		result.Error = "administrator elevation is required; no auto-elevation is performed in v0.8.0"
 		return result
 	}
 	if !isLowRisk(cmd.RiskLevel) {
 		result.Status = "REFUSED"
-		result.Error = "only LOW risk commands may execute in v0.5.0"
+		result.Error = "only LOW risk commands may execute in v0.8.0"
 		return result
 	}
 	if !IsAllowedSafeCommand(cmd) {
 		result.Status = "REFUSED"
-		result.Error = "command is not in the v0.5.0 safe demo allowlist"
+		result.Error = "command is not in the v0.8.0 safe demo allowlist"
 		return result
 	}
 	timeout := time.Duration(cmd.TimeoutSec) * time.Second

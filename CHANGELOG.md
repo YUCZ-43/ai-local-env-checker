@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.8.0-controlled-automatic-installation
+
+Added:
+
+- Added controlled Go CLI execution for explicitly confirmed LOW-risk allowlisted demo commands.
+- Added audit JSONL logging for controlled runner attempts.
+- Added report next recommended action.
+- Added install-plan schema metadata for `toolId`, expected result, rollback notes, and `ADMIN_REQUIRED` risk.
+- Added GUI confirmation and run-result sections.
+- Added controlled installation, runner policy, audit log, rollback, and roadmap docs.
+
+Safety:
+
+- Dry-run remains the default.
+- GUI real installation remains disabled by default.
+- MEDIUM, HIGH, ADMIN_REQUIRED, DANGEROUS, and admin-required execution is blocked.
+- No automatic UAC elevation, PATH modification, proxy modification, global environment modification, or silent install is enabled.
+
 ## v0.7.0-windows-packaged-installer-preview
 
 Added:
