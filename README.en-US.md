@@ -76,6 +76,18 @@ Release automation is not enabled yet. SLSA provenance workflows and Datadog Syn
 
 See [docs/github-actions-ci.md](docs/github-actions-ci.md).
 
+## v0.7.0 Windows packaged installer preview
+
+v0.7.0 prepares the Tauri desktop app as a Windows packaged installer preview for AI Local Environment Checker itself.
+
+- Generated installers are local-only artifacts.
+- Generated installers, binaries, logs, reports, `dist/`, `target/`, and `node_modules/` are not committed.
+- Real third-party installation remains disabled.
+- Release publishing remains manual.
+- v0.8.0 should focus on controlled automatic installation with explicit user intent.
+
+See [docs/windows-packaged-installer.md](docs/windows-packaged-installer.md), [docs/installer-output-policy.md](docs/installer-output-policy.md), [docs/cli-bundling-strategy.md](docs/cli-bundling-strategy.md), and [docs/v0.7.0-roadmap.md](docs/v0.7.0-roadmap.md).
+
 ## 2. Why it exists
 
 Many users get blocked while setting up local AI development tools because the required system pieces are spread across terminals, package managers, PATH, proxy settings, permissions, and operating-system features. A user may not know whether the failure comes from Node.js, npm, Git, VS Code CLI, WSL, a proxy, a missing package manager, or a terminal permission issue.

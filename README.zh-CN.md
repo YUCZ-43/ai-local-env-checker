@@ -70,6 +70,18 @@ v0.6.2 增加 GitHub Actions CI，用于 pull request 和 push 验证。CI 会�
 
 详见 [docs/github-actions-ci.md](docs/github-actions-ci.md)。
 
+## v0.7.0 Windows 打包安装器预览
+
+v0.7.0 将 Tauri 桌面应用准备为 AI Local Environment Checker 自身的 Windows 打包安装器预览。
+
+- 生成的安装器只作为本地构建产物。
+- 生成的安装器、二进制、日志、报告、`dist/`、`target/` 和 `node_modules/` 不会提交。
+- 真实第三方软件安装仍然禁用。
+- 发布仍然保持手动流程。
+- v0.8.0 应聚焦在带明确用户意图的受控自动安装。
+
+详见 [docs/windows-packaged-installer.md](docs/windows-packaged-installer.md)、[docs/installer-output-policy.md](docs/installer-output-policy.md)、[docs/cli-bundling-strategy.md](docs/cli-bundling-strategy.md) 和 [docs/v0.7.0-roadmap.md](docs/v0.7.0-roadmap.md)。
+
 ## 1. 项目名称
 
 AI Local Environment Checker

@@ -55,7 +55,7 @@ interface AppState {
 const state: AppState = {
   section: "dashboard",
   appName: "AI Local Environment Checker",
-  appVersion: "0.6.0",
+  appVersion: "0.7.0",
   safetyMode: "safe-preview",
   plans: [],
   selectedPath: "",
@@ -186,7 +186,7 @@ function render(): void {
         <div class="brand-mark">AI</div>
         <div>
           <h1>${escapeHtml(state.appName)}</h1>
-          <p>v${escapeHtml(state.appVersion)} desktop MVP</p>
+          <p>v${escapeHtml(state.appVersion)} Windows installer preview</p>
         </div>
       </div>
       <nav>${sections
@@ -244,7 +244,7 @@ function renderDashboard(): string {
     <section class="panel-grid">
       <article class="panel">
         <h3>Safety model</h3>
-        <p>The v0.6.0 GUI is a preview interface around the v0.5.0 Go CLI runner. It can load, validate, simulate, and dry-run plans, but cannot perform real installation or repair.</p>
+        <p>The v0.7.0 desktop app is a packaged Windows installer preview around the Go CLI runner. It can load, validate, simulate, and dry-run plans, but cannot perform real installation or repair.</p>
         <div class="badge-row">
           ${badge("No UAC", "neutral")}
           ${badge("No PATH edits", "neutral")}
@@ -273,7 +273,7 @@ function renderEnvironment(): string {
   return `
     <section class="panel">
       <h3>Environment check target</h3>
-      <p>This screen is reserved for ` + "`ai-local-deploy doctor`" + ` output. v0.6.0 keeps the check-only posture and does not repair or install missing tools.</p>
+      <p>This screen is reserved for ` + "`ai-local-deploy doctor`" + ` output. v0.7.0 keeps the check-only posture and does not repair or install missing tools.</p>
       <button class="primary" id="doctor-button">Run doctor manually later</button>
     </section>
   `;
@@ -352,7 +352,7 @@ function renderToolDetails(tool: ToolManifest): string {
       <dt>Risk</dt><dd>${badge(summary.riskLevel, summary.riskLevel === "LOW" ? "ok" : "warn")}</dd>
       <dt>Requires admin</dt><dd>${summary.requiresAdmin ? "Yes" : "No"}</dd>
       <dt>Install mode</dt><dd>${escapeHtml(summary.recommendedInstallMode)}</dd>
-      <dt>Install</dt><dd>${summary.installDisabled ? "Disabled in v0.6.1" : "Unavailable"}</dd>
+      <dt>Install</dt><dd>${summary.installDisabled ? "Disabled in v0.7.0" : "Unavailable"}</dd>
     </dl>
     <p>${escapeHtml(tool.description)}</p>
     <div class="actions">
@@ -418,7 +418,7 @@ function renderPolicy(): string {
   return `
     <section class="panel">
       <h3>Policy / risk review</h3>
-      <p>v0.6.0 blocks MEDIUM, HIGH, and DANGEROUS plans, blocks admin plans, and never calls ` + "`plan run --confirm`" + `.</p>
+      <p>v0.7.0 blocks MEDIUM, HIGH, and DANGEROUS plans, blocks admin plans, and never calls ` + "`plan run --confirm`" + `.</p>
       ${
         reasons.length
           ? `<ul class="reason-list">${reasons.map((reason) => `<li>${escapeHtml(reason)}</li>`).join("")}</ul>`
@@ -469,7 +469,7 @@ function renderSettings(): string {
       <dl class="summary-list">
         <dt>Safety mode</dt><dd>${escapeHtml(state.safetyMode)}</dd>
         <dt>CLI integration</dt><dd>Safe backend adapter, dry-run and simulate only</dd>
-        <dt>Install execution</dt><dd>Disabled in v0.6.0</dd>
+        <dt>Install execution</dt><dd>Disabled in v0.7.0</dd>
         <dt>Admin elevation</dt><dd>Not implemented</dd>
       </dl>
     </section>
@@ -493,7 +493,7 @@ function bindEvents(): void {
   document.querySelector<HTMLButtonElement>("#simulate-button")?.addEventListener("click", () => void runSimulate());
   document.querySelector<HTMLButtonElement>("#dryrun-button")?.addEventListener("click", () => void runDryRun());
   document.querySelector<HTMLButtonElement>("#doctor-button")?.addEventListener("click", () => {
-    appendLog("Doctor command adapter is documented for v0.6.0; UI execution will be expanded in v0.7.0.");
+    appendLog("Doctor command adapter is documented for v0.7.0; UI execution will be expanded after the packaged preview.");
   });
   document.querySelector<HTMLButtonElement>("#tool-detect-button")?.addEventListener("click", () => void runToolDetectionPreview());
   document.querySelector<HTMLButtonElement>("#tool-plan-button")?.addEventListener("click", () => {

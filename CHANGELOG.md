@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v0.7.0-windows-packaged-installer-preview
+
+Added:
+
+- Prepared Tauri desktop package metadata for version `0.7.0`.
+- Added Windows packaged installer preview documentation.
+- Added installer output policy for local-only generated artifacts.
+- Added CLI bundling and discovery strategy documentation.
+- Added safe v0.7.0 packaging validation script.
+
+Safety:
+
+- Real third-party installation remains disabled.
+- Generated installers, binaries, logs, reports, `dist/`, `target/`, and `node_modules/` remain uncommitted.
+- Release publishing remains manual; no tags or GitHub Releases are created by this milestone.
+
 ## v0.3.0-packaging-readme-release
 
 Planned / Added:

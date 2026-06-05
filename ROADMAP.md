@@ -51,11 +51,22 @@
 
 ## v0.7.0
 
-- Optional backend.
-- Membership.
-- License key.
-- Device authorization.
-- Report upload with explicit user consent only.
+- Windows packaged installer preview.
+- Tauri desktop app package metadata.
+- Local-only installer output policy.
+- CLI bundling and discovery strategy.
+- Packaging validation that blocks generated artifacts and secrets from staging.
+- Real third-party installation remains disabled.
+- Release publishing remains manual.
+
+## v0.8.0
+
+- Controlled automatic installation design.
+- Explicit user intent before every install action.
+- Per-command confirmation and audit log.
+- Admin elevation design without automatic UAC.
+- Rollback and recovery strategy.
+- Signed installer and provenance planning.
 - Offline local checks must remain available without backend login.
 
 ## v1.0.0

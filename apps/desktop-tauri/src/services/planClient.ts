@@ -66,16 +66,16 @@ export function getSafePreviewBlockReasons(plan: InstallPlan): string[] {
   const planRisk = normalizeRiskLevel(String(plan.riskLevel));
 
   if (blockedRiskLevels.has(planRisk)) {
-    reasons.push(`Plan risk level ${planRisk} is blocked in the v0.6.0 GUI.`);
+    reasons.push(`Plan risk level ${planRisk} is blocked in the v0.7.0 installer preview.`);
   }
   if (plan.requiresAdmin) {
-    reasons.push("Plan requires admin privileges, which are disabled in the v0.6.0 GUI.");
+    reasons.push("Plan requires admin privileges, which are disabled in the v0.7.0 installer preview.");
   }
 
   for (const command of plan.commands) {
     const commandRisk = normalizeRiskLevel(String(command.riskLevel ?? plan.riskLevel));
     if (blockedRiskLevels.has(commandRisk)) {
-      reasons.push(`Command ${command.id} risk level ${commandRisk} is blocked in the v0.6.0 GUI.`);
+      reasons.push(`Command ${command.id} risk level ${commandRisk} is blocked in the v0.7.0 installer preview.`);
     }
     if (command.requiresAdmin) {
       reasons.push(`Command ${command.id} requires admin privileges.`);

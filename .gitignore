@@ -16,6 +16,12 @@ dist/*
 *.tar.gz
 *.tgz
 *.7z
+*.exe
+*.msi
+*.msix
+*.msixbundle
+*.appx
+*.appxbundle
 
 # Local config / secrets
 .env
@@ -38,6 +44,10 @@ credentials.*
 *.backup*
 *.bak
 *.tmp
+tmp/
+temp/
+build/
+out/
 *.old
 *.log
 

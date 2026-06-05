@@ -56,6 +56,14 @@ v0.6.2 adds GitHub Actions CI validation for schemas, tool catalog data, Go CLI 
 
 See [docs/github-actions-ci.md](docs/github-actions-ci.md).
 
+## v0.7.0 Windows packaged installer preview
+
+v0.7.0 prepares the Tauri desktop app as a Windows packaged installer preview for AI Local Environment Checker itself. Generated installers are local-only artifacts and are not committed, uploaded, tagged, or published by this milestone.
+
+Real third-party installation remains disabled. Release publishing remains manual.
+
+See [docs/windows-packaged-installer.md](docs/windows-packaged-installer.md), [docs/installer-output-policy.md](docs/installer-output-policy.md), [docs/cli-bundling-strategy.md](docs/cli-bundling-strategy.md), and [docs/v0.7.0-roadmap.md](docs/v0.7.0-roadmap.md).
+
 ## 1. What this project does
 
 This project runs local readiness checks before users install or troubleshoot local AI development tools. It reports what is installed, what is missing, which settings may need review, and where follow-up action may be needed.

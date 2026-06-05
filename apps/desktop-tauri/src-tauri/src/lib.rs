@@ -242,13 +242,13 @@ fn assert_safe_preview_plan(path: &Path) -> Result<(), String> {
 
     if blocked_risk(&plan_risk) {
         return Err(format!(
-            "plan {} risk level {} is blocked in the v0.6.0 GUI",
+            "plan {} risk level {} is blocked in the v0.7.0 installer preview",
             plan.id, plan_risk
         ));
     }
     if plan.requires_admin {
         return Err(format!(
-            "plan {} requires admin privileges, which are disabled in the v0.6.0 GUI",
+            "plan {} requires admin privileges, which are disabled in the v0.7.0 installer preview",
             plan.id
         ));
     }
@@ -261,13 +261,13 @@ fn assert_safe_preview_plan(path: &Path) -> Result<(), String> {
         };
         if blocked_risk(&command_risk) {
             return Err(format!(
-                "command {} risk level {} is blocked in the v0.6.0 GUI",
+                "command {} risk level {} is blocked in the v0.7.0 installer preview",
                 command.id, command_risk
             ));
         }
         if command.requires_admin {
             return Err(format!(
-                "command {} requires admin privileges, which are disabled in the v0.6.0 GUI",
+                "command {} requires admin privileges, which are disabled in the v0.7.0 installer preview",
                 command.id
             ));
         }
@@ -287,8 +287,10 @@ fn blocked_risk(risk: &str) -> bool {
 fn run_cli(mode: &str, args: &[&str]) -> Result<RunnerResult, String> {
     let root = repo_root()?;
     let cli_dir = root.join("apps").join("cli-go");
-    let output = if let Ok(bin) = std::env::var("AI_LOCAL_DEPLOY_BIN") {
-        Command::new(bin).args(args).current_dir(&root).output()
+    let output = if let Some(bundled_bin) = bundled_cli_binary() {
+        Command::new(bundled_bin).args(args).current_dir(&root).output()
+    } else if let Some(configured_bin) = configured_cli_binary() {
+        Command::new(configured_bin).args(args).current_dir(&root).output()
     } else if let Some(local_bin) = local_cli_binary(&cli_dir) {
         Command::new(local_bin).args(args).current_dir(&root).output()
     } else {
@@ -311,6 +313,30 @@ fn run_cli(mode: &str, args: &[&str]) -> Result<RunnerResult, String> {
         stderr,
         report_path,
     })
+}
+
+fn bundled_cli_binary() -> Option<PathBuf> {
+    let file_name = if cfg!(windows) {
+        "ai-local-deploy.exe"
+    } else {
+        "ai-local-deploy"
+    };
+    let exe_dir = std::env::current_exe().ok()?.parent()?.to_path_buf();
+    [
+        exe_dir.join(file_name),
+        exe_dir.join("bin").join(file_name),
+        exe_dir.join("resources").join(file_name),
+        exe_dir.join("resources").join("bin").join(file_name),
+    ]
+    .into_iter()
+    .find(|path| path.is_file())
+}
+
+fn configured_cli_binary() -> Option<PathBuf> {
+    std::env::var("AI_LOCAL_DEPLOY_BIN")
+        .ok()
+        .map(PathBuf::from)
+        .filter(|path| path.is_file())
 }
 
 fn local_cli_binary(cli_dir: &Path) -> Option<PathBuf> {

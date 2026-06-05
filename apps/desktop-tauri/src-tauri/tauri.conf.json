@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "AI Local Environment Checker",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "identifier": "com.ailocalenvchecker.desktop",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "AI Local Environment Checker",
+        "title": "AI Local Environment Checker - Safe Installer Preview",
         "width": 1180,
         "height": 760,
         "minWidth": 860,
@@ -24,8 +24,23 @@
     }
   },
   "bundle": {
-    "active": false,
-    "targets": "all",
-    "icon": []
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "AI Local Environment Checker maintainers",
+    "category": "DeveloperTool",
+    "shortDescription": "Safe local AI development environment checker.",
+    "longDescription": "AI Local Environment Checker is a safe preview desktop application for diagnosing local AI development readiness. Real third-party installation remains disabled in v0.7.0.",
+    "copyright": "Copyright (c) AI Local Environment Checker maintainers",
+    "icon": [],
+    "windows": {
+      "allowDowngrades": true,
+      "nsis": {
+        "displayLanguageSelector": false,
+        "installerIcon": null,
+        "installMode": "currentUser",
+        "languages": ["English"],
+        "minimumWebview2Version": null
+      }
+    }
   }
 }
