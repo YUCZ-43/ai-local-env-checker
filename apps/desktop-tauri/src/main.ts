@@ -785,25 +785,37 @@ function renderReports(): string {
 
 function renderSettings(): string {
   return `
-    <section class="split">
-      <article class="panel">
-        <h3>${escapeHtml(t("settings"))}</h3>
-        <label class="field">
-          <span>Theme</span>
-          <select id="theme-select">
-            <option value="light" ${state.themePreference === "light" ? "selected" : ""}>${escapeHtml(t("light"))}</option>
-            <option value="dark" ${state.themePreference === "dark" ? "selected" : ""}>${escapeHtml(t("dark"))}</option>
-            <option value="system" ${state.themePreference === "system" ? "selected" : ""}>${escapeHtml(t("system"))}</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>${escapeHtml(t("language"))}</span>
-          <select id="language-select">
-            <option value="en-US" ${state.displayLanguage === "en-US" ? "selected" : ""}>English</option>
-            <option value="zh-CN" ${state.displayLanguage === "zh-CN" ? "selected" : ""}>简体中文</option>
-            <option value="zh-TW" ${state.displayLanguage === "zh-TW" ? "selected" : ""}>繁體中文</option>
-          </select>
-        </label>
+    <section class="split settings-layout">
+      <article class="panel settings-panel">
+        <div class="settings-heading">
+          <div>
+            <p class="eyebrow">display preferences</p>
+            <h3>${escapeHtml(t("settings"))}</h3>
+          </div>
+          ${badge("Display only", "neutral")}
+        </div>
+        <div class="settings-control">
+          <div>
+            <strong>Theme</strong>
+            <span>Changes the app surface only.</span>
+          </div>
+          <div class="segmented-control" role="group" aria-label="Theme preference">
+            ${renderSegment("theme", "light", t("light"), state.themePreference === "light")}
+            ${renderSegment("theme", "dark", t("dark"), state.themePreference === "dark")}
+            ${renderSegment("theme", "system", t("system"), state.themePreference === "system")}
+          </div>
+        </div>
+        <div class="settings-control">
+          <div>
+            <strong>${escapeHtml(t("language"))}</strong>
+            <span>UI labels only; policy does not change.</span>
+          </div>
+          <div class="segmented-control language-control" role="group" aria-label="Display language">
+            ${renderSegment("language", "en-US", "English", state.displayLanguage === "en-US")}
+            ${renderSegment("language", "zh-CN", "简体中文", state.displayLanguage === "zh-CN")}
+            ${renderSegment("language", "zh-TW", "繁體中文", state.displayLanguage === "zh-TW")}
+          </div>
+        </div>
       </article>
       <article class="panel">
         <h3>Runtime policy</h3>
@@ -816,6 +828,11 @@ function renderSettings(): string {
       </article>
     </section>
   `;
+}
+
+function renderSegment(kind: "theme" | "language", value: string, label: string, active: boolean): string {
+  const dataAttribute = kind === "theme" ? "data-theme-option" : "data-language-option";
+  return `<button class="control-option ${active ? "active" : ""}" ${dataAttribute}="${escapeHtml(value)}" aria-pressed="${active}">${escapeHtml(label)}</button>`;
 }
 
 function renderApprovalSummary(approval: ApprovalSummary): string {
@@ -843,16 +860,20 @@ function bindEvents(): void {
     if (target.value) void loadSelectedPlan(target.value);
   });
 
-  document.querySelector<HTMLSelectElement>("#theme-select")?.addEventListener("change", (event) => {
-    state.themePreference = (event.currentTarget as HTMLSelectElement).value as ThemePreference;
-    window.localStorage?.setItem("ai-local-theme", state.themePreference);
-    appendLog(`Theme preference changed to ${state.themePreference}.`);
+  document.querySelectorAll<HTMLButtonElement>("[data-theme-option]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.themePreference = button.dataset.themeOption as ThemePreference;
+      window.localStorage?.setItem("ai-local-theme", state.themePreference);
+      appendLog(`Theme preference changed to ${state.themePreference}.`);
+    });
   });
 
-  document.querySelector<HTMLSelectElement>("#language-select")?.addEventListener("change", (event) => {
-    state.displayLanguage = (event.currentTarget as HTMLSelectElement).value as DisplayLanguage;
-    window.localStorage?.setItem("ai-local-language", state.displayLanguage);
-    appendLog(`Display language changed to ${state.displayLanguage}.`);
+  document.querySelectorAll<HTMLButtonElement>("[data-language-option]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.displayLanguage = button.dataset.languageOption as DisplayLanguage;
+      window.localStorage?.setItem("ai-local-language", state.displayLanguage);
+      appendLog(`Display language changed to ${state.displayLanguage}.`);
+    });
   });
 
   document.querySelector<HTMLButtonElement>("#validate-button")?.addEventListener("click", () => void runValidate());
