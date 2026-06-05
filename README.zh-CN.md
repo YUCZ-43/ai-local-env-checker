@@ -20,6 +20,22 @@ v0.4.1 将 `core/schema/report.schema.json` 与当前 PowerShell/Bash 执行层�
 
 详见 [docs/report-schema.md](docs/report-schema.md) 和 `examples/reports/` 中的脱敏示例。
 
+## v0.5.0 Windows 安装计划 runner 基础
+
+v0.5.0 在 Go CLI 中加入第一版受控安装计划执行管线：
+
+- `ai-local-deploy plan show --file <path>`
+- `ai-local-deploy plan validate --file <path>`
+- `ai-local-deploy plan run --file <path> --dry-run`
+- `ai-local-deploy plan run --file <path> --confirm`
+- `ai-local-deploy plan simulate --file <path>`
+- `ai-local-deploy doctor`
+- `ai-local-deploy report`
+
+默认行为仍然是 dry-run / check-first。安装计划必须先验证，再进行风险和管理员权限审查；非 dry-run 执行必须显式确认。v0.5.0 会拒绝 MEDIUM、HIGH 和 DANGEROUS 风险命令，只允许安全示例计划中的 LOW 风险无害命令。真实软件安装不会自动发生。未来 Tauri GUI 会调用这套 CLI/core engine。
+
+详见 [docs/windows-install-plan-runner.md](docs/windows-install-plan-runner.md)、[docs/install-plan-policy.md](docs/install-plan-policy.md)、[docs/runner-safety.md](docs/runner-safety.md) 和 [docs/v0.5.0-roadmap.md](docs/v0.5.0-roadmap.md)。
+
 ## 1. 项目名称
 
 AI Local Environment Checker

@@ -49,6 +49,7 @@ apps/desktop-tauri/node_modules/
 target/
 apps/desktop-tauri/src-tauri/target/
 apps/cli-go/*.exe
+apps/cli-go/ai-local-deploy.exe
 
 # Editor / OS
 .vscode/

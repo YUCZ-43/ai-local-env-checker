@@ -1,0 +1,79 @@
+{
+  "id": "windows-safe-demo-plan",
+  "platform": "windows",
+  "action": "safe-demo",
+  "description": "Safe v0.5.0 demo plan for exercising the install-plan runner without installing, repairing, deleting, or changing system settings.",
+  "commands": [
+    {
+      "id": "demo-write-output",
+      "description": "Print a harmless demo message.",
+      "shell": "powershell",
+      "command": "Write-Output",
+      "args": ["AI Local Environment Checker safe demo"],
+      "workingDirectory": ".",
+      "requiresAdmin": false,
+      "riskLevel": "LOW",
+      "timeoutSec": 5,
+      "dryRunOnly": false,
+      "confirmationRequired": true,
+      "verificationCommands": ["Write-Output verification-ok"]
+    },
+    {
+      "id": "demo-whoami",
+      "description": "Print the current user name.",
+      "shell": "powershell",
+      "command": "whoami",
+      "args": [],
+      "workingDirectory": ".",
+      "requiresAdmin": false,
+      "riskLevel": "LOW",
+      "timeoutSec": 5,
+      "dryRunOnly": false,
+      "confirmationRequired": true,
+      "verificationCommands": ["whoami"]
+    },
+    {
+      "id": "demo-powershell-version",
+      "description": "Print the current PowerShell version.",
+      "shell": "powershell",
+      "command": "$PSVersionTable.PSVersion",
+      "args": [],
+      "workingDirectory": ".",
+      "requiresAdmin": false,
+      "riskLevel": "LOW",
+      "timeoutSec": 5,
+      "dryRunOnly": false,
+      "confirmationRequired": true,
+      "verificationCommands": ["$PSVersionTable.PSVersion"]
+    },
+    {
+      "id": "demo-git-version",
+      "description": "Print Git version if Git is available.",
+      "shell": "native",
+      "command": "git",
+      "args": ["--version"],
+      "workingDirectory": ".",
+      "requiresAdmin": false,
+      "riskLevel": "LOW",
+      "timeoutSec": 5,
+      "dryRunOnly": false,
+      "confirmationRequired": true,
+      "verificationCommands": ["git --version"]
+    }
+  ],
+  "requiresAdmin": false,
+  "riskLevel": "LOW",
+  "confirmationRequired": true,
+  "rollbackAvailable": false,
+  "verificationCommands": [
+    "Write-Output verification-ok",
+    "whoami",
+    "$PSVersionTable.PSVersion",
+    "git --version"
+  ],
+  "autoExecute": false,
+  "dryRunOnly": false,
+  "notes": [
+    "This plan is intentionally harmless and exists only to validate the v0.5.0 runner pipeline."
+  ]
+}
