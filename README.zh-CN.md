@@ -36,6 +36,24 @@ v0.5.0 在 Go CLI 中加入第一版受控安装计划执行管线：
 
 详见 [docs/windows-install-plan-runner.md](docs/windows-install-plan-runner.md)、[docs/install-plan-policy.md](docs/install-plan-policy.md)、[docs/runner-safety.md](docs/runner-safety.md) 和 [docs/v0.5.0-roadmap.md](docs/v0.5.0-roadmap.md)。
 
+## v0.6.0 Tauri GUI MVP
+
+v0.6.0 在 `apps/desktop-tauri/` 中加入第一版可运行的 Tauri 桌面 GUI MVP。
+
+GUI 基于 v0.5.0 Go CLI runner，支持：
+
+- 加载示例安装计划
+- 展示计划摘要、命令、`riskLevel`、`requiresAdmin` 和 `confirmationRequired`
+- 通过安全 CLI adapter 验证安装计划
+- 对 LOW 风险且不需要管理员权限的计划进行 simulate
+- 对 LOW 风险且不需要管理员权限的计划进行 dry-run 展示
+- 在日志面板展示输出
+- 展示本地报告路径
+
+真实安装仍然禁用。GUI 不会修改 PATH，不会修改全局环境变量，不会修改代理设置，不会修改 PowerShell Execution Policy，不会自动提权，也不会调用 `plan run --confirm`。
+
+详见 [docs/tauri-gui-mvp.md](docs/tauri-gui-mvp.md)、[docs/gui-safety-model.md](docs/gui-safety-model.md) 和 [docs/v0.6.0-roadmap.md](docs/v0.6.0-roadmap.md)。
+
 ## 1. 项目名称
 
 AI Local Environment Checker
@@ -176,7 +194,7 @@ v0.3.x 主要面向脚本检测、本地报告和下载包：
 
 本地构建的发布包会输出到 `dist/`，该目录中的生成包不会提交到 Git。
 
-v0.4.x 开始转向可安装的软件产品，而不是只把 package 理解为 zip/tar 发布文件。长期目标包括 Windows GUI installer / setup.exe、跨平台 CLI、桌面 GUI、脚本执行引擎、安装计划、用户确认、日志和报告。
+v0.4.x 及后续版本开始转向可安装的软件产品，而不是只把 package 理解为 zip/tar 发布文件。长期目标包括 Windows GUI installer / setup.exe、跨平台 CLI、桌面 GUI、脚本执行引擎、安装计划、用户确认、日志和报告。
 
 ## 11. 未来软件架构
 
@@ -185,7 +203,7 @@ v0.4.x 开始转向可安装的软件产品，而不是只把 package 理解为 
 - Windows：PowerShell
 - WSL/Linux/macOS：Bash
 
-v0.4.x 开始增加：
+当前产品架构已经包括：
 
 - Go CLI
 - Tauri desktop GUI

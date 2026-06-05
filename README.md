@@ -36,6 +36,14 @@ v0.5.0 introduces the first controlled install-plan execution pipeline in the Go
 
 See [docs/windows-install-plan-runner.md](docs/windows-install-plan-runner.md), [docs/install-plan-policy.md](docs/install-plan-policy.md), and [docs/runner-safety.md](docs/runner-safety.md).
 
+## v0.6.0 Tauri GUI MVP
+
+v0.6.0 introduces the first runnable Tauri desktop GUI MVP under `apps/desktop-tauri/`. The GUI is built around the v0.5.0 Go CLI runner and supports plan loading, validation, simulation, dry-run display, logs, and report location display.
+
+Real installation remains disabled in the GUI. Admin elevation, PATH modification, global environment changes, and `plan run --confirm` are not implemented in v0.6.0.
+
+See [docs/tauri-gui-mvp.md](docs/tauri-gui-mvp.md), [docs/gui-safety-model.md](docs/gui-safety-model.md), and [docs/v0.6.0-roadmap.md](docs/v0.6.0-roadmap.md).
+
 ## 1. What this project does
 
 This project runs local readiness checks before users install or troubleshoot local AI development tools. It reports what is installed, what is missing, which settings may need review, and where follow-up action may be needed.
@@ -106,7 +114,7 @@ bash scripts/macos/check-macos.sh --check-only --language en-US --timeout 10
 
 The v0.3.x release line prepared downloadable packages for Windows, WSL, Linux, macOS, and source code. Release archives are generated locally under `dist/` for testing and are not committed.
 
-The v0.4.x line starts the software product architecture for a cross-platform CLI and future desktop GUI. Package archives are not the final product model; the long-term goal is an installable software application with CLI, desktop UI, install plans, confirmation, logs, and reports.
+The v0.4.x and later lines start the software product architecture for a cross-platform CLI and desktop GUI. Package archives are not the final product model; the long-term goal is an installable software application with CLI, desktop UI, install plans, confirmation, logs, and reports.
 
 See [docs/release-packaging.md](docs/release-packaging.md).
 
@@ -116,7 +124,7 @@ Windows detection is usable as a beta. WSL, Linux, and macOS checkers are detect
 
 ## 9. Software architecture
 
-The current detection layer uses PowerShell on Windows and Bash on WSL/Linux/macOS. v0.4.x introduces placeholders and schemas for a Go CLI, Tauri desktop GUI, install-plan engine, runner, detector, report, proxy, and policy layers.
+The current detection layer uses PowerShell on Windows and Bash on WSL/Linux/macOS. The product architecture now includes a Go CLI, Tauri desktop GUI, install-plan engine, runner, detector, report, proxy, and policy layers.
 
 Offline local checks must remain available without a backend. Any report upload must require explicit user consent.
 

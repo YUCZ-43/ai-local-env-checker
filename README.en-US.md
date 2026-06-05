@@ -42,6 +42,24 @@ The default posture remains dry-run and check-first. The runner validates instal
 
 See [docs/windows-install-plan-runner.md](docs/windows-install-plan-runner.md), [docs/install-plan-policy.md](docs/install-plan-policy.md), [docs/runner-safety.md](docs/runner-safety.md), and [docs/v0.5.0-roadmap.md](docs/v0.5.0-roadmap.md).
 
+## v0.6.0 Tauri GUI MVP
+
+v0.6.0 adds the first runnable desktop GUI MVP in `apps/desktop-tauri/`.
+
+The GUI is built around the v0.5.0 Go CLI runner and supports:
+
+- Loading example install plans
+- Showing plan summary, commands, `riskLevel`, `requiresAdmin`, and `confirmationRequired`
+- Validating plans through the safe CLI adapter
+- Simulating LOW-risk non-admin plans
+- Running dry-run review for LOW-risk non-admin plans
+- Showing output in a log panel
+- Showing local report locations
+
+Real installation remains disabled. The GUI does not modify PATH, change global environment variables, change proxy settings, change PowerShell execution policy, auto-elevate, or call `plan run --confirm`.
+
+See [docs/tauri-gui-mvp.md](docs/tauri-gui-mvp.md), [docs/gui-safety-model.md](docs/gui-safety-model.md), and [docs/v0.6.0-roadmap.md](docs/v0.6.0-roadmap.md).
+
 ## 2. Why it exists
 
 Many users get blocked while setting up local AI development tools because the required system pieces are spread across terminals, package managers, PATH, proxy settings, permissions, and operating-system features. A user may not know whether the failure comes from Node.js, npm, Git, VS Code CLI, WSL, a proxy, a missing package manager, or a terminal permission issue.
@@ -178,11 +196,11 @@ The v0.3.x line prepared downloadable packages for:
 
 Local release builds are generated under `dist/`. Generated archives are not committed.
 
-The v0.4.x line starts the transition to an installable software product. Package does not only mean zip or tar release files; the long-term product direction includes a Windows GUI installer / setup.exe, cross-platform CLI, desktop GUI, script-based detection and installation engine, install plans, user confirmation, logs, and reports.
+The v0.4.x and later lines start the transition to an installable software product. Package does not only mean zip or tar release files; the long-term product direction includes a Windows GUI installer / setup.exe, cross-platform CLI, desktop GUI, script-based detection and installation engine, install plans, user confirmation, logs, and reports.
 
 ## 11. Future software architecture
 
-The current detection layer uses PowerShell on Windows and Bash on WSL/Linux/macOS. v0.4.x starts adding:
+The current detection layer uses PowerShell on Windows and Bash on WSL/Linux/macOS. The product architecture now includes:
 
 - Go CLI
 - Tauri desktop GUI

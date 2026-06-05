@@ -1,5 +1,5 @@
-# Tauri Backend Placeholder
+# Tauri Backend
 
-Future Rust/Tauri backend code will live here.
+The v0.6.0 backend is implemented in Rust under `src-tauri/src/`.
 
-This placeholder exists to document the intended location without generating a Tauri project or committing build output.
+It exposes safe Tauri commands for listing and reading example plans, validating plans, simulating safe plans, dry-running safe plans, and returning the local report directory.

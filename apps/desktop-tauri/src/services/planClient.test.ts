@@ -1,0 +1,63 @@
+import { describe, expect, it } from "vitest";
+import {
+  assertSafePreviewPlan,
+  buildPlanSummary,
+  parseInstallPlan,
+} from "./planClient";
+
+const safePlanJson = JSON.stringify({
+  id: "safe-demo",
+  platform: "windows",
+  action: "detect",
+  description: "Safe preview plan",
+  riskLevel: "LOW",
+  requiresAdmin: false,
+  confirmationRequired: true,
+  rollbackAvailable: false,
+  verificationCommands: ["ai-local-deploy doctor"],
+  autoExecute: false,
+  dryRunOnly: true,
+  commands: [
+    {
+      id: "check-node",
+      description: "Check Node.js",
+      shell: "powershell",
+      command: "node",
+      args: ["--version"],
+      workingDirectory: ".",
+      riskLevel: "LOW",
+      requiresAdmin: false,
+      dryRunOnly: true,
+      timeoutSec: 10,
+      verificationCommands: ["node --version"],
+    },
+  ],
+});
+
+describe("planClient", () => {
+  it("parses an install plan and builds a GUI summary", () => {
+    const plan = parseInstallPlan(safePlanJson);
+    const summary = buildPlanSummary(plan);
+
+    expect(summary.id).toBe("safe-demo");
+    expect(summary.commandCount).toBe(1);
+    expect(summary.riskLevel).toBe("LOW");
+    expect(summary.requiresAdmin).toBe(false);
+    expect(summary.confirmationRequired).toBe(true);
+    expect(summary.blockedInGui).toBe(false);
+  });
+
+  it("blocks admin plans in safe preview mode", () => {
+    const plan = parseInstallPlan(
+      safePlanJson.replace('"requiresAdmin":false', '"requiresAdmin":true'),
+    );
+
+    expect(() => assertSafePreviewPlan(plan)).toThrow(/requires admin/i);
+  });
+
+  it("blocks medium and higher risk plans in safe preview mode", () => {
+    const plan = parseInstallPlan(safePlanJson.replace('"LOW"', '"MEDIUM"'));
+
+    expect(() => assertSafePreviewPlan(plan)).toThrow(/risk level MEDIUM/i);
+  });
+});
