@@ -35,17 +35,24 @@
     },
     "commands": {
       "type": "array",
+      "minItems": 1,
       "items": {
-        "type": "string",
-        "minLength": 1
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "$ref": "#/$defs/Command"
+          }
+        ]
       }
     },
     "requiresAdmin": {
       "type": "boolean"
     },
     "riskLevel": {
-      "type": "string",
-      "enum": ["LOW", "MEDIUM", "HIGH", "DANGEROUS"]
+      "$ref": "#/$defs/RiskLevel"
     },
     "confirmationRequired": {
       "type": "boolean",
@@ -66,12 +73,90 @@
       "const": false,
       "default": false
     },
+    "dryRunOnly": {
+      "type": "boolean",
+      "default": false
+    },
     "notes": {
       "type": "array",
       "items": {
         "type": "string"
       },
       "default": []
+    }
+  },
+  "$defs": {
+    "RiskLevel": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "DANGEROUS"]
+    },
+    "Command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "description",
+        "shell",
+        "command",
+        "requiresAdmin",
+        "riskLevel"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "shell": {
+          "type": "string",
+          "enum": ["powershell", "cmd", "bash", "pwsh", "native"]
+        },
+        "command": {
+          "type": "string",
+          "minLength": 1
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "workingDirectory": {
+          "type": "string",
+          "default": "."
+        },
+        "requiresAdmin": {
+          "type": "boolean"
+        },
+        "riskLevel": {
+          "$ref": "#/$defs/RiskLevel"
+        },
+        "timeoutSec": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 30
+        },
+        "dryRunOnly": {
+          "type": "boolean",
+          "default": false
+        },
+        "confirmationRequired": {
+          "type": "boolean",
+          "default": true
+        },
+        "verificationCommands": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": []
+        }
+      }
     }
   }
 }

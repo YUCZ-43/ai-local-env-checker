@@ -2,15 +2,50 @@
   "id": "windows-node-git-vscode-plan",
   "platform": "windows",
   "action": "install-node-git-vscode",
-  "description": "Example future plan for installing Node.js, Git, and VS Code on Windows. This file documents intended commands only and must not be auto-executed.",
+  "description": "Example future plan for installing Node.js, Git, and VS Code on Windows. This file documents intended commands only and must not be executed by the v0.5.0 runner.",
   "commands": [
-    "winget install OpenJS.NodeJS.LTS",
-    "winget install Git.Git",
-    "winget install Microsoft.VisualStudioCode",
-    "node --version",
-    "npm --version",
-    "git --version",
-    "code --version"
+    {
+      "id": "install-nodejs-lts",
+      "description": "Future command for installing Node.js LTS with winget.",
+      "shell": "powershell",
+      "command": "winget",
+      "args": ["install", "OpenJS.NodeJS.LTS"],
+      "workingDirectory": ".",
+      "requiresAdmin": true,
+      "riskLevel": "HIGH",
+      "timeoutSec": 600,
+      "dryRunOnly": true,
+      "confirmationRequired": true,
+      "verificationCommands": ["node --version", "npm --version"]
+    },
+    {
+      "id": "install-git",
+      "description": "Future command for installing Git with winget.",
+      "shell": "powershell",
+      "command": "winget",
+      "args": ["install", "Git.Git"],
+      "workingDirectory": ".",
+      "requiresAdmin": true,
+      "riskLevel": "HIGH",
+      "timeoutSec": 600,
+      "dryRunOnly": true,
+      "confirmationRequired": true,
+      "verificationCommands": ["git --version"]
+    },
+    {
+      "id": "install-vscode",
+      "description": "Future command for installing VS Code with winget.",
+      "shell": "powershell",
+      "command": "winget",
+      "args": ["install", "Microsoft.VisualStudioCode"],
+      "workingDirectory": ".",
+      "requiresAdmin": true,
+      "riskLevel": "HIGH",
+      "timeoutSec": 600,
+      "dryRunOnly": true,
+      "confirmationRequired": true,
+      "verificationCommands": ["code --version"]
+    }
   ],
   "requiresAdmin": true,
   "riskLevel": "HIGH",
@@ -23,7 +58,9 @@
     "code --version"
   ],
   "autoExecute": false,
+  "dryRunOnly": true,
   "notes": [
-    "Example only. Do not run without explicit user confirmation in a future installer engine."
+    "Example only. v0.5.0 must validate and dry-run this plan, not execute it.",
+    "Administrator elevation is not auto-launched in v0.5.0."
   ]
 }

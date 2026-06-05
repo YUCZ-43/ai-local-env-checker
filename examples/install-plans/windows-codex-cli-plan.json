@@ -2,10 +2,36 @@
   "id": "windows-codex-cli-plan",
   "platform": "windows",
   "action": "install-codex-cli",
-  "description": "Example future plan for installing Codex CLI on Windows. This file documents intended commands only and must not be auto-executed.",
+  "description": "Example future plan for installing Codex CLI on Windows. This file documents intended commands only and must not be executed by the v0.5.0 runner.",
   "commands": [
-    "npm install -g @openai/codex",
-    "codex --version"
+    {
+      "id": "install-codex-cli",
+      "description": "Future command for installing Codex CLI with npm.",
+      "shell": "powershell",
+      "command": "npm",
+      "args": ["install", "-g", "@openai/codex"],
+      "workingDirectory": ".",
+      "requiresAdmin": false,
+      "riskLevel": "MEDIUM",
+      "timeoutSec": 300,
+      "dryRunOnly": true,
+      "confirmationRequired": true,
+      "verificationCommands": ["codex --version"]
+    },
+    {
+      "id": "verify-codex-cli",
+      "description": "Future verification command for Codex CLI.",
+      "shell": "powershell",
+      "command": "codex",
+      "args": ["--version"],
+      "workingDirectory": ".",
+      "requiresAdmin": false,
+      "riskLevel": "LOW",
+      "timeoutSec": 30,
+      "dryRunOnly": true,
+      "confirmationRequired": true,
+      "verificationCommands": ["codex --version"]
+    }
   ],
   "requiresAdmin": false,
   "riskLevel": "MEDIUM",
@@ -15,7 +41,8 @@
     "codex --version"
   ],
   "autoExecute": false,
+  "dryRunOnly": true,
   "notes": [
-    "Example only. Do not run without explicit user confirmation in a future installer engine."
+    "Example only. v0.5.0 must validate and dry-run this plan, not execute it."
   ]
 }

@@ -12,6 +12,9 @@
     },
     {
       "$ref": "#/$defs/FutureProductReport"
+    },
+    {
+      "$ref": "#/$defs/PlanRunnerReport"
     }
   ],
   "$defs": {
@@ -310,6 +313,63 @@
           "$ref": "#/$defs/FlexibleObject"
         },
         "summary": {
+          "$ref": "#/$defs/FlexibleObject"
+        }
+      }
+    },
+    "PlanRunnerReport": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "Meta",
+        "Plan",
+        "PolicyDecision",
+        "Commands",
+        "Results",
+        "Verification",
+        "Summary"
+      ],
+      "properties": {
+        "Meta": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "version",
+            "timestamp",
+            "mode",
+            "checkOnly"
+          ],
+          "properties": {
+            "version": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "string"
+            },
+            "mode": {
+              "type": "string"
+            },
+            "checkOnly": {
+              "type": "boolean"
+            }
+          }
+        },
+        "Plan": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "PolicyDecision": {
+          "$ref": "#/$defs/FlexibleObject"
+        },
+        "Commands": {
+          "$ref": "#/$defs/FlexibleArray"
+        },
+        "Results": {
+          "$ref": "#/$defs/FlexibleArray"
+        },
+        "Verification": {
+          "$ref": "#/$defs/FlexibleArray"
+        },
+        "Summary": {
           "$ref": "#/$defs/FlexibleObject"
         }
       }
