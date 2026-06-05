@@ -1,5 +1,5 @@
-# Tauri UI Placeholder
+# UI Notes
 
-Future desktop frontend code will live here.
+The v0.6.0 UI is implemented in `apps/desktop-tauri/src/` with vanilla TypeScript and Vite.
 
-The first implementation should start with a small local UI that can display check results, install plans, confirmation state, progress, reports, logs, settings, and license status.
+This directory remains only as a compatibility note for older placeholder references.

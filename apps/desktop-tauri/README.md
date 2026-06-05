@@ -1,24 +1,33 @@
-# Desktop Tauri MVP Placeholder
+# AI Local Environment Checker Desktop
 
-This directory is reserved for the future Tauri desktop GUI.
+This is the v0.6.0 Tauri GUI MVP for AI Local Environment Checker.
 
-The current v0.4.x MVP architecture keeps this as documentation and placeholders only. No Node dependencies, Rust target output, generated binaries, or installer artifacts are committed here.
+The desktop app is a safe preview interface around the v0.5.0 Go CLI install-plan runner. It can load example install plans, show commands and policy fields, validate plans, simulate safe plans, dry-run safe plans, show logs, and show report locations.
 
-## Future screens
+## Safety limits
 
-- Dashboard
-- System Check
-- Problems Found
-- Install Plan
-- User Confirmation
-- Execution Progress
-- Report Export
-- Advanced Logs
-- Settings
-- License / Membership
+- Real installation is disabled.
+- `plan run --confirm` is not wired.
+- Admin elevation is not implemented.
+- MEDIUM, HIGH, and DANGEROUS plans are blocked for simulate and dry-run.
+- PATH, proxy, global environment variables, and PowerShell execution policy are not modified.
 
-## Safety model
+## Development
 
-The desktop app will be check-first and plan-first. It must show an install plan and request user confirmation before any repair or install command is executed.
+```powershell
+npm install
+npm test
+npm run build
+npm run tauri dev
+```
 
-PowerShell and Bash remain the platform execution layer. The desktop app should call the same detector, plan, runner, report, proxy, and policy boundaries used by the CLI.
+`npm install` is a local development step only. Do not commit `node_modules/`, `dist/`, `src-tauri/target/`, generated installers, generated binaries, logs, reports, `.env` files, keys, or tokens.
+
+## Adapter layout
+
+- `src/services/planClient.ts`: plan parsing, summary, command display, GUI risk gates
+- `src/services/runnerClient.ts`: Tauri invoke adapter for safe backend commands
+- `src/services/reportClient.ts`: report location and preview adapter
+- `src-tauri/src/lib.rs`: Tauri commands and safe CLI invocation
+
+The CLI call layer is ready for `ai-local-deploy` and currently resolves the binary from `AI_LOCAL_DEPLOY_BIN`, a local CLI binary, or `go run .` under `apps/cli-go`.

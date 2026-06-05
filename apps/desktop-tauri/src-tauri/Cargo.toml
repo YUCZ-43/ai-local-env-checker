@@ -1,0 +1,25 @@
+[package]
+name = "ai-local-env-checker-desktop"
+version = "0.6.0"
+description = "Safe preview desktop GUI for AI Local Environment Checker"
+authors = ["AI Local Environment Checker maintainers"]
+edition = "2021"
+
+[lib]
+name = "ai_local_env_checker_desktop"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "ai-local-env-checker-desktop"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = [] }
+
+[dev-dependencies]
+tempfile = "3"
