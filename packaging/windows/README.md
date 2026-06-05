@@ -4,6 +4,10 @@ The Windows release package is designed as:
 
 `dist/ai-local-env-checker-windows-vVERSION.zip`
 
+v0.7.0 also prepares a Tauri Windows installer preview for the desktop app. Any generated `.exe` or `.msi` installer output remains local-only and must not be committed, uploaded, tagged, or released automatically.
+
+Real third-party tool installation remains disabled in the packaged preview.
+
 Expected contents:
 
 - `install.ps1`

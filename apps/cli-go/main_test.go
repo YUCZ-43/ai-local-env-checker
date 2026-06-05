@@ -94,6 +94,38 @@ func TestPlanRunDryRunPrintsCommandDetails(t *testing.T) {
 	}
 }
 
+func TestOutputDirUsesConfiguredOutputRoot(t *testing.T) {
+	outputRoot := t.TempDir()
+	t.Setenv("AI_LOCAL_DEPLOY_OUTPUT_ROOT", outputRoot)
+
+	got := outputDir("reports")
+
+	if got != filepath.Join(outputRoot, "reports") {
+		t.Fatalf("expected configured output root, got %q", got)
+	}
+}
+
+func TestConfiguredContentRootRequiresInstallPlanSchema(t *testing.T) {
+	contentRoot := t.TempDir()
+	schemaDir := filepath.Join(contentRoot, "core", "schema")
+	if err := os.MkdirAll(schemaDir, 0700); err != nil {
+		t.Fatalf("create schema dir: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(schemaDir, "install-plan.schema.json"), []byte("{}"), 0600); err != nil {
+		t.Fatalf("write schema: %v", err)
+	}
+	t.Setenv("AI_LOCAL_DEPLOY_CONTENT_ROOT", contentRoot)
+
+	got, err := findRepoRoot()
+
+	if err != nil {
+		t.Fatalf("find repo root: %v", err)
+	}
+	if got != contentRoot {
+		t.Fatalf("expected configured content root, got %q", got)
+	}
+}
+
 func writeCLITestPlan(t *testing.T) string {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "safe-plan.json")

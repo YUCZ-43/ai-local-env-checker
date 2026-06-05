@@ -57,6 +57,7 @@ jobs:
         working-directory: apps/desktop-tauri/src-tauri
         run: |
           $ErrorActionPreference = "Stop"
+          pwsh -NoProfile -ExecutionPolicy Bypass -File ..\..\..\scripts\packaging\build-bundled-cli.ps1
           cargo test
 
       - name: Optional Tauri build

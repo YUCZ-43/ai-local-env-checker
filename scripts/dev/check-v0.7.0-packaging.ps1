@@ -1,0 +1,308 @@
+[CmdletBinding()]
+param()
+
+$ErrorActionPreference = "Stop"
+
+function Write-Check {
+    param([string]$Message)
+    Write-Host "[check] $Message"
+}
+
+function Resolve-RepoRoot {
+    $scriptDir = Split-Path -Parent $PSCommandPath
+    return (Resolve-Path (Join-Path $scriptDir "..\..")).Path
+}
+
+function Test-JsonDirectory {
+    param([string]$RelativeDirectory)
+    $directory = Join-Path $script:RepoRoot $RelativeDirectory
+    if (-not (Test-Path -LiteralPath $directory)) {
+        throw "Missing JSON directory: $RelativeDirectory"
+    }
+    foreach ($file in Get-ChildItem -LiteralPath $directory -File -Filter "*.json") {
+        Get-Content -LiteralPath $file.FullName -Raw | ConvertFrom-Json | Out-Null
+        Write-Host "  OK $($file.FullName)"
+    }
+}
+
+function Test-PowerShellSyntax {
+    param([string[]]$RelativePaths)
+    Write-Check "PowerShell parser checks"
+    foreach ($relative in $RelativePaths) {
+        $path = Join-Path $script:RepoRoot $relative
+        if (-not (Test-Path -LiteralPath $path)) { continue }
+        $item = Get-Item -LiteralPath $path
+        $files = if ($item.PSIsContainer) {
+            Get-ChildItem -LiteralPath $path -File -Filter "*.ps1" -Recurse
+        } else {
+            @($item)
+        }
+        foreach ($file in $files) {
+            $tokens = $null
+            $parseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$parseErrors) | Out-Null
+            if ($parseErrors.Count -gt 0) {
+                foreach ($parseError in $parseErrors) {
+                    Write-Error "$($file.FullName): $($parseError.Message)"
+                }
+                throw "PowerShell parser check failed"
+            }
+            Write-Host "  OK $($file.FullName)"
+        }
+    }
+}
+
+function Test-WorkflowYaml {
+    Write-Check "GitHub Actions workflow YAML parse"
+    $workflowDir = Join-Path $script:RepoRoot ".github\workflows"
+    if (-not (Test-Path -LiteralPath $workflowDir)) {
+        Write-Host "  SKIP no workflow directory"
+        return
+    }
+    $files = Get-ChildItem -LiteralPath $workflowDir -File |
+        Where-Object { $_.Name -like "*.yml" -or $_.Name -like "*.yaml" }
+    if (-not $files) {
+        Write-Host "  SKIP no workflow YAML files"
+        return
+    }
+    $python = Get-Command python -ErrorAction SilentlyContinue
+    if (-not $python) {
+        Write-Host "  SKIP python not found; YAML parser unavailable"
+        return
+    }
+    foreach ($file in $files) {
+        $script = @"
+import sys
+try:
+    import yaml
+except Exception as exc:
+    print(f"SKIP yaml parser unavailable: {exc}")
+    sys.exit(2)
+with open(sys.argv[1], "r", encoding="utf-8") as handle:
+    yaml.safe_load(handle)
+"@
+        $script | & python - $file.FullName
+        if ($LASTEXITCODE -eq 2) {
+            Write-Host "  SKIP $($file.FullName)"
+            return
+        }
+        if ($LASTEXITCODE -ne 0) {
+            throw "YAML parse failed: $($file.FullName)"
+        }
+        Write-Host "  OK $($file.FullName)"
+    }
+}
+
+function Test-GoCli {
+    Write-Check "Go tests and build"
+    $cliDir = Join-Path $script:RepoRoot "apps\cli-go"
+    if (-not (Test-Path -LiteralPath (Join-Path $cliDir "go.mod"))) {
+        throw "Missing Go CLI module"
+    }
+    Push-Location $cliDir
+    try {
+        & go test ./...
+        if ($LASTEXITCODE -ne 0) { throw "go test ./... failed" }
+        & go build ./...
+        if ($LASTEXITCODE -ne 0) { throw "go build ./... failed" }
+    }
+    finally {
+        Pop-Location
+    }
+}
+
+function Test-DesktopApp {
+    Write-Check "Desktop npm and cargo checks"
+    $desktopDir = Join-Path $script:RepoRoot "apps\desktop-tauri"
+    $packageJson = Join-Path $desktopDir "package.json"
+    if (Test-Path -LiteralPath $packageJson) {
+        $nodeModules = Join-Path $desktopDir "node_modules"
+        if (Test-Path -LiteralPath $nodeModules) {
+            Push-Location $desktopDir
+            try {
+                & npm test
+                if ($LASTEXITCODE -ne 0) { throw "npm test failed" }
+                & npm run build
+                if ($LASTEXITCODE -ne 0) { throw "npm run build failed" }
+            }
+            finally {
+                Pop-Location
+            }
+        } else {
+            Write-Host "  SKIP npm checks; local node_modules not present"
+        }
+    }
+
+    $tauriDir = Join-Path $desktopDir "src-tauri"
+    if (Test-Path -LiteralPath (Join-Path $tauriDir "Cargo.toml")) {
+        $bundleCliScript = Join-Path $script:RepoRoot "scripts\packaging\build-bundled-cli.ps1"
+        if (Test-Path -LiteralPath $bundleCliScript) {
+            & powershell -ExecutionPolicy Bypass -File $bundleCliScript
+            if ($LASTEXITCODE -ne 0) { throw "bundled CLI build failed" }
+        }
+        Push-Location $tauriDir
+        try {
+            & cargo test
+            if ($LASTEXITCODE -ne 0) { throw "cargo test failed" }
+        }
+        finally {
+            Pop-Location
+        }
+    }
+}
+
+function Test-GeneratedOutputsIgnored {
+    Write-Check "Generated package outputs are ignored"
+    $paths = @(
+        "node_modules\package.json",
+        "dist\preview-installer.exe",
+        "target\debug\preview.exe",
+        "logs\generated.log",
+        "reports\generated.json",
+        "apps\desktop-tauri\node_modules\package.json",
+        "apps\desktop-tauri\dist\index.html",
+        "apps\desktop-tauri\src-tauri\target\release\preview.exe",
+        "apps\desktop-tauri\src-tauri\gen\schemas\desktop-schema.json",
+        "apps\desktop-tauri\src-tauri\binaries\ai-local-deploy-x86_64-pc-windows-msvc.exe",
+        "apps\cli-go\ai-local-deploy.exe"
+    )
+    foreach ($relative in $paths) {
+        & git -C $script:RepoRoot check-ignore -q -- $relative
+        if ($LASTEXITCODE -ne 0) {
+            throw "Generated output is not ignored: $relative"
+        }
+        Write-Host "  OK ignored $relative"
+    }
+}
+
+function Test-StagedArtifacts {
+    Write-Check "Staged artifact guard"
+    $staged = & git -C $script:RepoRoot diff --cached --name-only
+    if ($LASTEXITCODE -ne 0) {
+        throw "git diff --cached failed"
+    }
+    $blocked = $staged | Where-Object {
+        $allowedPlaceholder = $_ -match '^(logs|reports|dist)/\.gitkeep$'
+        $allowedExampleReport = $_ -match '^examples/reports/[^/]+\.json$'
+        if ($allowedPlaceholder -or $allowedExampleReport) { return $false }
+        $_ -match '^(logs|reports|dist)/' -or
+        $_ -match '(^|/)(dist|node_modules|target|gen)(/|$)' -or
+        $_ -match '\.(exe|msi|zip|tar\.gz|tgz|7z)$' -or
+        $_ -match '(^|/)\.env($|\.)' -or
+        $_ -match '(token|tokens|key|keys|pem|pfx|p12)$'
+    }
+    if ($blocked) {
+        $blocked | ForEach-Object { Write-Error "blocked staged artifact: $_" }
+        throw "Generated or secret-like artifacts are staged"
+    }
+    Write-Host "  OK staged artifact guard"
+}
+
+function Test-TauriBundleInputs {
+    Write-Check "Tauri packaged app bundle inputs"
+    $configPath = Join-Path $script:RepoRoot "apps\desktop-tauri\src-tauri\tauri.conf.json"
+    $packagePath = Join-Path $script:RepoRoot "apps\desktop-tauri\package.json"
+    if (-not (Test-Path -LiteralPath $configPath)) {
+        throw "Missing Tauri config"
+    }
+    if (-not (Test-Path -LiteralPath $packagePath)) {
+        throw "Missing desktop package.json"
+    }
+
+    $config = Get-Content -LiteralPath $configPath -Raw | ConvertFrom-Json
+    $package = Get-Content -LiteralPath $packagePath -Raw | ConvertFrom-Json
+    $resources = $config.bundle.resources
+    foreach ($source in @("../../../core/schema", "../../../core/tool-catalog", "../../../examples/install-plans", "../../../examples/reports")) {
+        if (-not $resources.PSObject.Properties.Name.Contains($source)) {
+            throw "Tauri bundle resources missing source: $source"
+        }
+        Write-Host "  OK resource $source"
+    }
+    if (-not ($config.bundle.externalBin -contains "binaries/ai-local-deploy")) {
+        throw "Tauri bundle externalBin missing ai-local-deploy sidecar"
+    }
+    if (-not $package.scripts.PSObject.Properties.Name.Contains("build:cli-bundle")) {
+        throw "package.json missing build:cli-bundle script"
+    }
+    if ($config.build.beforeBuildCommand -notmatch "build:cli-bundle") {
+        throw "Tauri beforeBuildCommand does not build the bundled CLI"
+    }
+    Write-Host "  OK Tauri bundle includes runtime data and CLI sidecar"
+}
+
+function Test-ForbiddenValues {
+    Write-Check "Forbidden local path and proxy-port scan"
+    $localUserPathPattern = "C:" + "\Users\" + "huang"
+    $fixedProxyPortPattern = "108" + "70"
+    $patterns = @($localUserPathPattern, $fixedProxyPortPattern)
+    $include = @(
+        ".github",
+        "README.md",
+        "README.en-US.md",
+        "README.zh-CN.md",
+        "CHANGELOG.md",
+        "ROADMAP.md",
+        "apps",
+        "core",
+        "docs",
+        "examples",
+        "packaging",
+        "scripts"
+    )
+    foreach ($pattern in $patterns) {
+        foreach ($relative in $include) {
+            $path = Join-Path $script:RepoRoot $relative
+            if (-not (Test-Path -LiteralPath $path)) { continue }
+            $item = Get-Item -LiteralPath $path
+            $files = if ($item.PSIsContainer) {
+                Get-ChildItem -LiteralPath $path -File -Recurse |
+                    Where-Object {
+                        $_.FullName -notmatch "\\node_modules\\" -and
+                        $_.FullName -notmatch "\\dist\\" -and
+                        $_.FullName -notmatch "\\target\\" -and
+                        $_.FullName -notmatch "\\gen\\" -and
+                        $_.FullName -notmatch "\\logs\\" -and
+                        $_.FullName -notmatch "\\reports\\"
+                    }
+            } else {
+                @($item)
+            }
+            $matches = $files | Select-String -Pattern $pattern -SimpleMatch -ErrorAction SilentlyContinue
+            if ($matches) {
+                $matches | ForEach-Object { Write-Error "$($_.Path):$($_.LineNumber): forbidden value found" }
+                throw "Forbidden value scan failed"
+            }
+        }
+    }
+    Write-Host "  OK no forbidden values found"
+}
+
+$script:RepoRoot = Resolve-RepoRoot
+Write-Host "v0.7.0 packaging validation root: $script:RepoRoot"
+Write-Host "This script runs safe checks only. It does not install software, require admin, change PATH, modify proxy settings, create tags, or create releases."
+
+Test-PowerShellSyntax @(
+    "install.ps1",
+    "verify.ps1",
+    "scripts\dev",
+    "scripts\packaging",
+    "scripts\windows",
+    "scripts\release"
+)
+
+Write-Check "JSON parse checks"
+Test-JsonDirectory "core\schema"
+Test-JsonDirectory "core\tool-catalog"
+Test-JsonDirectory "examples\tool-catalog"
+Test-JsonDirectory "examples\install-plans"
+Test-JsonDirectory "examples\reports"
+
+Test-WorkflowYaml
+Test-GoCli
+Test-DesktopApp
+Test-GeneratedOutputsIgnored
+Test-TauriBundleInputs
+Test-StagedArtifacts
+Test-ForbiddenValues
+
+Write-Host "v0.7.0 packaging safe validation completed."

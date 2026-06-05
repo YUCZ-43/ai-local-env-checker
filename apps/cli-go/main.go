@@ -277,6 +277,9 @@ func writeRunOutputs(out io.Writer, p *plan.Plan, decision policy.Decision, resu
 }
 
 func outputDir(name string) string {
+	if root := configuredOutputRoot(); root != "" {
+		return filepath.Join(root, name)
+	}
 	root, err := findRepoRoot()
 	if err != nil {
 		return name
@@ -285,6 +288,9 @@ func outputDir(name string) string {
 }
 
 func findRepoRoot() (string, error) {
+	if root := configuredContentRoot(); root != "" {
+		return root, nil
+	}
 	wd, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -299,6 +305,21 @@ func findRepoRoot() (string, error) {
 		}
 		wd = parent
 	}
+}
+
+func configuredContentRoot() string {
+	root := strings.TrimSpace(os.Getenv("AI_LOCAL_DEPLOY_CONTENT_ROOT"))
+	if root == "" {
+		return ""
+	}
+	if _, err := os.Stat(filepath.Join(root, "core", "schema", "install-plan.schema.json")); err == nil {
+		return root
+	}
+	return ""
+}
+
+func configuredOutputRoot() string {
+	return strings.TrimSpace(os.Getenv("AI_LOCAL_DEPLOY_OUTPUT_ROOT"))
 }
 
 func runDoctor(out io.Writer) int {

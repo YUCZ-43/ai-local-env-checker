@@ -1,11 +1,15 @@
 {
   "name": "ai-local-env-checker-desktop",
-  "version": "0.6.1",
+  "version": "0.7.0",
+  "description": "Safe Windows installer preview for AI Local Environment Checker",
+  "author": "AI Local Environment Checker maintainers",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run build:frontend",
+    "build:frontend": "tsc && vite build",
+    "build:cli-bundle": "powershell -ExecutionPolicy Bypass -File ../../scripts/packaging/build-bundled-cli.ps1",
     "preview": "vite preview",
     "test": "vitest run",
     "tauri": "tauri"
