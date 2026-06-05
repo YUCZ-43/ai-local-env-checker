@@ -14,6 +14,12 @@ v0.4.x 引入：
 
 当前 PowerShell/Bash 脚本仍然是平台检测和执行层，并且默认保持只检测、安全优先。未来桌面 GUI 会基于 Tauri，未来 CLI 会基于 Go。
 
+## v0.4.1 报告 schema 对齐
+
+v0.4.1 将 `core/schema/report.schema.json` 与当前 PowerShell/Bash 执行层生成的报告格式对齐。本项目同时支持当前脚本报告格式和未来面向产品的报告模型。
+
+详见 [docs/report-schema.md](docs/report-schema.md) 和 `examples/reports/` 中的脱敏示例。
+
 ## 1. 项目名称
 
 AI Local Environment Checker
