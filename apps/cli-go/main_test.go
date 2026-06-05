@@ -105,6 +105,9 @@ func TestPlanRunConfirmWritesAuditLog(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("expected exit code 0, got %d with output %q", code, out.String())
 	}
+	if !strings.Contains(out.String(), "command: git --version") {
+		t.Fatalf("expected portable git success fixture, got %q", out.String())
+	}
 	auditDir := filepath.Join(outputRoot, "logs")
 	entries, err := os.ReadDir(auditDir)
 	if err != nil {
@@ -188,20 +191,20 @@ func writeCLITestPlanWithWorkingDirectory(t *testing.T, workingDirectory string)
   "rollbackAvailable": false,
   "commands": [
     {
-      "id": "demo-output",
-      "description": "Print a demo message",
-      "shell": "powershell",
-      "command": "Write-Output",
-      "args": ["hello"],
+      "id": "demo-git-version",
+      "description": "Print Git version",
+      "shell": "native",
+      "command": "git",
+      "args": ["--version"],
       "workingDirectory": "` + strings.ReplaceAll(workingDirectory, `\`, `\\`) + `",
       "requiresAdmin": false,
       "riskLevel": "LOW",
       "timeoutSec": 5,
       "dryRunOnly": false,
-      "verificationCommands": ["Write-Output verified"]
+      "verificationCommands": ["git --version"]
     }
   ],
-  "verificationCommands": ["Write-Output verified"],
+  "verificationCommands": ["git --version"],
   "autoExecute": false
 }`
 	if err := os.WriteFile(path, []byte(body), 0600); err != nil {
