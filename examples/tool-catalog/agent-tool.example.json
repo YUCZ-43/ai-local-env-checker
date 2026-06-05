@@ -1,0 +1,19 @@
+{
+  "id": "example-agent",
+  "displayName": "Example Agent",
+  "category": "agent-tool",
+  "description": "Template-only third-party agent example.",
+  "supportedPlatforms": ["windows", "wsl"],
+  "recommendedInstallMode": "template-only",
+  "detectionCommands": [{ "platform": "wsl", "shell": "bash", "command": "example-agent", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "example-agent-plan", "path": "examples/install-plans/example-agent-plan.json", "dryRunOnly": true, "riskLevel": "MEDIUM" }],
+  "verificationCommands": [{ "platform": "wsl", "shell": "bash", "command": "example-agent", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "MEDIUM",
+  "networkRequirements": ["Repository access if configured by the user."],
+  "proxyRequirements": ["Use existing proxy settings only."],
+  "securityWarnings": ["Verify repository ownership and install scripts before execution."],
+  "notes": ["Template only; not auto-installable."],
+  "docs": [{ "label": "Agent tool security", "path": "docs/agent-tool-security.md" }],
+  "status": "template-only"
+}

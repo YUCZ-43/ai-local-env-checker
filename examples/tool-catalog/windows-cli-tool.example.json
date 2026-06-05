@@ -1,0 +1,19 @@
+{
+  "id": "example-windows-cli",
+  "displayName": "Example Windows CLI",
+  "category": "developer-tool",
+  "description": "Windows CLI example with a dry-run install-plan template.",
+  "supportedPlatforms": ["windows"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "windows", "shell": "powershell", "command": "example-cli", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "example-windows-cli-plan", "path": "examples/install-plans/example-windows-cli-plan.json", "dryRunOnly": true, "riskLevel": "MEDIUM" }],
+  "verificationCommands": [{ "platform": "windows", "shell": "powershell", "command": "example-cli", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": true,
+  "riskLevel": "MEDIUM",
+  "networkRequirements": ["Installer source access after manual review."],
+  "proxyRequirements": ["Use configured proxy settings only."],
+  "securityWarnings": ["Review installer source before execution."],
+  "notes": ["Example only."],
+  "docs": [{ "label": "Tool catalog", "path": "docs/tool-catalog.md" }],
+  "status": "preview"
+}

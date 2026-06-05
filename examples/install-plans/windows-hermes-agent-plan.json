@@ -1,0 +1,30 @@
+{
+  "id": "windows-hermes-agent-plan",
+  "platform": "windows",
+  "action": "template-hermes-agent",
+  "description": "Template-only future plan for Hermes Agent. Repository URL and install method must be supplied and reviewed by the user before any real action.",
+  "commands": [
+    {
+      "id": "review-hermes-source",
+      "description": "Template placeholder to review the configured Hermes Agent repository and bootstrap instructions.",
+      "shell": "powershell",
+      "command": "Write-Output",
+      "args": ["Review Hermes Agent repository, commit history, and install instructions before use."],
+      "workingDirectory": ".",
+      "requiresAdmin": false,
+      "riskLevel": "MEDIUM",
+      "timeoutSec": 30,
+      "dryRunOnly": true,
+      "confirmationRequired": true,
+      "verificationCommands": ["Write-Output Hermes Agent template review required"]
+    }
+  ],
+  "requiresAdmin": false,
+  "riskLevel": "MEDIUM",
+  "confirmationRequired": true,
+  "rollbackAvailable": false,
+  "verificationCommands": ["Write-Output Hermes Agent template review required"],
+  "autoExecute": false,
+  "dryRunOnly": true,
+  "notes": ["Template-only. Do not clone, install, or run Hermes Agent until the user configures and reviews a source."]
+}

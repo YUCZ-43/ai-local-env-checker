@@ -1,0 +1,19 @@
+{
+  "id": "claude-code",
+  "displayName": "Claude Code",
+  "category": "ai-cli",
+  "description": "Anthropic Claude Code command-line tool for agentic development workflows.",
+  "supportedPlatforms": ["windows", "wsl", "linux", "macos"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "claude", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true, "description": "Preview whether Claude Code is on PATH." }],
+  "installPlanTemplates": [{ "id": "windows-claude-code-plan", "path": "examples/install-plans/windows-claude-code-plan.json", "dryRunOnly": true, "riskLevel": "MEDIUM", "description": "Dry-run-only npm-based Windows template." }],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "claude", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "MEDIUM",
+  "networkRequirements": ["Package registry access is required for real installation outside this preview."],
+  "proxyRequirements": ["Use existing npm/proxy configuration only; do not hard-code local proxy ports."],
+  "securityWarnings": ["Verify the official package source before installing.", "Do not paste API keys into install plans."],
+  "notes": ["v0.6.1 only supports detection preview and dry-run install-plan review."],
+  "docs": [{ "label": "Agent tool security", "path": "docs/agent-tool-security.md" }],
+  "status": "preview"
+}

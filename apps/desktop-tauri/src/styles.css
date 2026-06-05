@@ -173,11 +173,23 @@ nav {
   gap: 16px;
 }
 
+.split.wide {
+  grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+}
+
 .panel {
   border: 1px solid #d8dee3;
   border-radius: 8px;
   background: #ffffff;
   padding: 18px;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
 }
 
 .summary-list {
@@ -222,12 +234,42 @@ select {
   gap: 10px;
 }
 
+.command-list.compact {
+  margin-bottom: 16px;
+}
+
 .command-item {
   display: grid;
   gap: 8px;
   border: 1px solid #e1e6ea;
   border-radius: 8px;
   padding: 12px;
+}
+
+.tool-list {
+  display: grid;
+  gap: 8px;
+}
+
+.tool-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(80px, 0.7fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 46px;
+  border: 1px solid #d8dee3;
+  border-radius: 8px;
+  background: #fff;
+  padding: 8px 10px;
+  color: #1b1f24;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tool-row:hover,
+.tool-row.active {
+  border-color: #9cc8b2;
+  background: #f0f8f4;
 }
 
 .command-title {

@@ -1,0 +1,30 @@
+{
+  "id": "windows-docker-plan",
+  "platform": "windows",
+  "action": "install-docker-template",
+  "description": "Dry-run-only future plan for Docker Desktop on Windows. This file must not install Docker in v0.6.1.",
+  "commands": [
+    {
+      "id": "install-docker-desktop",
+      "description": "Future command placeholder for Docker Desktop installation through a package manager.",
+      "shell": "powershell",
+      "command": "winget",
+      "args": ["install", "Docker.DockerDesktop"],
+      "workingDirectory": ".",
+      "requiresAdmin": true,
+      "riskLevel": "HIGH",
+      "timeoutSec": 900,
+      "dryRunOnly": true,
+      "confirmationRequired": true,
+      "verificationCommands": ["docker --version"]
+    }
+  ],
+  "requiresAdmin": true,
+  "riskLevel": "HIGH",
+  "confirmationRequired": true,
+  "rollbackAvailable": false,
+  "verificationCommands": ["docker --version"],
+  "autoExecute": false,
+  "dryRunOnly": true,
+  "notes": ["Docker installation may affect system services and virtualization settings. Dry-run only."]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "wsl",
+  "displayName": "Windows Subsystem for Linux",
+  "category": "platform",
+  "description": "WSL/WSL2 Linux environment for Windows development workflows.",
+  "supportedPlatforms": ["windows"],
+  "recommendedInstallMode": "manual-review-required",
+  "detectionCommands": [{ "platform": "windows", "shell": "powershell", "command": "wsl", "args": ["--status"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [],
+  "verificationCommands": [{ "platform": "windows", "shell": "powershell", "command": "wsl", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": true,
+  "riskLevel": "MEDIUM",
+  "networkRequirements": ["Feature enablement and distribution download may require network access outside this preview."],
+  "proxyRequirements": ["Use existing Windows and WSL proxy settings only."],
+  "securityWarnings": ["WSL feature changes may require admin rights and reboot; v0.6.1 does not perform them."],
+  "notes": ["WSL2 is recommended for Linux-first agent tools on Windows."],
+  "docs": [{ "label": "WSL usage", "path": "docs/wsl-usage.md" }],
+  "status": "supported"
+}

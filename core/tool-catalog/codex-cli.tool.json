@@ -1,0 +1,19 @@
+{
+  "id": "codex-cli",
+  "displayName": "Codex CLI",
+  "category": "ai-cli",
+  "description": "OpenAI Codex command-line tool for local coding workflows.",
+  "supportedPlatforms": ["windows", "wsl", "linux", "macos"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "codex", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "windows-codex-cli-plan", "path": "examples/install-plans/windows-codex-cli-plan.json", "dryRunOnly": true, "riskLevel": "MEDIUM", "description": "Dry-run-only npm-based Windows template." }],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "codex", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "MEDIUM",
+  "networkRequirements": ["Package registry access is required for real installation outside this preview."],
+  "proxyRequirements": ["Use configured npm/proxy settings only."],
+  "securityWarnings": ["Verify the official package source before installing.", "Do not store API keys in manifests or plans."],
+  "notes": ["v0.6.1 does not install Codex CLI."],
+  "docs": [{ "label": "Agent tool security", "path": "docs/agent-tool-security.md" }],
+  "status": "preview"
+}

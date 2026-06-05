@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ai-local-env-checker/ai-local-deploy/internal/catalog"
 	"github.com/ai-local-env-checker/ai-local-deploy/internal/detect"
 	"github.com/ai-local-env-checker/ai-local-deploy/internal/logutil"
 	"github.com/ai-local-env-checker/ai-local-deploy/internal/plan"
@@ -37,6 +38,8 @@ func run(args []string, out io.Writer) int {
 		fmt.Fprintf(out, "ai-local-deploy report: expected reports directory: %s\n", filepath.Join(".", "reports"))
 	case "plan":
 		return runPlan(args[1:], out)
+	case "tools":
+		return runTools(args[1:], out)
 	default:
 		fmt.Fprintf(out, "unknown command: %s\n", args[0])
 		printUsage(out)
@@ -96,6 +99,79 @@ func runPlan(args []string, out io.Writer) int {
 	default:
 		fmt.Fprintf(out, "unknown plan command: %s\n", args[0])
 		printUsage(out)
+		return 2
+	}
+	return 0
+}
+
+func runTools(args []string, out io.Writer) int {
+	if len(args) == 0 {
+		printToolsUsage(out)
+		return 2
+	}
+	tools, err := catalog.LoadAll(toolCatalogDir())
+	if err != nil {
+		fmt.Fprintf(out, "failed to load tool catalog: %v\n", err)
+		return 1
+	}
+
+	switch args[0] {
+	case "list":
+		for _, tool := range tools {
+			fmt.Fprintf(out, "%s\t%s\t%s\t%s\n", tool.ID, tool.DisplayName, tool.Category, tool.Status)
+		}
+	case "show":
+		id, err := requireID(args[1:])
+		if err != nil {
+			fmt.Fprintln(out, err)
+			return 2
+		}
+		tool, ok := catalog.Find(tools, id)
+		if !ok {
+			fmt.Fprintf(out, "tool not found: %s\n", id)
+			return 1
+		}
+		printTool(out, tool)
+	case "validate":
+		if errs := catalog.ValidateAll(tools); len(errs) > 0 {
+			fmt.Fprintln(out, "tool catalog validation failed:")
+			for _, item := range errs {
+				fmt.Fprintf(out, "- %s\n", item)
+			}
+			return 1
+		}
+		fmt.Fprintf(out, "tool catalog is valid: %d tools\n", len(tools))
+	case "detect":
+		if !hasFlag(args[1:], "--dry-run") {
+			fmt.Fprintln(out, "tools detect requires --dry-run")
+			return 2
+		}
+		fmt.Fprintln(out, "tool detection preview; commands are not executed:")
+		for _, tool := range tools {
+			fmt.Fprintf(out, "%s (%s)\n", tool.ID, tool.DisplayName)
+			for _, cmd := range tool.DetectionCommands {
+				fmt.Fprintf(out, "- [%s/%s] %s\n", cmd.Platform, cmd.Shell, catalog.CommandLine(cmd))
+			}
+		}
+	case "plan":
+		if !hasFlag(args[1:], "--dry-run") {
+			fmt.Fprintln(out, "tools plan requires --dry-run")
+			return 2
+		}
+		id, err := requireID(args[1:])
+		if err != nil {
+			fmt.Fprintln(out, err)
+			return 2
+		}
+		tool, ok := catalog.Find(tools, id)
+		if !ok {
+			fmt.Fprintf(out, "tool not found: %s\n", id)
+			return 1
+		}
+		printToolPlanPreview(out, tool)
+	default:
+		fmt.Fprintf(out, "unknown tools command: %s\n", args[0])
+		printToolsUsage(out)
 		return 2
 	}
 	return 0
@@ -255,6 +331,18 @@ func requireFile(args []string) (string, error) {
 	return "", fmt.Errorf("--file <path> is required")
 }
 
+func requireID(args []string) (string, error) {
+	for i := 0; i < len(args)-1; i++ {
+		if args[i] == "--id" {
+			if strings.TrimSpace(args[i+1]) == "" {
+				return "", fmt.Errorf("--id requires a value")
+			}
+			return args[i+1], nil
+		}
+	}
+	return "", fmt.Errorf("--id <tool-id> is required")
+}
+
 func hasFlag(args []string, flag string) bool {
 	for _, arg := range args {
 		if arg == flag {
@@ -262,6 +350,60 @@ func hasFlag(args []string, flag string) bool {
 		}
 	}
 	return false
+}
+
+func toolCatalogDir() string {
+	root, err := findRepoRoot()
+	if err != nil {
+		return filepath.Join("core", "tool-catalog")
+	}
+	return filepath.Join(root, "core", "tool-catalog")
+}
+
+func printTool(out io.Writer, tool catalog.Tool) {
+	fmt.Fprintf(out, "Tool: %s\n", tool.DisplayName)
+	fmt.Fprintf(out, "ID: %s\n", tool.ID)
+	fmt.Fprintf(out, "Category: %s\n", tool.Category)
+	fmt.Fprintf(out, "Status: %s\n", tool.Status)
+	fmt.Fprintf(out, "Risk level: %s\n", tool.RiskLevel)
+	fmt.Fprintf(out, "Requires admin: %v\n", tool.RequiresAdmin)
+	fmt.Fprintf(out, "Recommended install mode: %s\n", tool.RecommendedInstallMode)
+	fmt.Fprintf(out, "Platforms: %s\n", strings.Join(tool.SupportedPlatforms, ", "))
+	fmt.Fprintf(out, "Description: %s\n", tool.Description)
+	fmt.Fprintln(out, "Detection commands:")
+	for _, cmd := range tool.DetectionCommands {
+		fmt.Fprintf(out, "- [%s/%s] %s\n", cmd.Platform, cmd.Shell, catalog.CommandLine(cmd))
+	}
+	fmt.Fprintln(out, "Install plan templates:")
+	for _, template := range tool.InstallPlanTemplates {
+		fmt.Fprintf(out, "- %s %s dryRunOnly=%v riskLevel=%s\n", template.ID, template.Path, template.DryRunOnly, template.RiskLevel)
+	}
+}
+
+func printToolPlanPreview(out io.Writer, tool catalog.Tool) {
+	if len(tool.InstallPlanTemplates) == 0 {
+		fmt.Fprintf(out, "tool has no dry-run plan template: %s\n", tool.ID)
+		return
+	}
+	fmt.Fprintf(out, "dry-run plan template preview for %s (%s)\n", tool.ID, tool.DisplayName)
+	for _, template := range tool.InstallPlanTemplates {
+		fmt.Fprintf(out, "- template: %s\n", template.ID)
+		fmt.Fprintf(out, "  path: %s\n", template.Path)
+		fmt.Fprintf(out, "  dryRunOnly: %v\n", template.DryRunOnly)
+		fmt.Fprintf(out, "  riskLevel: %s\n", template.RiskLevel)
+		path := template.Path
+		if root, err := findRepoRoot(); err == nil {
+			path = filepath.Join(root, filepath.FromSlash(template.Path))
+		}
+		p, err := plan.Load(path)
+		if err != nil {
+			fmt.Fprintf(out, "  loadError: %v\n", err)
+			continue
+		}
+		fmt.Fprintf(out, "  planID: %s\n", p.ID)
+		fmt.Fprintf(out, "  commandCount: %d\n", len(p.Commands))
+		fmt.Fprintf(out, "  requiresAdmin: %v\n", p.RequiresAdmin)
+	}
 }
 
 func printPlanSummary(out io.Writer, p *plan.Plan) {
@@ -339,11 +481,21 @@ func printExamplePlan(out io.Writer) {
 }
 
 func printUsage(out io.Writer) {
-	fmt.Fprintln(out, "Usage: ai-local-deploy <check|doctor|report|plan>")
+	fmt.Fprintln(out, "Usage: ai-local-deploy <check|doctor|report|plan|tools>")
 	fmt.Fprintln(out, "Plan commands:")
 	fmt.Fprintln(out, "  ai-local-deploy plan show --file <path>")
 	fmt.Fprintln(out, "  ai-local-deploy plan validate --file <path>")
 	fmt.Fprintln(out, "  ai-local-deploy plan run --file <path> --dry-run")
 	fmt.Fprintln(out, "  ai-local-deploy plan run --file <path> --confirm")
 	fmt.Fprintln(out, "  ai-local-deploy plan simulate --file <path>")
+	printToolsUsage(out)
+}
+
+func printToolsUsage(out io.Writer) {
+	fmt.Fprintln(out, "Tool catalog commands:")
+	fmt.Fprintln(out, "  ai-local-deploy tools list")
+	fmt.Fprintln(out, "  ai-local-deploy tools show --id <tool-id>")
+	fmt.Fprintln(out, "  ai-local-deploy tools validate")
+	fmt.Fprintln(out, "  ai-local-deploy tools detect --dry-run")
+	fmt.Fprintln(out, "  ai-local-deploy tools plan --id <tool-id> --dry-run")
 }

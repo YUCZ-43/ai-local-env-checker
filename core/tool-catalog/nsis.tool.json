@@ -1,0 +1,19 @@
+{
+  "id": "nsis",
+  "displayName": "NSIS",
+  "category": "packaging",
+  "description": "Windows installer tooling commonly used for desktop application packaging.",
+  "supportedPlatforms": ["windows"],
+  "recommendedInstallMode": "detect-only",
+  "detectionCommands": [{ "platform": "windows", "shell": "powershell", "command": "makensis", "args": ["/VERSION"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [],
+  "verificationCommands": [{ "platform": "windows", "shell": "powershell", "command": "makensis", "args": ["/VERSION"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "LOW",
+  "networkRequirements": ["Installer download is outside v0.6.1 scope."],
+  "proxyRequirements": ["Use existing proxy settings only."],
+  "securityWarnings": ["Installer toolchains should be downloaded from verified sources."],
+  "notes": ["Detection-only entry for future Windows packaging work."],
+  "docs": [{ "label": "v0.6.1 roadmap", "path": "docs/v0.6.1-roadmap.md" }],
+  "status": "preview"
+}

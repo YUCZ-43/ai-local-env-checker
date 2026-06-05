@@ -60,6 +60,14 @@ Real installation remains disabled. The GUI does not modify PATH, change global 
 
 See [docs/tauri-gui-mvp.md](docs/tauri-gui-mvp.md), [docs/gui-safety-model.md](docs/gui-safety-model.md), and [docs/v0.6.0-roadmap.md](docs/v0.6.0-roadmap.md).
 
+## v0.6.1 tool catalog
+
+v0.6.1 adds a data-driven tool catalog for AI and local-development tools. It includes manifests, examples, dry-run-only plan templates, safe Go CLI `tools` commands, validation, and a desktop Tool Catalog section.
+
+The catalog helps the GUI show supported tools, detection preview commands, risk level, admin requirements, recommended install mode, and linked dry-run plans. Real installation remains disabled.
+
+See [docs/tool-catalog.md](docs/tool-catalog.md), [docs/supported-tools.md](docs/supported-tools.md), [docs/tool-manifest-schema.md](docs/tool-manifest-schema.md), and [docs/agent-tool-security.md](docs/agent-tool-security.md).
+
 ## 2. Why it exists
 
 Many users get blocked while setting up local AI development tools because the required system pieces are spread across terminals, package managers, PATH, proxy settings, permissions, and operating-system features. A user may not know whether the failure comes from Node.js, npm, Git, VS Code CLI, WSL, a proxy, a missing package manager, or a terminal permission issue.

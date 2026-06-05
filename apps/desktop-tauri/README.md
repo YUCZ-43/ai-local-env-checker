@@ -1,8 +1,10 @@
 # AI Local Environment Checker Desktop
 
-This is the v0.6.0 Tauri GUI MVP for AI Local Environment Checker.
+This is the v0.6.1 Tauri GUI MVP for AI Local Environment Checker.
 
 The desktop app is a safe preview interface around the v0.5.0 Go CLI install-plan runner. It can load example install plans, show commands and policy fields, validate plans, simulate safe plans, dry-run safe plans, show logs, and show report locations.
+
+v0.6.1 adds a Tool Catalog section. It displays local manifest metadata for supported tools, including category, platform support, current catalog status, risk level, admin requirement, recommended install mode, detection preview commands, and dry-run plan links.
 
 ## Safety limits
 
@@ -11,6 +13,7 @@ The desktop app is a safe preview interface around the v0.5.0 Go CLI install-pla
 - Admin elevation is not implemented.
 - MEDIUM, HIGH, and DANGEROUS plans are blocked for simulate and dry-run.
 - PATH, proxy, global environment variables, and PowerShell execution policy are not modified.
+- Tool Catalog entries do not expose real install buttons.
 
 ## Development
 
@@ -28,6 +31,7 @@ npm run tauri dev
 - `src/services/planClient.ts`: plan parsing, summary, command display, GUI risk gates
 - `src/services/runnerClient.ts`: Tauri invoke adapter for safe backend commands
 - `src/services/reportClient.ts`: report location and preview adapter
+- `src/services/toolCatalogClient.ts`: tool catalog summary and preview adapter
 - `src-tauri/src/lib.rs`: Tauri commands and safe CLI invocation
 
 The CLI call layer is ready for `ai-local-deploy` and currently resolves the binary from `AI_LOCAL_DEPLOY_BIN`, a local CLI binary, or `go run .` under `apps/cli-go`.

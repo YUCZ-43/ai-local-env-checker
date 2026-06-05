@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-local-env-checker.local/schema/tool-manifest.schema.json",
+  "title": "AI Local Environment Checker Tool Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "displayName",
+    "category",
+    "description",
+    "supportedPlatforms",
+    "recommendedInstallMode",
+    "detectionCommands",
+    "installPlanTemplates",
+    "verificationCommands",
+    "requiresAdmin",
+    "riskLevel",
+    "networkRequirements",
+    "proxyRequirements",
+    "securityWarnings",
+    "notes",
+    "docs",
+    "status"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1, "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "displayName": { "type": "string", "minLength": 1 },
+    "category": {
+      "type": "string",
+      "enum": ["agent-tool", "ai-cli", "runtime", "developer-tool", "platform", "packaging", "dependency"]
+    },
+    "description": { "type": "string", "minLength": 1 },
+    "supportedPlatforms": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "enum": ["windows", "wsl", "linux", "macos", "cross-platform"] }
+    },
+    "recommendedInstallMode": {
+      "type": "string",
+      "enum": ["detect-only", "dry-run-only", "template-only", "manual-review-required"]
+    },
+    "detectionCommands": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Command" }
+    },
+    "installPlanTemplates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/PlanTemplate" }
+    },
+    "verificationCommands": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Command" }
+    },
+    "requiresAdmin": { "type": "boolean", "default": false },
+    "riskLevel": { "$ref": "#/$defs/RiskLevel" },
+    "networkRequirements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "proxyRequirements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "securityWarnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "docs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/DocLink" }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["supported", "preview", "template-only", "manual-review", "deprecated"]
+    }
+  },
+  "$defs": {
+    "RiskLevel": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "DANGEROUS"]
+    },
+    "Command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "shell", "command", "riskLevel"],
+      "properties": {
+        "platform": { "type": "string", "enum": ["windows", "wsl", "linux", "macos", "cross-platform"] },
+        "shell": { "type": "string", "enum": ["powershell", "cmd", "bash", "pwsh", "native"] },
+        "command": { "type": "string", "minLength": 1 },
+        "args": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "riskLevel": { "$ref": "#/$defs/RiskLevel" },
+        "requiresAdmin": { "type": "boolean", "default": false },
+        "dryRunOnly": { "type": "boolean", "default": true },
+        "description": { "type": "string", "default": "" }
+      }
+    },
+    "PlanTemplate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "dryRunOnly", "riskLevel"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "dryRunOnly": { "type": "boolean", "const": true },
+        "riskLevel": { "$ref": "#/$defs/RiskLevel" },
+        "description": { "type": "string", "default": "" }
+      }
+    },
+    "DocLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "path"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

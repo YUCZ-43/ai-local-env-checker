@@ -1,0 +1,19 @@
+{
+  "id": "tauri",
+  "displayName": "Tauri",
+  "category": "packaging",
+  "description": "Tauri desktop application framework used by the GUI MVP.",
+  "supportedPlatforms": ["windows", "linux", "macos"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "npm", "args": ["run", "tauri", "--", "--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "windows-rust-go-tauri-plan", "path": "examples/install-plans/windows-rust-go-tauri-plan.json", "dryRunOnly": true, "riskLevel": "HIGH" }],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "cargo", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "HIGH",
+  "networkRequirements": ["npm and Cargo registry access may be required outside this preview."],
+  "proxyRequirements": ["Use existing npm and Cargo proxy settings only."],
+  "securityWarnings": ["Review frontend and Rust dependencies before packaging."],
+  "notes": ["Tauri packaging is not run by v0.6.1 validation."],
+  "docs": [{ "label": "Tauri GUI MVP", "path": "docs/tauri-gui-mvp.md" }],
+  "status": "preview"
+}

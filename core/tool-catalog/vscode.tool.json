@@ -1,0 +1,19 @@
+{
+  "id": "vscode",
+  "displayName": "Visual Studio Code",
+  "category": "developer-tool",
+  "description": "VS Code editor and command-line launcher.",
+  "supportedPlatforms": ["windows", "wsl", "linux", "macos"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "code", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "windows-node-git-vscode-plan", "path": "examples/install-plans/windows-node-git-vscode-plan.json", "dryRunOnly": true, "riskLevel": "HIGH" }],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "code", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": true,
+  "riskLevel": "HIGH",
+  "networkRequirements": ["Installer access may be required outside this preview."],
+  "proxyRequirements": ["Use existing network/proxy settings only."],
+  "securityWarnings": ["Review installer source and extension trust settings."],
+  "notes": ["The GUI never installs VS Code in v0.6.1."],
+  "docs": [{ "label": "Supported tools", "path": "docs/supported-tools.md" }],
+  "status": "supported"
+}

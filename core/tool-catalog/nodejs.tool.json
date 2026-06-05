@@ -1,0 +1,19 @@
+{
+  "id": "nodejs",
+  "displayName": "Node.js",
+  "category": "runtime",
+  "description": "Node.js runtime and npm package manager used by many local AI development tools.",
+  "supportedPlatforms": ["windows", "wsl", "linux", "macos"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "node", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }, { "platform": "cross-platform", "shell": "native", "command": "npm", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "windows-node-git-vscode-plan", "path": "examples/install-plans/windows-node-git-vscode-plan.json", "dryRunOnly": true, "riskLevel": "HIGH" }],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "node", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }, { "platform": "cross-platform", "shell": "native", "command": "npm", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": true,
+  "riskLevel": "HIGH",
+  "networkRequirements": ["Installer or package-manager access may be required outside this preview."],
+  "proxyRequirements": ["Read npm proxy settings only; do not modify them automatically."],
+  "securityWarnings": ["Installers and global npm packages must be reviewed before execution."],
+  "notes": ["Windows install templates are dry-run-only."],
+  "docs": [{ "label": "Supported tools", "path": "docs/supported-tools.md" }],
+  "status": "supported"
+}

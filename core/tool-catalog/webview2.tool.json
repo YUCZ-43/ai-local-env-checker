@@ -1,0 +1,19 @@
+{
+  "id": "webview2",
+  "displayName": "Microsoft Edge WebView2 Runtime",
+  "category": "dependency",
+  "description": "Windows WebView runtime required by Tauri applications on Windows.",
+  "supportedPlatforms": ["windows"],
+  "recommendedInstallMode": "detect-only",
+  "detectionCommands": [{ "platform": "windows", "shell": "powershell", "command": "Get-ItemProperty", "args": ["HKLM:\\SOFTWARE\\Microsoft\\EdgeUpdate\\Clients\\*"], "riskLevel": "LOW", "dryRunOnly": true, "description": "Preview registry-based WebView2 detection." }],
+  "installPlanTemplates": [],
+  "verificationCommands": [{ "platform": "windows", "shell": "powershell", "command": "Get-ItemProperty", "args": ["HKLM:\\SOFTWARE\\Microsoft\\EdgeUpdate\\Clients\\*"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "LOW",
+  "networkRequirements": ["Runtime download is outside v0.6.1 scope."],
+  "proxyRequirements": ["Use existing Windows network settings only."],
+  "securityWarnings": ["Runtime installers must come from verified Microsoft sources."],
+  "notes": ["Detection-only entry for Windows desktop readiness."],
+  "docs": [{ "label": "Tauri GUI MVP", "path": "docs/tauri-gui-mvp.md" }],
+  "status": "supported"
+}

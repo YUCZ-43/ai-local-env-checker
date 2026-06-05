@@ -44,6 +44,12 @@ Real installation remains disabled in the GUI. Admin elevation, PATH modificatio
 
 See [docs/tauri-gui-mvp.md](docs/tauri-gui-mvp.md), [docs/gui-safety-model.md](docs/gui-safety-model.md), and [docs/v0.6.0-roadmap.md](docs/v0.6.0-roadmap.md).
 
+## v0.6.1 tool catalog
+
+v0.6.1 adds a data-driven tool catalog for AI and local-development tools. The catalog supports safe manifest validation, detection previews, dry-run plan links, and a desktop Tool Catalog section. Real installation remains disabled.
+
+See [docs/tool-catalog.md](docs/tool-catalog.md), [docs/supported-tools.md](docs/supported-tools.md), and [docs/agent-tool-security.md](docs/agent-tool-security.md).
+
 ## 1. What this project does
 
 This project runs local readiness checks before users install or troubleshoot local AI development tools. It reports what is installed, what is missing, which settings may need review, and where follow-up action may be needed.

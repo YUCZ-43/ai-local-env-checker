@@ -1,0 +1,19 @@
+{
+  "id": "example-tool",
+  "displayName": "Example Tool",
+  "category": "developer-tool",
+  "description": "Minimal detect-only example.",
+  "supportedPlatforms": ["cross-platform"],
+  "recommendedInstallMode": "detect-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "example", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "example", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "LOW",
+  "networkRequirements": [],
+  "proxyRequirements": [],
+  "securityWarnings": [],
+  "notes": ["Example only."],
+  "docs": [],
+  "status": "preview"
+}

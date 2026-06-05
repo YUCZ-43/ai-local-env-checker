@@ -16,10 +16,19 @@ import {
   type ExamplePlanInfo,
 } from "./services/runnerClient";
 import { loadReportPreview } from "./services/reportClient";
+import {
+  buildToolSummary,
+  commandLine as toolCommandLine,
+  listToolCatalog,
+  previewToolDetection,
+  previewToolPlan,
+  type ToolManifest,
+} from "./services/toolCatalogClient";
 
 type SectionId =
   | "dashboard"
   | "environment"
+  | "toolCatalog"
   | "plan"
   | "policy"
   | "dryrun"
@@ -39,6 +48,8 @@ interface AppState {
   summary: PlanSummary | null;
   log: string[];
   reportLocation: string;
+  tools: ToolManifest[];
+  selectedToolId: string;
 }
 
 const state: AppState = {
@@ -53,11 +64,14 @@ const state: AppState = {
   summary: null,
   log: ["GUI initialized in safe preview mode."],
   reportLocation: "",
+  tools: [],
+  selectedToolId: "",
 };
 
 const sections: Array<{ id: SectionId; label: string }> = [
   { id: "dashboard", label: "Dashboard" },
   { id: "environment", label: "Environment Check" },
+  { id: "toolCatalog", label: "Tool Catalog" },
   { id: "plan", label: "Install Plan Viewer" },
   { id: "policy", label: "Policy / Risk Review" },
   { id: "dryrun", label: "Dry Run / Simulate" },
@@ -118,6 +132,26 @@ async function runDryRun(): Promise<void> {
     if (result.reportPath) state.reportLocation = result.reportPath;
   } catch (error) {
     appendLog(`Dry-run blocked: ${formatError(error)}`);
+  }
+}
+
+async function runToolDetectionPreview(): Promise<void> {
+  appendLog("Running tool detection preview. No detection commands are executed by the GUI.");
+  try {
+    const output = await previewToolDetection();
+    appendLog(output);
+  } catch (error) {
+    appendLog(`Tool detection preview failed: ${formatError(error)}`);
+  }
+}
+
+async function runToolPlanPreview(toolId: string): Promise<void> {
+  appendLog(`Loading dry-run plan preview for tool: ${toolId}`);
+  try {
+    const output = await previewToolPlan(toolId);
+    appendLog(output);
+  } catch (error) {
+    appendLog(`Tool plan preview failed: ${formatError(error)}`);
   }
 }
 
@@ -187,6 +221,8 @@ function renderSection(): string {
       return renderDashboard();
     case "environment":
       return renderEnvironment();
+    case "toolCatalog":
+      return renderToolCatalog();
     case "plan":
       return renderPlanViewer();
     case "policy":
@@ -266,6 +302,78 @@ function renderPlanViewer(): string {
         ${renderCommands()}
       </article>
     </section>
+  `;
+}
+
+function renderToolCatalog(): string {
+  const selected = state.tools.find((tool) => tool.id === state.selectedToolId) ?? state.tools[0];
+  const summaries = state.tools.map(buildToolSummary);
+  return `
+    <section class="split wide">
+      <article class="panel">
+        <div class="panel-heading">
+          <h3>Supported tools</h3>
+          <button class="secondary" id="tool-detect-button">Run detection preview</button>
+        </div>
+        <div class="tool-list">
+          ${
+            summaries.length
+              ? summaries
+                  .map(
+                    (tool) => `
+                      <button class="tool-row ${selected?.id === tool.id ? "active" : ""}" data-tool-id="${escapeHtml(tool.id)}">
+                        <strong>${escapeHtml(tool.displayName)}</strong>
+                        <span>${escapeHtml(tool.category)}</span>
+                        ${badge(tool.status, tool.status === "template-only" ? "warn" : "neutral")}
+                        ${badge(tool.riskLevel, tool.riskLevel === "LOW" ? "ok" : "warn")}
+                      </button>
+                    `,
+                  )
+                  .join("")
+              : "<p>No tool manifests loaded.</p>"
+          }
+        </div>
+      </article>
+      <article class="panel">
+        <h3>Details</h3>
+        ${selected ? renderToolDetails(selected) : "<p>Select a tool to view details.</p>"}
+      </article>
+    </section>
+  `;
+}
+
+function renderToolDetails(tool: ToolManifest): string {
+  const summary = buildToolSummary(tool);
+  return `
+    <dl class="summary-list">
+      <dt>Name</dt><dd>${escapeHtml(summary.displayName)}</dd>
+      <dt>Status</dt><dd>${badge(summary.status, summary.status === "template-only" ? "warn" : "neutral")}</dd>
+      <dt>Platforms</dt><dd>${escapeHtml(summary.platforms)}</dd>
+      <dt>Risk</dt><dd>${badge(summary.riskLevel, summary.riskLevel === "LOW" ? "ok" : "warn")}</dd>
+      <dt>Requires admin</dt><dd>${summary.requiresAdmin ? "Yes" : "No"}</dd>
+      <dt>Install mode</dt><dd>${escapeHtml(summary.recommendedInstallMode)}</dd>
+      <dt>Install</dt><dd>${summary.installDisabled ? "Disabled in v0.6.1" : "Unavailable"}</dd>
+    </dl>
+    <p>${escapeHtml(tool.description)}</p>
+    <div class="actions">
+      <button class="secondary" id="tool-details-button">View details</button>
+      <button class="secondary" id="tool-plan-button" ${summary.planCount === 0 ? "disabled" : ""}>View dry-run plan</button>
+    </div>
+    <h3>Detection preview commands</h3>
+    <div class="command-list compact">
+      ${tool.detectionCommands
+        .map(
+          (command) => `
+            <div class="command-item">
+              <code>${escapeHtml(toolCommandLine(command))}</code>
+              <small>${escapeHtml(command.platform)} · ${escapeHtml(command.shell)} · risk=${escapeHtml(command.riskLevel)}</small>
+            </div>
+          `,
+        )
+        .join("")}
+    </div>
+    <h3>Security warnings</h3>
+    <ul class="reason-list">${tool.securityWarnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")}</ul>
   `;
 }
 
@@ -387,18 +495,35 @@ function bindEvents(): void {
   document.querySelector<HTMLButtonElement>("#doctor-button")?.addEventListener("click", () => {
     appendLog("Doctor command adapter is documented for v0.6.0; UI execution will be expanded in v0.7.0.");
   });
+  document.querySelector<HTMLButtonElement>("#tool-detect-button")?.addEventListener("click", () => void runToolDetectionPreview());
+  document.querySelector<HTMLButtonElement>("#tool-plan-button")?.addEventListener("click", () => {
+    const selected = state.selectedToolId || state.tools[0]?.id;
+    if (selected) void runToolPlanPreview(selected);
+  });
+  document.querySelector<HTMLButtonElement>("#tool-details-button")?.addEventListener("click", () => {
+    const selected = state.tools.find((tool) => tool.id === (state.selectedToolId || state.tools[0]?.id));
+    if (selected) appendLog(`${selected.displayName}: ${selected.description}`);
+  });
+  document.querySelectorAll<HTMLButtonElement>("[data-tool-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.selectedToolId = button.dataset.toolId ?? "";
+      render();
+    });
+  });
 }
 
 async function bootstrap(): Promise<void> {
   render();
   try {
-    const [info, plans, report] = await Promise.all([getAppInfo(), listExamplePlans(), loadReportPreview()]);
+    const [info, plans, report, tools] = await Promise.all([getAppInfo(), listExamplePlans(), loadReportPreview(), listToolCatalog()]);
     state.appName = info.name;
     state.appVersion = info.version;
     state.safetyMode = info.safetyMode;
     state.plans = plans;
     state.reportLocation = report.location;
-    appendLog(`Loaded ${plans.length} example install plan(s).`);
+    state.tools = tools;
+    state.selectedToolId = tools[0]?.id ?? "";
+    appendLog(`Loaded ${plans.length} example install plan(s) and ${tools.length} tool manifest(s).`);
   } catch (error) {
     appendLog(`Backend initialization failed: ${formatError(error)}`);
   }

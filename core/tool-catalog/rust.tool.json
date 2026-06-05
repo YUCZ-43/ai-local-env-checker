@@ -1,0 +1,19 @@
+{
+  "id": "rust",
+  "displayName": "Rust",
+  "category": "runtime",
+  "description": "Rust toolchain needed for Tauri desktop development.",
+  "supportedPlatforms": ["windows", "wsl", "linux", "macos"],
+  "recommendedInstallMode": "dry-run-only",
+  "detectionCommands": [{ "platform": "cross-platform", "shell": "native", "command": "rustc", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }, { "platform": "cross-platform", "shell": "native", "command": "cargo", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "installPlanTemplates": [{ "id": "windows-rust-go-tauri-plan", "path": "examples/install-plans/windows-rust-go-tauri-plan.json", "dryRunOnly": true, "riskLevel": "HIGH" }],
+  "verificationCommands": [{ "platform": "cross-platform", "shell": "native", "command": "cargo", "args": ["--version"], "riskLevel": "LOW", "dryRunOnly": true }],
+  "requiresAdmin": false,
+  "riskLevel": "HIGH",
+  "networkRequirements": ["Rustup and crate registry access may be required outside this preview."],
+  "proxyRequirements": ["Use existing Cargo proxy configuration only."],
+  "securityWarnings": ["Review rustup source and toolchain profile before execution."],
+  "notes": ["No rustup installer is run by v0.6.1."],
+  "docs": [{ "label": "Tauri GUI MVP", "path": "docs/tauri-gui-mvp.md" }],
+  "status": "supported"
+}
