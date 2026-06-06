@@ -96,6 +96,14 @@ GUI 会展示已选择工具、目标平台、计划步骤、命令预览、风�
 
 详见 [docs/controlled-installation-model.md](docs/controlled-installation-model.md)、[docs/runner-policy.md](docs/runner-policy.md)、[docs/audit-log-model.md](docs/audit-log-model.md)、[docs/rollback-strategy.md](docs/rollback-strategy.md) 和 [docs/v0.8.0-roadmap.md](docs/v0.8.0-roadmap.md)。
 
+## v0.9.0 alpha 产品 UI 与审批 UX
+
+v0.9.0-alpha.1 准备产品级本地自测审批仪表盘和静态网站预览。桌面应用强化开源 AI 基础设施产品识别、平台卡片、安全护栏、命令审批时间线、报告/审计预览卡、浅色/深色主题，并且活动语言控件只保留 English 和简体中文。
+
+真实第三方安装仍然禁用。桌面应用不会自动触发 UAC，不会修改 PATH，不会修改代理设置，不会修改全局环境变量，也不会运行真实安装器命令。如果生成 Windows alpha 包，它只面向本项目自身应用。macOS 和 Linux 包仍然是计划项，不能在没有真实产物前声称已经可下载。
+
+详见 [docs/v0.9.0-admin-permission-approval-ux.md](docs/v0.9.0-admin-permission-approval-ux.md)、[docs/platform-package-plan.md](docs/platform-package-plan.md)、[docs/website-landing-page-plan.md](docs/website-landing-page-plan.md)、[docs/website-hosting-options.md](docs/website-hosting-options.md)、[docs/admin-permission-model.md](docs/admin-permission-model.md)、[docs/real-installer-approval-model.md](docs/real-installer-approval-model.md)、[docs/command-approval-model.md](docs/command-approval-model.md)、[docs/audit-report-viewer.md](docs/audit-report-viewer.md)、[docs/ux-ui-design-system.md](docs/ux-ui-design-system.md) 和 [docs/theme-and-language-model.md](docs/theme-and-language-model.md)。
+
 ## 1. 项目名称
 
 AI Local Environment Checker

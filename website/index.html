@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="AI Local Environment Checker is a local-first approval dashboard for checking AI development environment readiness before installation."
+    />
+    <title>AI Local Environment Checker</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23007aff'/%3E%3Cpath d='M17 44 29 16h6l12 28h-7l-2-6H26l-2 6h-7Zm12-12h10l-5-14-5 14Z' fill='white'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="AI Local Environment Checker home">
+        <span class="brand-mark">AI</span>
+        <span>AI Local Environment Checker</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#platforms">Platforms</a>
+        <a href="#safety">Safety</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#alpha">Alpha</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>AI Local Environment Checker</h1>
+          <p>
+            A premium open-source approval cockpit for checking local AI development environments, reviewing install plans,
+            and keeping risky machine changes behind explicit human approval.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="https://github.com/YUCZ-43/ai-local-env-checker">GitHub</a>
+            <a class="button secondary" href="https://github.com/YUCZ-43/ai-local-env-checker/tree/main/docs">Docs</a>
+            <a class="button secondary" href="https://github.com/YUCZ-43/ai-local-env-checker/releases/tag/v0.9.0-alpha.1">Alpha preview</a>
+          </div>
+        </div>
+
+        <div class="product-preview" aria-label="Product UI preview">
+          <div class="preview-top">
+            <span>v0.9.0-alpha.1</span>
+            <strong>Real installation disabled</strong>
+          </div>
+          <div class="preview-grid">
+            <article>
+              <span>01</span>
+              <strong>Check</strong>
+              <p>Environment readiness and tool catalog review.</p>
+            </article>
+            <article>
+              <span>02</span>
+              <strong>Plan</strong>
+              <p>Install plan previews with command visibility.</p>
+            </article>
+            <article>
+              <span>03</span>
+              <strong>Review</strong>
+              <p>Admin, risk, rollback, logs, and reports.</p>
+            </article>
+          </div>
+          <div class="preview-command">
+            <code>dry-run only -> simulate -> report locally</code>
+          </div>
+        </div>
+      </section>
+
+      <section id="platforms" class="section">
+        <div class="section-heading">
+          <h2>Platform preview</h2>
+          <p>Windows is the alpha package target. Other platforms stay clearly marked as planned or detection preview.</p>
+        </div>
+        <div class="card-grid four">
+          <article class="card ready">
+            <span></span>
+            <h3>Windows Alpha Preview</h3>
+            <p>Local desktop package target for this app only.</p>
+          </article>
+          <article class="card">
+            <span></span>
+            <h3>macOS Planned</h3>
+            <p>Packaging requirements are documented, but no installer is claimed.</p>
+          </article>
+          <article class="card">
+            <span></span>
+            <h3>Linux Planned</h3>
+            <p>Packaging route planned after desktop validation.</p>
+          </article>
+          <article class="card caution">
+            <span></span>
+            <h3>WSL Detection Preview</h3>
+            <p>Readiness checks remain check-first and local-first.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <h2>What it does</h2>
+          <p>A product surface for the checks and review states that usually get buried in scripts and logs.</p>
+        </div>
+        <div class="feature-list">
+          <span>Environment Check</span>
+          <span>Tool Catalog</span>
+          <span>Install Plan Preview</span>
+          <span>Admin Permission Review</span>
+          <span>Command Approval</span>
+          <span>Rollback Strategy</span>
+          <span>Dry Run / Simulate</span>
+          <span>Logs / Reports</span>
+        </div>
+      </section>
+
+      <section id="safety" class="section safety-section">
+        <div>
+          <h2>Safety-first by design</h2>
+          <p>
+            The alpha keeps real third-party installation disabled. It is built to show risk, preserve auditability,
+            and stop machine-wide changes from happening silently.
+          </p>
+        </div>
+        <ul>
+          <li>No silent install</li>
+          <li>No automatic UAC bypass</li>
+          <li>No automatic PATH modification</li>
+          <li>No automatic proxy modification</li>
+          <li>Local-first diagnostics</li>
+          <li>Approval-first execution</li>
+        </ul>
+      </section>
+
+      <section id="workflow" class="section">
+        <div class="section-heading">
+          <h2>How it works</h2>
+          <p>Every step keeps the user close to the decision before anything risky can happen.</p>
+        </div>
+        <div class="workflow">
+          <article><strong>Check</strong><p>Inspect readiness and tool availability.</p></article>
+          <article><strong>Plan</strong><p>Load a visible install plan.</p></article>
+          <article><strong>Review</strong><p>Read risk, admin, and rollback gates.</p></article>
+          <article><strong>Confirm</strong><p>Keep real run disabled in this alpha.</p></article>
+          <article><strong>Package / Report</strong><p>Generate local artifacts for manual review.</p></article>
+        </div>
+      </section>
+
+      <section class="section split-section">
+        <article>
+          <h2>GitHub and docs</h2>
+          <p>The source, documentation, and alpha release notes live on GitHub. Public download claims should point to GitHub Releases only after artifacts are produced and reviewed.</p>
+          <a class="button secondary" href="https://github.com/YUCZ-43/ai-local-env-checker">Open repository</a>
+        </article>
+        <article>
+          <h2>Roadmap</h2>
+          <p>Windows alpha package first, then platform packaging requirements, screenshots, hosted docs, checksums, signing, and stable release hardening.</p>
+          <a class="button secondary" href="https://github.com/YUCZ-43/ai-local-env-checker/blob/main/ROADMAP.md">Read roadmap</a>
+        </article>
+      </section>
+
+      <section id="alpha" class="section alpha-section">
+        <div>
+          <h2>v0.9.0-alpha.1</h2>
+          <p>
+            Alpha test build. Not stable. Windows package preview only if the local artifact exists. macOS and Linux
+            packages are planned and should not be treated as available downloads.
+          </p>
+        </div>
+        <a class="button primary" href="https://github.com/YUCZ-43/ai-local-env-checker/releases/tag/v0.9.0-alpha.1">View prerelease placeholder</a>
+      </section>
+    </main>
+
+    <footer>
+      <span>Local-first diagnostics. Approval-first execution.</span>
+      <button id="theme-toggle" type="button" aria-pressed="false">Dark preview</button>
+    </footer>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

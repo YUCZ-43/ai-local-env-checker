@@ -70,13 +70,16 @@
 
 ## v0.9.0
 
-- Controlled installation expansion design.
-- Explicit user intent before every install action.
-- Per-command confirmation and richer audit viewer.
-- Admin elevation UX design without automatic UAC.
-- Rollback and recovery implementation strategy.
-- Signed installer and provenance planning.
-- Offline local checks must remain available without backend login.
+- Admin permission approval UX and v0.9.0-alpha.1 product UI preview.
+- Real installer approval model with real installation disabled by default.
+- Command-level approval model and blocked command visibility.
+- Rollback strategy review surface.
+- Audit/report viewer structure.
+- Light/dark theme switching.
+- English and Simplified Chinese active UI-level language selector, with Traditional Chinese locale files preserved for future work.
+- Premium rounded desktop UI design system with platform cards, command timeline, report preview cards, and static website preview.
+- Windows alpha package target for this app only; macOS and Linux packages planned.
+- No automatic UAC, PATH modification, proxy modification, global environment modification, silent install, tag, PR, release, or push.
 
 ## v1.0.0
 

@@ -1,39 +1,14 @@
 # Rollback Strategy
 
-v0.8.0 does not implement real third-party installer rollback.
+Rollback is represented as a review model in v0.9.0. The desktop app displays rollback availability and warnings, but it does not execute rollback commands.
 
-## Current Scope
+Fields:
 
-The only confirmed execution allowed in v0.8.0 is LOW-risk allowlisted demo behavior. These commands are read-only or harmless and do not require rollback.
+- `rollbackAvailable`: whether a rollback path exists.
+- `rollbackPlan`: operator-facing plan summary.
+- `rollbackWarning`: risk or limitation.
+- `rollbackNote`: command-level note.
 
-Example:
+Rollback available means the operator has a documented recovery path. It does not mean rollback is automatic, guaranteed, or safe for every machine.
 
-- `Write-Output`
-- `whoami`
-- PowerShell version display
-- `git --version`
-
-## Blocked Scope
-
-Rollback is not implemented for:
-
-- package manager installs
-- npm global installs
-- PATH edits
-- proxy edits
-- registry changes
-- downloaded scripts
-- admin-required commands
-
-Those actions remain blocked.
-
-## Future Requirements
-
-Before real installation is enabled, rollback design must define:
-
-- per-tool uninstall strategy
-- files and directories owned by the installer
-- user data that must never be deleted
-- audit records for rollback attempts
-- failure handling when rollback partially succeeds
-- explicit user confirmation before rollback
+Rollback unavailable must be visible before approval. If rollback is unavailable for a risky command, real execution remains blocked in this milestone.
