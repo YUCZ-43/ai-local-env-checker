@@ -53,6 +53,7 @@ Settings controls:
 Website planning:
 
 - A static website preview now exists under `website/`.
+- Dependency-free software and website review previews exist under `preview/`.
 - GitHub Pages can be used for a temporary public preview.
 - Website visual direction should align with the desktop app but must not copy external reference branding or proprietary visuals.
 

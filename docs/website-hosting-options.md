@@ -45,3 +45,11 @@ Tradeoffs:
 ## Recommendation
 
 Use GitHub Pages first for a temporary static preview. Vercel or Cloudflare Pages can be used for preview deployment after owner confirmation, with no production domain and no DNS changes. Defer domestic hosting until product ownership, ICP/compliance requirements, download policy, and public launch timing are clear.
+
+Preview configuration:
+
+- GitHub Pages: deploy the `website/` directory through a manually approved Pages workflow.
+- Vercel: Root Directory `website`, Framework Preset `Other`, blank Build Command, Output Directory `.`.
+- Cloudflare Pages: Root Directory `website`, no framework preset, blank Build Command or `exit 0`, Build output directory `.`.
+
+These settings prepare preview hosting only. They do not authorize production deployment, custom-domain binding, DNS changes, paid resources, or analytics.

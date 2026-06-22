@@ -5,6 +5,8 @@
 Added:
 
 - Added v0.9.0-alpha.1 product-grade desktop UI refinement and static website preview.
+- Added dependency-free standalone desktop and website previews under `preview/`.
+- Added a repeatable v0.9.0 alpha product-completeness validation script.
 - Added platform package plan documenting Windows alpha package scope and macOS/Linux planned package requirements.
 - Added GitHub Pages, Vercel, and Cloudflare Pages preview-hosting guidance without production domain or DNS changes.
 - Added desktop admin permission review UX.
@@ -16,6 +18,7 @@ Added:
 - Added premium rounded desktop UI design tokens and racing-blue-inspired custom palette.
 - Added v0.9.0 install-plan schema fields and dry-run-only approval preview example.
 - Added v0.9.0 documentation set and safe validation script.
+- Published the Windows-only `v0.9.0-alpha.1` GitHub prerelease for this application.
 
 Safety:
 

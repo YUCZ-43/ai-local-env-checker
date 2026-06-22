@@ -65,6 +65,7 @@ Initial content should target plain-language searches around local AI environmen
 The v0.9.0-alpha.1 preview implements:
 
 - Hero with product positioning, GitHub, docs, and alpha preview CTAs.
+- Dependency-free single-file review preview at `preview/website-preview.html`.
 - Product UI preview block.
 - Windows alpha, macOS planned, Linux planned, and WSL detection preview cards.
 - Feature coverage for environment check, tool catalog, install plan preview, admin review, command approval, rollback, dry-run/simulate, logs, and reports.
