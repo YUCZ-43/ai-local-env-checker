@@ -78,8 +78,10 @@
 - Light/dark theme switching.
 - English and Simplified Chinese active UI-level language selector, with Traditional Chinese locale files preserved for future work.
 - Premium rounded desktop UI design system with platform cards, command timeline, report preview cards, and static website preview.
+- Dependency-free standalone software and website preview files.
 - Windows alpha package target for this app only; macOS and Linux packages planned.
-- No automatic UAC, PATH modification, proxy modification, global environment modification, silent install, tag, PR, release, or push.
+- Alpha PR, tag, and Windows-only prerelease delivery; stable publishing remains out of scope.
+- No automatic UAC, PATH modification, proxy modification, global environment modification, or silent install.
 
 ## v1.0.0
 

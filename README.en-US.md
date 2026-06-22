@@ -108,6 +108,8 @@ v0.9.0-alpha.1 prepares a product-grade local self-test approval dashboard and s
 
 Real third-party installation remains disabled. The desktop app does not auto-trigger UAC, modify PATH, change proxy settings, modify global environment variables, or run real installer commands. The Windows alpha package, if produced, is for this app only. macOS and Linux packages remain planned and must not be claimed as available until artifacts exist.
 
+Open [preview/software-ui-preview.html](preview/software-ui-preview.html) and [preview/website-preview.html](preview/website-preview.html) for dependency-free review. The maintainable static website source is under [website/](website/), and the alpha prerelease is available on [GitHub Releases](https://github.com/YUCZ-43/ai-local-env-checker/releases/tag/v0.9.0-alpha.1).
+
 See [docs/v0.9.0-admin-permission-approval-ux.md](docs/v0.9.0-admin-permission-approval-ux.md), [docs/platform-package-plan.md](docs/platform-package-plan.md), [docs/website-landing-page-plan.md](docs/website-landing-page-plan.md), [docs/website-hosting-options.md](docs/website-hosting-options.md), [docs/admin-permission-model.md](docs/admin-permission-model.md), [docs/real-installer-approval-model.md](docs/real-installer-approval-model.md), [docs/command-approval-model.md](docs/command-approval-model.md), [docs/audit-report-viewer.md](docs/audit-report-viewer.md), [docs/ux-ui-design-system.md](docs/ux-ui-design-system.md), and [docs/theme-and-language-model.md](docs/theme-and-language-model.md).
 
 ## 2. Why it exists

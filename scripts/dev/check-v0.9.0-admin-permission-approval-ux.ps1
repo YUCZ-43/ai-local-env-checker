@@ -191,7 +191,9 @@ function Test-ForbiddenValues {
         "examples",
         "locales",
         "packaging",
-        "scripts"
+        "preview",
+        "scripts",
+        "website"
     )
     foreach ($pattern in @($localUserPathPattern, $fixedProxyPortPattern)) {
         foreach ($relative in $include) {

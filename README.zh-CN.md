@@ -102,6 +102,8 @@ v0.9.0-alpha.1 准备产品级本地自测审批仪表盘和静态网站预览�
 
 真实第三方安装仍然禁用。桌面应用不会自动触发 UAC，不会修改 PATH，不会修改代理设置，不会修改全局环境变量，也不会运行真实安装器命令。如果生成 Windows alpha 包，它只面向本项目自身应用。macOS 和 Linux 包仍然是计划项，不能在没有真实产物前声称已经可下载。
 
+可直接打开 [preview/software-ui-preview.html](preview/software-ui-preview.html) 和 [preview/website-preview.html](preview/website-preview.html) 进行无依赖审阅。可维护的静态网站源文件位于 [website/](website/)，alpha 预发布位于 [GitHub Releases](https://github.com/YUCZ-43/ai-local-env-checker/releases/tag/v0.9.0-alpha.1)。
+
 详见 [docs/v0.9.0-admin-permission-approval-ux.md](docs/v0.9.0-admin-permission-approval-ux.md)、[docs/platform-package-plan.md](docs/platform-package-plan.md)、[docs/website-landing-page-plan.md](docs/website-landing-page-plan.md)、[docs/website-hosting-options.md](docs/website-hosting-options.md)、[docs/admin-permission-model.md](docs/admin-permission-model.md)、[docs/real-installer-approval-model.md](docs/real-installer-approval-model.md)、[docs/command-approval-model.md](docs/command-approval-model.md)、[docs/audit-report-viewer.md](docs/audit-report-viewer.md)、[docs/ux-ui-design-system.md](docs/ux-ui-design-system.md) 和 [docs/theme-and-language-model.md](docs/theme-and-language-model.md)。
 
 ## 1. 项目名称
